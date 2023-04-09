@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <commons/log.h>
 #include <commons/collections/list.h>
-#include <utils/estructuras.h>
+#include <estructuras.h>
 
 typedef enum
 {
