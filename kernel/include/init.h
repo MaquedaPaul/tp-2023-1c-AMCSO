@@ -2,7 +2,8 @@
 // Created by utnso on 4/7/23.
 //
 
-#ifndef TEMPLATE_INIT_H
-#define TEMPLATE_INIT_H
+#ifndef TPSO_INIT_H
+#define TPSO_INIT_H
+#include <loggers_configs.h>
 
 #endif //TEMPLATE_INIT_H
