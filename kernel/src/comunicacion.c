@@ -3,3 +3,4 @@
 //
 
 #include <comunicacion.h>
+char* ip_kernel;

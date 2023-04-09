@@ -3,3 +3,9 @@
 //
 
 #include <comunicacion.h>
+
+
+bool generar_conexiones(){
+
+    return true;
+}
