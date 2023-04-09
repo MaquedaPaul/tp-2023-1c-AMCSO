@@ -9,7 +9,7 @@
 
 #include <semaphore.h>
 #include <malloc.h>
-#include <utils/loggers_configs.h>
+#include <config_utils.h>
 #include <stdint.h>
 #include <unistd.h>
 
