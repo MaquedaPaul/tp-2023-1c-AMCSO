@@ -2,17 +2,6 @@
 
 
 
-int enteroCualquiera;
-
-t_log *logger_cpu;
-t_config *file_cfg_cpu;
-
-t_log *logger_memory;
-t_config *file_cfg_memory;
-
-
-t_config_cpu *cfg_cpu;
-t_config_memory *cfg_memory;
 bool mostrarConfig = true;
 
 bool config_has_all_properties(t_config *cfg, char **properties)
@@ -32,6 +21,21 @@ t_config* iniciar_config(char* path_config)
         exit(2);
     }
     return nuevo_config;
+}
+
+bool argumentosInvalidos(int argc, char *argv[], int limitante)
+{
+    // hay 2 argumentos, el path de el psudocodigo y el path de la config
+    if (argc < limitante)
+    {
+        printf("Argumentos insuficientes\n");
+        return false;
+    }
+    if(argc >= limitante+1){
+        printf("Se esperaba: [2] argumentos, se obtuvo: [%d], %s;%s;%s....\n", argc,argv[1],argv[2],argv[3]);
+        return false;
+    }
+    return true;
 }
 
 
