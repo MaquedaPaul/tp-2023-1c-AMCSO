@@ -717,7 +717,7 @@ void enviar_pantalla_teclado(char* registro,int conexion, op_code codigo, t_log*
     t_paquete * paquete = crear_paquete(codigo);
     agregarRegistroAPaquete(paquete,registro);
     enviar_paquete(paquete,conexion);
-    eliminar_paquete(paquete,logger_kernel);
+    eliminar_paquete(paquete,logger);
 }
 
 void agregarRegistroAPaquete(t_paquete* paquete, char* registro){
