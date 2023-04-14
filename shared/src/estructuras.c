@@ -9,7 +9,7 @@ t_proceso *crearNuevoProceso()
 {
     t_proceso *nuevoProceso = malloc(sizeof(t_proceso));
     if(nuevoProceso == NULL){
-        log_error(logger_kernel, "NO se pudo crear el proceso, problema con malloc");
+        //log_error(logger_kernel, "NO se pudo crear el proceso, problema con malloc");
         exit(2);
     }
 

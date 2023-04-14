@@ -49,7 +49,6 @@ typedef struct{
 
 
 typedef struct {
-    t_log *log;
     int fd;
     char *server_name;
 } t_procesar_conexion_args;
