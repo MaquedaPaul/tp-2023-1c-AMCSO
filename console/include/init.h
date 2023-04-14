@@ -15,7 +15,7 @@ extern t_config* file_cfg_console;
 extern t_config_console *cfg_console;
 extern char* path_config;
 
-bool argumentosInvalidos(int argc, char *argv[]);
-void cargar_configuracion(char *path);
+
+bool cargar_configuracion(char *path);
 
 #endif //TEMPLATE_INIT_H
