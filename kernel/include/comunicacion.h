@@ -20,7 +20,11 @@ extern char* path_config;
 bool generar_conexiones();
 void* crearServidor();
 void* conectarConCPU();
+bool generarConexionesConCPU();
+bool atenderCpu();
 void* conectarConMemoria();
+bool generarConexionesConMemoria();
+bool atenderMemoria();
 int server_escuchar(t_log *logger, char *server_name, int server_socket);
 static void procesar_conexion(void *void_args);
 #endif //TEMPLATE_COMUNICACION_H

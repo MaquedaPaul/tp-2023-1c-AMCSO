@@ -6,6 +6,8 @@
 char* ip_kernel;
 char* puerto_kernel;
 int fd_kernel;
+int fd_memoria;
+int fd_cpu;
 static void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
     int cliente_socket = args->fd;
@@ -133,3 +135,118 @@ int server_escuchar(t_log *logger, char *server_name, int server_socket) {
     }
     return 0;
 }
+
+
+bool generar_conexiones(){
+    pthread_t conexion_con_consola;
+    pthread_t conexion_con_cpu;
+    pthread_t conexion_con_memoria;
+    pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);
+    pthread_create(&conexion_con_cpu, NULL, (void*)conectarConCPU, NULL);
+    pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
+    pthread_join(conexion_con_consola, NULL);
+    pthread_join(conexion_con_cpu, NULL);
+    pthread_join(conexion_con_memoria, NULL);
+    return true;
+}
+
+
+void* conectarConCPU(){
+    int comprobacion = generarConexionesConCPU();
+    //if(comprobacion falla){}
+    atenderCpu();
+}
+
+bool atenderCpu(){
+    if (fd_cpu == -1){
+        return EXIT_FAILURE;
+    }
+    pthread_t atenderDispatch;
+    t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = fd_cpu;
+    args->server_name = "ATENDER_DISPATCH";
+    pthread_create(&atenderDispatch, NULL,(void*)procesar_conexion,args);
+    pthread_detach(atenderDispatch);
+    return true;
+}
+
+
+bool generarConexionesConCPU() {
+
+    char *ip;
+
+    ip = strdup(cfg_kernel->IP_CPU);
+    log_trace(trace_logger, "Lei la IP [%s]", ip);
+
+    char *puerto;
+    puerto = strdup(cfg_kernel->PUERTO_CPU);
+
+    log_trace(trace_logger, "Lei el PUERTO [%s]", puerto);
+
+    fd_cpu = crear_conexion(
+            info_logger,
+            "SERVER CPU",
+            ip,
+            puerto
+    );
+
+    free(ip);
+    free(puerto);
+
+    return fd_cpu != 0;
+}
+
+
+
+    void* conectarConMemoria(){
+    bool comprobacion = generarConexionesConMemoria();
+    atenderMemoria();
+
+}
+
+
+bool generarConexionesConMemoria(){
+    char* ip;
+
+    ip = strdup(cfg_kernel->IP_MEMORIA);
+    log_trace(trace_logger,"Lei la IP [%s]", ip);
+
+    char* puerto;
+    puerto = strdup(cfg_kernel->PUERTO_MEMORIA);
+
+    log_trace(trace_logger,"Lei el PUERTO [%s]", puerto);
+
+    fd_memoria = crear_conexion(
+            info_logger,
+            "SERVER MEMORIA",
+            ip,
+            puerto
+    );
+
+
+    free(ip);
+    free(puerto);
+
+    return fd_memoria != 0;
+
+}
+
+
+bool atenderMemoria(){
+    if (fd_memoria == -1){
+        return EXIT_FAILURE;
+    }
+    pthread_t atenderMemoria;
+    t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = fd_memoria;
+    args->server_name = "ATENDER_MEMORIA";
+    pthread_create(&atenderMemoria, NULL,(void*)procesar_conexion,args);
+    pthread_detach(atenderMemoria);
+    return true;
+}
+
+
+
+
+
+

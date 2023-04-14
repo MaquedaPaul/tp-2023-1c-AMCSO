@@ -61,24 +61,22 @@ int cargar_configuracion(char *path) {
 
 bool activar_kernel(){
 
-    pthread_t conexion_con_consola;
-    pthread_t conexion_con_cpu;
-    pthread_t conexion_con_memoria;
+
     pthread_t planiALargoPlazo;
     pthread_t planiACortoPlazo;
     pthread_t interfaz;
-    pthread_create(&conexion_con_consola, NULL,crearServidor, NULL);
-    //pthread_create(&conexion_con_cpu, NULL, conectarConCPU, NULL);
-    //pthread_create(&conexion_con_memoria, NULL, conectarConMemoria, NULL);
+
+    generar_conexiones();
+
+
+
     //pthread_create(&planiALargoPlazo, NULL, planificadorALargoPlazo, NULL);
     //pthread_create(&planiACortoPlazo, NULL,planificadorACortoPlazo, NULL);
     //pthread_create(&interfaz, NULL, interfaz_function,NULL);
-    pthread_join(conexion_con_consola, NULL);
-    pthread_join(conexion_con_cpu, NULL);
-    pthread_join(conexion_con_memoria, NULL);
+
     //pthread_join(planiALargoPlazo, NULL);
     //pthread_join(planiACortoPlazo, NULL);
-
+return true;
 
 //
 }
