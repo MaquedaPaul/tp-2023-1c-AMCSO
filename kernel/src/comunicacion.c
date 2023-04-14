@@ -8,7 +8,8 @@ char* puerto_kernel;
 int fd_kernel;
 int fd_memoria;
 int fd_cpu;
-static void procesar_conexion(void *void_args) {
+int fd_filesystem;
+void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
     int cliente_socket = args->fd;
     char *server_name = args->server_name;
@@ -141,20 +142,28 @@ bool generar_conexiones(){
     pthread_t conexion_con_consola;
     pthread_t conexion_con_cpu;
     pthread_t conexion_con_memoria;
+    pthread_t conexion_con_filesystem;
     pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);
     pthread_create(&conexion_con_cpu, NULL, (void*)conectarConCPU, NULL);
     pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
+    pthread_create(&conexion_con_filesystem, NULL, (void*)conectarConFileSystem, NULL);
+
     pthread_join(conexion_con_consola, NULL);
     pthread_join(conexion_con_cpu, NULL);
     pthread_join(conexion_con_memoria, NULL);
+    pthread_join(conexion_con_filesystem, NULL);
     return true;
 }
 
 
 void* conectarConCPU(){
     int comprobacion = generarConexionesConCPU();
-    //if(comprobacion falla){}
+
+    if(comprobacion){
     atenderCpu();
+     }
+
+
 }
 
 bool atenderCpu(){
@@ -164,7 +173,7 @@ bool atenderCpu(){
     pthread_t atenderDispatch;
     t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
     args->fd = fd_cpu;
-    args->server_name = "ATENDER_DISPATCH";
+    args->server_name = "ATENDER_CPU";
     pthread_create(&atenderDispatch, NULL,(void*)procesar_conexion,args);
     pthread_detach(atenderDispatch);
     return true;
@@ -197,8 +206,7 @@ bool generarConexionesConCPU() {
 }
 
 
-
-    void* conectarConMemoria(){
+void* conectarConMemoria(){
     bool comprobacion = generarConexionesConMemoria();
     atenderMemoria();
 
@@ -245,6 +253,55 @@ bool atenderMemoria(){
     return true;
 }
 
+
+void* conectarConFileSystem(){
+    bool comprobacion = generarConexionesConFilesystem();
+
+    if(comprobacion){
+        atenderFilesystem();
+    }
+
+}
+
+
+bool generarConexionesConFilesystem(){
+    char* ip;
+
+    ip = strdup(cfg_kernel->IP_FILESYSTEM);
+    log_trace(trace_logger,"Lei la IP [%s]", ip);
+
+    char* puerto;
+    puerto = strdup(cfg_kernel->PUERTO_FILESYSTEM);
+
+    log_trace(trace_logger,"Lei el PUERTO [%s]", puerto);
+
+    fd_filesystem = crear_conexion(
+            info_logger,
+            "SERVER FILESYSTEM",
+            ip,
+            puerto
+    );
+
+    free(ip);
+    free(puerto);
+
+    return fd_filesystem != 0;
+
+}
+
+
+bool atenderFilesystem(){
+    if (fd_filesystem == -1){
+        return EXIT_FAILURE;
+    }
+    pthread_t atenderFilesystem;
+    t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = fd_filesystem;
+    args->server_name = "ATENDER_FILESYSTEM";
+    pthread_create(&atenderFilesystem, NULL,(void*)procesar_conexion,args);
+    pthread_detach(atenderFilesystem);
+    return true;
+}
 
 
 

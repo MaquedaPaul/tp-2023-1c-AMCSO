@@ -7,6 +7,7 @@ int fd_filesystem;
 char* ip_filesystem;
 char* puerto_filesystem;
 pthread_t crear_server_filesystem;
+int fd_memoria;
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -72,9 +73,13 @@ int server_escuchar(t_log *logger, char *server_name, int server_socket) {
 }
 
 bool generar_conexiones(){
+    pthread_t conexion_con_memoria;
+    pthread_t conexion_con_filesystem;
 
     pthread_create(&crear_server_filesystem,NULL, crearServidor,NULL);
+    pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
     pthread_join(crear_server_filesystem, NULL);
+    pthread_join(conexion_con_memoria, NULL);
     return true; //debe tomarse lo que retorna el hilo al crear el servidor
 }
 
@@ -92,6 +97,54 @@ void* crearServidor(){
 }
 
 
+
+
+void* conectarConMemoria(){
+    bool comprobacion = generarConexionesConMemoria();
+    atenderMemoria();
+
+}
+
+
+bool generarConexionesConMemoria(){
+    char* ip;
+
+    ip = strdup(cfg_filesystem->IP_MEMORIA);
+    log_trace(trace_logger,"Lei la IP [%s]", ip);
+
+    char* puerto;
+    puerto = strdup(cfg_filesystem->PUERTO_MEMORIA);
+
+    log_trace(trace_logger,"Lei el PUERTO [%s]", puerto);
+
+    fd_memoria = crear_conexion(
+            info_logger,
+            "SERVER MEMORIA",
+            ip,
+            puerto
+    );
+
+
+    free(ip);
+    free(puerto);
+
+    return fd_memoria != 0;
+
+}
+
+
+bool atenderMemoria(){
+    if (fd_memoria == -1){
+        return EXIT_FAILURE;
+    }
+    pthread_t atenderMemoria;
+    t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = fd_memoria;
+    args->server_name = "ATENDER_MEMORIA";
+    pthread_create(&atenderMemoria, NULL,(void*)procesar_conexion,args);
+    pthread_detach(atenderMemoria);
+    return true;
+}
 
 
 
