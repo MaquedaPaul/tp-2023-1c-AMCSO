@@ -12,7 +12,7 @@ t_config* file_cfg_console;
 t_config_console *cfg_console;
 char* path_config;
 
-void init_logs_configs(char* path_config)
+bool init_logs_configs(char* path_config)
 {
     /*
     if(cfg_console == NULL){
@@ -27,12 +27,39 @@ void init_logs_configs(char* path_config)
 
     if(trace_logger== NULL || debug_logger== NULL || info_logger== NULL || warning_logger== NULL || error_logger== NULL){
         printf("No pude crear los loggers");
-        exit(2);
+        return false;
     }
     file_cfg_console = iniciar_config(path_config);
+
+    return checkProperties(path_config);
     //la funcion de aca arriba genera leaks still reacheables pero como es generado por las commons
     //no se si se puede solucionar o si hace verdaderamente falta
 }
+
+bool checkProperties(char *path) {
+
+    t_config *config = config_create(path);
+    if (config == NULL) {
+        log_error(error_logger,"No se pudo crear la config para checkProperties");
+        return false;
+    }
+
+    char *properties[] = {
+            "IP_KERNEL",
+            "PUERTO_KERNEL",
+            NULL};
+
+    if (!config_has_all_properties(config, properties))
+    {
+        log_error(error_logger, "Propiedades faltantes en el archivo de configuracion");
+        return false;
+    }
+    log_trace(trace_logger,"Archivo de configuracion comprobado correctamente");
+    config_destroy(config);
+    return true;
+}
+
+
 
 t_config_console *cfg_console_start()
 // Inicializo en NULL para no tener basura

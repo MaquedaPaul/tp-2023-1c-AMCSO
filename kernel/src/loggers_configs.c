@@ -2,15 +2,14 @@
 // Created by utnso on 4/9/23.
 //
 
-#include "../include/loggers_configs.h"
+#include <loggers_configs.h>
 t_log* trace_logger;
 t_log* debug_logger;
 t_log* info_logger;
 t_log* warning_logger;
 t_log* error_logger;
 t_config* file_cfg_kernel;
-t_config_console *cfg_kernel;
-
+t_config_kernel *cfg_kernel;
 char* path_config;
 
 
@@ -34,4 +33,40 @@ t_config_kernel *cfg_kernel_start()
 {
     t_config_kernel *cfg = malloc(sizeof(t_config_kernel));
     return cfg;
+}
+
+bool checkProperties(char *path) {
+
+    t_config *config = config_create(path);
+    if (config == NULL) {
+        printf("No se pudo crear la config");
+        return false;
+    }
+
+
+    char *properties[] = {
+            "IP_MEMORIA",
+            "PUERTO_MEMORIA",
+            "IP_FILESYSTEM",
+            "PUERTO_FILESYSTEM",
+            "IP_CPU",
+            "PUERTO_CPU",
+            "PUERTO_ESCUCHA",
+            "ALGORITMO_PLANIFICACION",
+            "ESTIMACION_INICIAL",
+            "HRRN_ALFA",
+            "GRADO_MAX_MULTIPROGRAMACION",
+            "RECURSOS",
+            "INSTANCIAS_RECURSOS",
+            NULL};
+
+    // Falta alguna propiedad
+    if (!config_has_all_properties(config, properties)) {
+        log_error(error_logger, "Propiedades faltantes en el archivo de configuracion");
+        return false;
+    }
+
+    config_destroy(config);
+
+    return true;
 }

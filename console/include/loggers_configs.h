@@ -15,7 +15,8 @@ typedef struct
 } t_config_console;
 
 t_config_console *cfg_console_start();
-void init_logs_configs(char* path_config);
+bool init_logs_configs(char* path_config);
+bool checkProperties(char *path);
 
 
 

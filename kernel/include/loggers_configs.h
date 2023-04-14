@@ -4,6 +4,10 @@
 
 #ifndef TPSO_LOGGERS_CONFIGS_H
 #define TPSO_LOGGERS_CONFIGS_H
+#include <commons/log.h>
+#include <commons/config.h>
+#include <string.h>
+#include <config_utils.h>
 
 typedef struct
 {
@@ -21,11 +25,11 @@ typedef struct
     char** RECURSOS; //podemos usar LIST
     char** INSTANCIAS_RECURSOS; //podemos usar LIST
 } t_config_kernel;
-t_config_kernel *cfg_kernel;
+
 
 int init_logs_configs(char *path_config);
 t_config_kernel *cfg_kernel_start();
-
+bool checkProperties(char *path);
 
 
 #endif //TPSO_LOGGERS_CONFIGS_H
