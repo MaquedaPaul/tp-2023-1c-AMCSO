@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <comunicacion.h>
 extern char* path_config;
+extern char* path_pseudo;
 
 
 #endif //TEMPLATE_MAIN_H
