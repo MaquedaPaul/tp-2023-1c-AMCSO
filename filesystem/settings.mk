@@ -6,7 +6,7 @@ SHARED_LIBPATHS=../shared
 STATIC_LIBPATHS=
 
 # Compiler flags
-CDEBUG=-g -Wall -DDEBUG
+CDEBUG=-g -Wno-Wunused-function -Wno-return-type  -DDEBUG
 CRELEASE=-O3 -Wall -DNDEBUG
 
 # Arguments when executing with start, memcheck or helgrind
