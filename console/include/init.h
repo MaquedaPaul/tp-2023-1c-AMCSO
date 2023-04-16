@@ -6,6 +6,10 @@
 #define TEMPLATE_INIT_H
 #include <loggers_configs.h>
 #include <string.h>
+#include <commons/string.h>
+#include <commons/collections/list.h>
+#include <sys/stat.h>
+#include <estructuras.h>
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
@@ -17,5 +21,13 @@ extern char* path_config;
 
 
 bool cargar_configuracion(char *path);
+t_list * crear_lista_de_instrucciones(char *path);
+void closure_instrucciones(char *line);
+
+bool esInstruccionSinParametros(instr_t* instruccion);
+bool esInstruccionConUnParametro(instr_t* instruccion);
+bool esInstruccionConDosParametros(instr_t* instruccion);
+bool esInstruccionConTresParametros(instr_t* instruccion);
+
 
 #endif //TEMPLATE_INIT_H
