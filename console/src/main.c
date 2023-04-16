@@ -22,6 +22,8 @@ int main(int argc, char* argv[])
         printf("Inserte cualquier numero para continuar: \n");
         scanf("%d", &a);
     }
+    t_list* lista = crear_lista_de_instrucciones(path_pseudo);
+    list_iterate(lista, closure_mostrarListaInstrucciones);
 
 
     return 0;
