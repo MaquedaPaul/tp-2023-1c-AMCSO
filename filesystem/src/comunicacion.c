@@ -74,7 +74,6 @@ int server_escuchar(t_log *logger, char *server_name, int server_socket) {
 
 bool generar_conexiones(){
     pthread_t conexion_con_memoria;
-    pthread_t conexion_con_filesystem;
 
     pthread_create(&crear_server_filesystem,NULL, crearServidor,NULL);
     pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
@@ -101,7 +100,10 @@ void* crearServidor(){
 
 void* conectarConMemoria(){
     bool comprobacion = generarConexionesConMemoria();
-    atenderMemoria();
+    if(comprobacion){
+        atenderMemoria();
+    }
+
 
 }
 
