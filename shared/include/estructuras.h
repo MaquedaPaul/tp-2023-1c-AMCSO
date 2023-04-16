@@ -92,6 +92,12 @@ typedef struct {
 
 t_proceso *crearNuevoProceso();
 void closure_mostrarListaInstrucciones(instr_t* element);
+
+bool esInstruccionSinParametros(instr_t* instruccion);
+bool esInstruccionConUnParametro(instr_t* instruccion);
+bool esInstruccionConDosParametros(instr_t* instruccion);
+bool esInstruccionConTresParametros(instr_t* instruccion);
+
 void mostrarPcb(pcb* pcbProceso);
 void mostrarIntArray(uint32_t *array, char*message, t_log* logger);
 int retornarEnSegundos(int milisegundos);

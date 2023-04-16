@@ -90,7 +90,7 @@ void closure_instrucciones(char *line) {
         single_inst->param3 = NULL;
         list_add(inst_list, single_inst); //agrego la instruccion a la lista
     }
-    else{
+    else if (esInstruccionConTresParametros(single_inst)){
         single_inst->param1Length = strlen(inst_and_param[1]);
         single_inst->param1 = malloc(single_inst->param1Length + 1);
         memcpy(&single_inst->param1,&inst_and_param[1],single_inst->param1Length +1);
@@ -105,38 +105,11 @@ void closure_instrucciones(char *line) {
 
         list_add(inst_list, single_inst); //agrego la instruccion a la lista
     }
+    else{
+        printf("Es una instruccion invalida\n");
+    }
 
     //string_array_destroy(inst_and_param);
 }
 
 
-bool esInstruccionSinParametros(instr_t* instruccion){
-    return (strcmp(instruccion->id, "EXIT") == 0) || (strcmp(instruccion->id, "YIELD") == 0);
-}
-
-bool esInstruccionConUnParametro(instr_t* instruccion){
-    bool io = (strcmp(instruccion->id, "I/O") == 0);
-    bool delete_segment = (strcmp(instruccion->id, "DELETE_SEGMENT") == 0);
-    bool f_open = (strcmp(instruccion->id, "F_OPEN") == 0);
-    bool f_close = (strcmp(instruccion->id, "F_CLOSE") == 0);
-    bool wait = (strcmp(instruccion->id, "WAIT") == 0);
-    bool signal = (strcmp(instruccion->id, "SIGNAL") == 0);
-
-    return  io || delete_segment || f_open || f_close || wait || signal;
-}
-
-
-bool esInstruccionConDosParametros(instr_t* instruccion){
-
-    bool set = (strcmp(instruccion->id, "SET") == 0);
-    bool mov_out = (strcmp(instruccion->id, "MOV_OUT") == 0);
-    bool mov_in = (strcmp(instruccion->id, "MOV_IN") == 0);
-    bool f_truncate = (strcmp(instruccion->id, "F_TRUNCATE") == 0);
-    bool f_seek = (strcmp(instruccion->id, "F_SEEK") == 0);
-    bool create_segment = (strcmp(instruccion->id, "CREATE_SEGMENT") == 0);
-    return set || mov_out || mov_in || f_truncate || f_seek || create_segment;
-}
-
-bool esInstruccionConTresParametros(instr_t* instruccion){
-    return (strcmp(instruccion->id, "F_WRITE") == 0) || (strcmp(instruccion->id, "F_READ") == 0);
-}

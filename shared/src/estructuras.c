@@ -44,13 +44,41 @@ void closure_mostrarListaInstrucciones(instr_t* element) //Es compartido con con
     printf(" %s\n",(char*) element->param3);
 }
 
-void closure_mostrarTamanioSegmentos(segmento* segmento){
-    printf(" %d ,",(uint16_t) segmento->tamanioSegmento);
+
+
+
+bool esInstruccionSinParametros(instr_t* instruccion){
+    return (strcmp(instruccion->id, "EXIT") == 0) || (strcmp(instruccion->id, "YIELD") == 0);
 }
 
-void closure_mostrarIndiceTablaPaginas(segmento* segmento){
-    printf(" %d ,", (uint16_t) segmento->indiceTablaPaginas);
+bool esInstruccionConUnParametro(instr_t* instruccion){
+    bool io = (strcmp(instruccion->id, "I/O") == 0);
+    bool delete_segment = (strcmp(instruccion->id, "DELETE_SEGMENT") == 0);
+    bool f_open = (strcmp(instruccion->id, "F_OPEN") == 0);
+    bool f_close = (strcmp(instruccion->id, "F_CLOSE") == 0);
+    bool wait = (strcmp(instruccion->id, "WAIT") == 0);
+    bool signal = (strcmp(instruccion->id, "SIGNAL") == 0);
+
+    return  io || delete_segment || f_open || f_close || wait || signal;
 }
+
+
+bool esInstruccionConDosParametros(instr_t* instruccion){
+
+    bool set = (strcmp(instruccion->id, "SET") == 0);
+    bool mov_out = (strcmp(instruccion->id, "MOV_OUT") == 0);
+    bool mov_in = (strcmp(instruccion->id, "MOV_IN") == 0);
+    bool f_truncate = (strcmp(instruccion->id, "F_TRUNCATE") == 0);
+    bool f_seek = (strcmp(instruccion->id, "F_SEEK") == 0);
+    bool create_segment = (strcmp(instruccion->id, "CREATE_SEGMENT") == 0);
+    return set || mov_out || mov_in || f_truncate || f_seek || create_segment;
+}
+
+bool esInstruccionConTresParametros(instr_t* instruccion){
+    return (strcmp(instruccion->id, "F_WRITE") == 0) || (strcmp(instruccion->id, "F_READ") == 0);
+}
+
+
 
 void mostrarPcb(pcb* pcbProceso){
     printf("\n--------------------------------------------------");
@@ -59,10 +87,6 @@ void mostrarPcb(pcb* pcbProceso){
     printf("\nLas instrucciones son: \n");
     list_iterate(pcbProceso->instr, closure_mostrarListaInstrucciones);
     printf("\nLa lista de segmentos es: \n[");
-    list_iterate(pcbProceso->tablaSegmentos, closure_mostrarTamanioSegmentos);
-    printf(" ]\nLos indices a la tabla de paginas es: \n[ ");
-    list_iterate(pcbProceso->tablaSegmentos, closure_mostrarIndiceTablaPaginas);
-    printf("]\n ---------------------------------------------------\nFIN MOSTRAR PCB\n\n");
 
 
 }
