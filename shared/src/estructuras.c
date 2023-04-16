@@ -40,7 +40,8 @@ void closure_mostrarListaInstrucciones(instr_t* element) //Es compartido con con
 {
     printf("%s",element->id);
     printf(" %s",(char*) element->param1);
-    printf(" %s\n",(char*) element->param2);
+    printf(" %s",(char*) element->param2);
+    printf(" %s\n",(char*) element->param3);
 }
 
 void closure_mostrarTamanioSegmentos(segmento* segmento){

@@ -29,6 +29,8 @@ typedef struct {
     char* param1;
 	uint8_t param2Length;
     char* param2;
+    uint8_t param3Length;
+    char* param3;
 } instr_t;
 
 //Registros de CPU
