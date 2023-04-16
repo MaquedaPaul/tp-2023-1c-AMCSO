@@ -86,7 +86,7 @@ void* recibir_stream(int *size, uint32_t cliente_socket);
 
 int recibir_operacion(int socket_cliente);
 
-t_paquete* crear_paquete(op_code codigo);
+t_paquete* crear_paquete(op_code codigo, t_log* logger);
 void* serializar_paquete(t_paquete* paquete, int bytes);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
 t_proceso* recibir_paquete(int socket_cliente);
@@ -115,6 +115,13 @@ char* recibir_mensaje(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
 
 
+
+
+bool enviarListaInstrucciones(t_list* listaInstrucciones, int socket_cliente, t_log* logger);
+bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete);
+instr_t* sumarTamaniosInstrucciones(instr_t *unaInstruccion,instr_t *otraInstruccion);
+int calcularTamanioDeInstruccion(instr_t *unaInstruccion);
+t_list* recibirListaInstrucciones(int socket_cliente);
 
 /*
 

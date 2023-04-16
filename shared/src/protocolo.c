@@ -7,7 +7,7 @@ bool ALL_DETAILS = false;
 /////////////////////////////////////////////////////////////////////////////////////
 
 void enviarOrden(op_code orden, int socket, t_log *logger) {
-    t_paquete * paquete= crear_paquete(orden);
+    t_paquete * paquete= crear_paquete(orden, logger);
     paquete->buffer->size+=sizeof (uint32_t);
     void* stream = malloc(paquete->buffer->size);
     uint32_t valor = 0;
@@ -28,7 +28,7 @@ void recibirOrden(int socket){
 
 void enviarValor_uint32(uint32_t valor, int socket, op_code orden, t_log *logger)
 {
-    t_paquete * paquete= crear_paquete(orden);
+    t_paquete * paquete= crear_paquete(orden, logger);
     paquete->buffer->size = sizeof(uint32_t);
     void* stream = malloc(paquete->buffer->size);
     int offset = 0;
@@ -53,11 +53,12 @@ uint32_t recibirValor_uint32(int socket, t_log *logger) {
 }
 
 
-t_paquete* crear_paquete(op_code codigo) //CREA BUFFER
+t_paquete* crear_paquete(op_code codigo, t_log* logger) //CREA BUFFER
 {
     t_paquete* paquete = malloc(sizeof(t_paquete));
     paquete->codigo_operacion = codigo;
     crear_buffer(paquete); // Le inyecta un buffer
+    log_trace(logger, "Creo el paquete a enviar");
     return paquete;
 }
 
@@ -118,9 +119,206 @@ int recibir_operacion(int socket_cliente)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////FUNCIONES PARTICULARES///////////////////////////////////
+/////////////////////////FUNCIONES PARTICULARES (NUEVAS)/////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
+bool enviarListaInstrucciones(t_list* listaInstrucciones, int socket_cliente, t_log* logger)
+
+{
+    t_paquete* paquete = crear_paquete(GESTIONAR_CONSOLA_NUEVA, logger);
+    if(!agregarInstruccionesAPaquete(listaInstrucciones, paquete)){
+        log_error(logger, "Hubo un error cuando se intento agregar las instrucciones al paquete");
+        return false;
+    }
+    enviar_paquete(paquete, socket_cliente);
+    log_info(logger, "Se envio el paquete");
+    eliminar_paquete(paquete, logger);
+    return true;
+}
+
+bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete)
+{
+
+
+    void sumarTamaniosInstrucciones(instr_t *unaInstruccion){
+        int id = sizeof (uint8_t);
+        int idLength = unaInstruccion->idLength +1;
+        int params = (sizeof (uint8_t) * 3);
+        int param1Length = unaInstruccion->param1Length +1;
+        int param2Length = unaInstruccion->param2Length +1;
+        int param3Length = unaInstruccion->param3Length +1;
+        paquete->buffer->size+= id + idLength + params + param1Length + param2Length + param3Length;
+    }
+    list_iterate(listaInstrucciones,sumarTamaniosInstrucciones);
+    void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
+    int offset=0; //desplazamiento
+
+    //Sumo la cantidad de instrucciones al buffer
+    paquete->buffer->size += sizeof(uint8_t);
+
+    void copiarElementos(instr_t *instruccion){ //Copia
+        if(esInstruccionSinParametros(instruccion)){
+            memcpy(stream + offset, &instruccion->idLength, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->id, instruccion->idLength + 1);
+            offset += instruccion->idLength +1;
+        }
+        else if (esInstruccionConUnParametro(instruccion)){
+            memcpy(stream + offset, &instruccion->idLength, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->id, instruccion->idLength + 1);
+            offset += instruccion->idLength +1;
+            memcpy(stream + offset, &instruccion->param1Length, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->param1, instruccion->param1Length + 1);
+            offset += instruccion->param1Length +1;
+        }
+        else if(esInstruccionConDosParametros(instruccion)){
+            memcpy(stream + offset, &instruccion->idLength, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->id, instruccion->idLength + 1);
+            offset += instruccion->idLength +1;
+            memcpy(stream + offset, &instruccion->param1Length, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->param1, instruccion->param1Length + 1);
+            offset += instruccion->param1Length +1;
+            memcpy(stream + offset, &instruccion->param2Length, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->param2, instruccion->param2Length + 1);
+            offset += instruccion->param2Length +1;
+        }
+        else if(esInstruccionConTresParametros(instruccion)){
+            memcpy(stream + offset, &instruccion->idLength, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->id, instruccion->idLength + 1);
+            offset += instruccion->idLength +1;
+            memcpy(stream + offset, &instruccion->param1Length, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->param1, instruccion->param1Length + 1);
+            offset += instruccion->param1Length +1;
+            memcpy(stream + offset, &instruccion->param2Length, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->param2, instruccion->param2Length + 1);
+            offset += instruccion->param2Length +1;
+            memcpy(stream + offset, &instruccion->param3Length, sizeof(uint8_t));
+            offset += sizeof(uint8_t);
+            memcpy(stream + offset, instruccion->param3, instruccion->param3Length + 1);
+            offset += instruccion->param3Length +1;
+        }
+        else {
+            return false;
+            printf("Es una instruccion invalida\n");
+        }
+
+    }
+    int cantidad_instrucciones = list_size(listaInstrucciones);
+    memcpy(stream + offset, &cantidad_instrucciones, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
+
+    list_iterate(listaInstrucciones,copiarElementos);
+    paquete->buffer->stream = stream;
+    printf("SE AGREGO EL PAQUETE\n");
+    return true;
+
+}
+
+
+
+
+
+t_list* recibirListaInstrucciones(int socket_cliente){
+    int tamanio;
+    int desplazamiento = 0;
+    void *buffer = recibir_stream(&tamanio, socket_cliente);
+    t_list* instrucciones = list_create();
+    int cantidad_instrucciones = 0;
+    memcpy(&cantidad_instrucciones, buffer + desplazamiento, sizeof(uint8_t));
+    desplazamiento+=sizeof(uint8_t);
+
+    for (int i = 0; i < cantidad_instrucciones; ++i) {
+        instr_t *instruccion= malloc(sizeof(instr_t));
+
+        memcpy(&instruccion->idLength, buffer + desplazamiento, sizeof(uint8_t));
+        desplazamiento+=sizeof(uint8_t);
+
+        instruccion->id= malloc(instruccion->idLength +1);
+        memcpy(instruccion->id, buffer + desplazamiento, instruccion->idLength +1);
+        desplazamiento+= instruccion->idLength +1;
+
+        if(esInstruccionConTresParametros(instruccion)){
+            memcpy(&instruccion->param1Length, buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento+=sizeof(uint8_t);
+
+            instruccion->param1= malloc(instruccion->param1Length + 1);
+            memcpy(instruccion->param1, buffer + desplazamiento, instruccion->param1Length +1);
+            desplazamiento+= instruccion->param1Length + 1;
+
+            memcpy(&instruccion->param2Length, buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento+=sizeof(uint8_t);
+
+            instruccion->param2= malloc(instruccion->param2Length + 1);
+            memcpy(instruccion->param2, buffer + desplazamiento, instruccion->param2Length +1);
+            desplazamiento+= instruccion->param2Length + 1;
+
+            memcpy(&instruccion->param3Length, buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento+=sizeof(uint8_t);
+
+            instruccion->param3= malloc(instruccion->param3Length + 1);
+            memcpy(instruccion->param3, buffer + desplazamiento, instruccion->param3Length +1);
+            desplazamiento+= instruccion->param3Length + 1;
+
+        }
+        if(esInstruccionConDosParametros(instruccion)){
+            memcpy(&instruccion->param1Length, buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento+=sizeof(uint8_t);
+
+            instruccion->param1= malloc(instruccion->param1Length + 1);
+            memcpy(instruccion->param1, buffer + desplazamiento, instruccion->param1Length +1);
+            desplazamiento+= instruccion->param1Length + 1;
+
+            memcpy(&instruccion->param2Length, buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento+=sizeof(uint8_t);
+
+            instruccion->param2= malloc(instruccion->param2Length + 1);
+            memcpy(instruccion->param2, buffer + desplazamiento, instruccion->param2Length +1);
+            desplazamiento+= instruccion->param2Length + 1;
+        }
+        if(esInstruccionConUnParametro(instruccion)){
+            memcpy(&instruccion->param1Length, buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento+=sizeof(uint8_t);
+            instruccion->param1= malloc(instruccion->param1Length + 1);
+            memcpy(instruccion->param1, buffer + desplazamiento, instruccion->param1Length +1);
+            desplazamiento+= instruccion->param1Length + 1;
+        }
+
+
+
+        list_add(instrucciones, instruccion);
+    }
+    return instrucciones;
+
+}
+
+
+/*
+ *
+ * typedef struct {
+    uint8_t idLength;
+    char* id; // el id seria el nombre de la instruccion
+	uint8_t param1Length;
+    char* param1;
+	uint8_t param2Length;
+    char* param2;
+    uint8_t param3Length;
+    char* param3;
+} instr_t;
+ */
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////FUNCIONES PARTICULARES (ANTIGUO)///////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
     void * retornar = malloc(bytes); //Reserva espacio para el stream (void*)
@@ -210,7 +408,7 @@ t_proceso* recibir_paquete(int socket_cliente)
 //AGREGO METODOS DE SERIALIZACION PARA CPU, HAY ALGUNOS REPETIDOS EN COMUNICACION.H DE CONSOLA, CONVIENE PASARLOS ACA
 
 void enviar_paquete_pcb(pcb* pcbDelProceso, int conexion, op_code codigo, t_log* logger){ //USADA POR KERNEL PARA MANDAR PCB A CPU
-	t_paquete* paquete= crear_paquete(codigo);
+	t_paquete* paquete= crear_paquete(codigo, logger);
 	agregarPcbAPaquete(paquete, pcbDelProceso);
 	enviar_paquete(paquete, conexion);
 	eliminar_paquete(paquete, logger);
@@ -423,7 +621,7 @@ pcb* recibir_pcb(int conexion){
 
 
 void enviar_paquete_pcbPf(pcb_page_fault* pcbPfDelProceso, int conexion, op_code codigo, t_log* logger){
-    t_paquete* paquete= crear_paquete(codigo);
+    t_paquete* paquete= crear_paquete(codigo, logger);
     agregarPcbPfAPaquete(paquete, pcbPfDelProceso);
     enviar_paquete(paquete, conexion);
     eliminar_paquete(paquete, logger);
@@ -659,7 +857,7 @@ pcb_page_fault* recibir_pcbPf(int conexion){
 
 uint32_t enviar_int_array(uint32_t *array, int conexion, op_code codigo, t_log* logger){
     //el array tiene que decir la cantidad de elementos en el slot 0 y desp los elementos
-    t_paquete* paquete= crear_paquete(codigo);
+    t_paquete* paquete= crear_paquete(codigo, logger);
     agregarIntArrayAPaquete(paquete, array);
     enviar_paquete(paquete, conexion);
     eliminar_paquete(paquete, logger);
@@ -714,7 +912,7 @@ uint32_t * recibir_int_array(int conexion){
 }
 
 void enviar_pantalla_teclado(char* registro,int conexion, op_code codigo, t_log* logger){
-    t_paquete * paquete = crear_paquete(codigo);
+    t_paquete * paquete = crear_paquete(codigo, logger);
     agregarRegistroAPaquete(paquete,registro);
     enviar_paquete(paquete,conexion);
     eliminar_paquete(paquete,logger);
