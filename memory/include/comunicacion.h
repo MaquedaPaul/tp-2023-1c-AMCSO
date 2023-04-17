@@ -9,6 +9,7 @@
 #include <estructuras.h>
 #include <loggers_configs.h>
 #include <pthread.h>
+#include <memory.h>
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;

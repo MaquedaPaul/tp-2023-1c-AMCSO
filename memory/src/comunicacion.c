@@ -26,21 +26,27 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
-            case 10:
-                //proceso_iniciado(cliente_socket);
+            case INICIALIZAR_PROCESO_MEMORIA:
+                inicializarProceso(cliente_socket);
 
                 break;
-            case 100:
-                //proceso_terminado(cliente_socket);
+            case FINALIZAR_PROCESO_MEMORIA:
+                finalizarProceso(cliente_socket);
                 break;
-            case 1000:
-                //solicitud_marco(cliente_socket);
+            case ACCESO_PEDIDO_LECTURA:
+                realizarPedidoLectura(cliente_socket);
                 break;
-            case 20:
-                //pedido_escritura(cliente_socket);
+            case ACCESO_PEDIDO_ESCRITURA:
+                realizarPedidoEscritura(cliente_socket);
                 break;
-            case 200:
-                //pedido_lectura(cliente_socket);
+            case CREACION_SEGMENTOS:
+                crearSegmento(cliente_socket);;
+                break;
+            case ELIMINACION_SEGMENTOS:
+                eliminarSegmento(cliente_socket);
+                break;
+            case COMPACTACION_SEGMENTOS:
+                compactarSegmentos(cliente_socket);
                 break;
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
