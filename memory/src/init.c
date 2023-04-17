@@ -42,3 +42,26 @@ int cargar_configuracion(char *path) {
     config_destroy(file_cfg_memory);
     return true;
 }
+
+void crearEstructurasAdministrativas(){
+    crearEspacioContiguoDeMemoria();
+    crearTablasSegmentos();
+    crearListaHuecosLibres();
+    crearSegmento0();
+}
+
+
+bool crearEspacioContiguoDeMemoria(){
+    return true;
+}
+bool crearTablasSegmentos(){
+    return true;
+}
+bool crearListaHuecosLibres(){
+    return true;
+}
+
+bool crearSegmento0(){
+    //cfg_memory->TAM_SEGMENTO_0;
+    return true;
+}

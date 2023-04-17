@@ -15,5 +15,11 @@ extern t_config_memory *cfg_memory;
 extern char* path_config;
 
 int cargar_configuracion(char *path);
+void crearEstructurasAdministrativas();
+
+bool crearEspacioContiguoDeMemoria();
+bool crearTablasSegmentos();
+bool crearListaHuecosLibres();
+bool crearSegmento0();
 
 #endif //TEMPLATE_INIT_H
