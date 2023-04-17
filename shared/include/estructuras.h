@@ -6,7 +6,7 @@
 #define SHARED_ESTRUCTURAS_H
 #include <commons/collections/list.h>
 #include <commons/collections/queue.h>
-
+#include <stdio.h>
 #include <semaphore.h>
 #include <malloc.h>
 #include <config_utils.h>
@@ -92,6 +92,7 @@ typedef struct {
 
 t_proceso *crearNuevoProceso();
 void closure_mostrarListaInstrucciones(instr_t* element);
+
 
 bool esInstruccionSinParametros(instr_t* instruccion);
 bool esInstruccionConUnParametro(instr_t* instruccion);

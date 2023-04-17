@@ -32,7 +32,6 @@ void procesar_conexion(void *void_args) {
             case GESTIONAR_CONSOLA_NUEVA:
             {
                 t_list* instrucciones = recibirListaInstrucciones(cliente_socket);
-                //list_iterate(instrucciones, closure_mostrarListaInstrucciones);
                 break;
 
             }

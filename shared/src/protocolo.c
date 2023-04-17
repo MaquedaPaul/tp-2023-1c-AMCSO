@@ -81,9 +81,8 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente){
 }
 
 void* recibir_stream(int* size, uint32_t cliente_socket) { //En realidad devuelve el stream, no el t_buffer
-    void *buffer;
     recv(cliente_socket, size, sizeof(int), MSG_WAITALL);
-    buffer = malloc(*size);
+    void *buffer = malloc(*size);
     recv(cliente_socket, buffer, *size, MSG_WAITALL);
     return buffer;
 }
@@ -295,6 +294,7 @@ t_list* recibirListaInstrucciones(int socket_cliente){
 
         list_add(instrucciones, instruccion);
     }
+    free(buffer);
     return instrucciones;
 
 }
