@@ -39,14 +39,33 @@ int buscarValorEnPosicion(uint32_t posicion){
 
 
 void realizarPedidoEscritura(int cliente_socket){
-
+    uint32_t direccion = recibirValor_uint32(cliente_socket, info_logger);
+    escribirEnPosicion(direccion);
+    enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
+
 void crearSegmento(int cliente_socket){
+    uint32_t pid= recibirValor_uint32(cliente_socket,info_logger);
+    if(!hayDisponibilidadDeEspacio()){
+        enviarOrden(SIN_ESPACIO_DISPONIBLE,cliente_socket,info_logger);
+        return;
+    }
+    if(elEspacioSeEncuentraEnDiferentesHuecos()){
+        enviarOrden(SE_NECESITA_COMPACTACION,cliente_socket,info_logger);
+        return;
+    }
+    uint32_t direccion = realizarCreacionSegmento(pid);
+    enviarValor_uint32(direccion,cliente_socket,CREACION_SEGMENTO_EXITOSO,info_logger);
 
 }
 void eliminarSegmento(int cliente_socket){
-
+    uint32_t direccion= recibirValor_uint32(cliente_socket,info_logger); //direccion de segmento?
+    realizarEliminacionSegmento(direccion);
+    //Deberia informar a kernel de la eliminacion? no dice nada en el tp
 }
-void compactarSegmentos(int cliente_socket){
 
+void compactarSegmentos(int cliente_socket){
+    recibirOrden(cliente_socket);
+    int tablasActualizadas = realizarCompactacion();
+    informarTablasActualizadas(tablasActualizadas, cliente_socket);
 }
