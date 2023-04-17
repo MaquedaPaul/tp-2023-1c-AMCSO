@@ -36,14 +36,11 @@ t_config_memory *cfg_memory_start()
 }
 
 bool checkProperties(char *path) {
-
     t_config *config = config_create(path);
     if (config == NULL) {
         printf("No se pudo crear la config");
         return false;
     }
-
-
     char *properties[] = {
             "PUERTO_ESCUCHA",
             "TAM_MEMORIA",
@@ -53,14 +50,43 @@ bool checkProperties(char *path) {
             "RETARDO_COMPACTACION",
             "ALGORITMO_ASIGNACION",
             NULL};
-
-    // Falta alguna propiedad
     if (!config_has_all_properties(config, properties)) {
         log_error(error_logger, "Propiedades faltantes en el archivo de configuracion");
         return false;
     }
 
     config_destroy(config);
-
     return true;
+}
+
+void creacionProceso(int pid){
+    log_info(info_logger,"Creacion de Proceso PID: <%d>", pid);
+}
+void eliminacionProceso(int pid){
+    log_info(info_logger,"Eliminacion de Proceso PID: <%d>", pid);
+}
+void creacionSegmento(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio){
+    log_info(info_logger,"PID: <%d> - Crear Segmento: <%d> - Base: <%d> - TAMANIO: <%d>",pid,idSegmento,direccionBase,tamanio);
+}
+void eliminacionSegmento(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio){
+    log_info(info_logger,"PID: <%d> - Eliminar Segmento: <%d> - Base: <%d> - TAMANIO: <%d>",pid,idSegmento,direccionBase,tamanio);
+}
+void inicioCompactacion(){
+    log_info(info_logger,"Solicitud de Compactacion");
+}
+void resultadoCompactacion(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio){
+    log_info(info_logger,"PID: <%d> - Segmento: <%d> - Base: <%d> - TAMANIO <%d>", pid,idSegmento,direccionBase,tamanio);
+}
+void accesoEspacioUsuarioEscrituraCPU(int pid, uint32_t direccionFisica, uint32_t tamanio){
+    log_info(info_logger,"PID: <%d> - Accion: <ESCRIBIR> - Direccion fisica: <%d> - Tamanio: <%d> - Origen: <CPU>", pid,direccionFisica,tamanio);
+}
+void accesoEspacioUsuarioLecturaCPU(int pid, uint32_t direccionFisica, uint32_t tamanio){
+    log_info(info_logger,"PID: <%d> - Accion: <LECTURA> - Direccion fisica: <%d> - Tamanio: <%d> - Origen: <CPU>", pid,direccionFisica,tamanio);
+}
+
+void accesoEspacioUsuarioEscrituraFS(int pid, uint32_t direccionFisica, uint32_t tamanio){
+    log_info(info_logger,"PID: <%d> - Accion: <ESCRIBIR> - Direccion fisica: <%d> - Tamanio: <%d> - Origen: <FS>", pid,direccionFisica,tamanio);
+}
+void accesoEspacioUsuarioLecturaFS(int pid, uint32_t direccionFisica, uint32_t tamanio){
+    log_info(info_logger,"PID: <%d> - Accion: <LECTURA> - Direccion fisica: <%d> - Tamanio: <%d> - Origen: <FS>", pid,direccionFisica,tamanio);
 }
