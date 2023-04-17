@@ -13,7 +13,7 @@ CRELEASE=-O3 -Wall -DNDEBUG
 ARGS=kernel.config 0.0.0.0
 
 # Valgrind flags
-MEMCHECK_FLAGS=--show-leak-kinds=all --leak-check=full --show-reachable=no --track-origins=yes --log-file="memcheck.log"
+MEMCHECK_FLAGS=--show-leak-kinds=all --leak-check=full --show-reachable=no --track-origins=yes --log-file="memcheck.log" -s
 HELGRIND_FLAGS=--log-file="helgrind.log"
 
 # Source files (*.c) to be excluded from tests compilation
