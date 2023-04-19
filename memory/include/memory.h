@@ -8,6 +8,12 @@
 #include <loggers_configs.h>
 #include <protocolo.h>
 #include <gestion_memoria.h>
+#include <algoritmos.h>
+extern void* espacio_contiguo;
+extern t_list* tablasSegmentos;
+extern t_list* huecosUsados;
+extern t_list* huecosUsados;
+
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
@@ -16,6 +22,9 @@ extern t_log* error_logger;
 extern t_config* file_cfg_memory;
 extern t_config_memory *cfg_memory;
 extern char* path_config;
+
+
+
 void inicializarProceso(int cliente_socket);
 int inicializarProcesoConPid(uint32_t pid);
 

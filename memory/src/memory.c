@@ -3,7 +3,6 @@
 //
 
 #include "memory.h"
-void* espacio_contiguo;
 
 
 void inicializarProceso(int cliente_socket){
@@ -45,7 +44,10 @@ void realizarPedidoEscritura(int cliente_socket){
 }
 
 void crearSegmento(int cliente_socket){
-    uint32_t pid= recibirValor_uint32(cliente_socket,info_logger);
+    t_list* listaInts;// = recibirListaInts(cliente_socket); //TODO HACER FUNCION
+    uint32_t pid = list_get(listaInts, 0);
+    uint32_t tamanioSegmento = list_get(listaInts, 1);
+    //uint32_t pid= recibirValor_uint32(cliente_socket,info_logger);
     if(!hayDisponibilidadDeEspacio()){
         enviarOrden(SIN_ESPACIO_DISPONIBLE,cliente_socket,info_logger);
         return;
@@ -54,7 +56,8 @@ void crearSegmento(int cliente_socket){
         enviarOrden(SE_NECESITA_COMPACTACION,cliente_socket,info_logger);
         return;
     }
-    uint32_t direccion = realizarCreacionSegmento(pid);
+    t_segmento* huecoLibre = buscarHuecoLibre(tamanioSegmento);
+    uint32_t direccion = realizarCreacionSegmento(pid, huecoLibre, tamanioSegmento);
     enviarValor_uint32(direccion,cliente_socket,CREACION_SEGMENTO_EXITOSO,info_logger);
 
 }
