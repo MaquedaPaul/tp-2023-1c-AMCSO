@@ -47,21 +47,40 @@ void crearEstructurasAdministrativas(){
     crearEspacioContiguoDeMemoria();
     crearTablasSegmentos();
     crearListaHuecosLibres();
+    crearListaHuecosUsados();
     crearSegmento0();
 }
 
 
 bool crearEspacioContiguoDeMemoria(){
+    espacio_contiguo = malloc(cfg_memory->TAM_MEMORIA);
+    memset(espacio_contiguo,0,sizeof (espacio_contiguo));
     return true;
 }
 bool crearTablasSegmentos(){
+    tablasSegmentos = list_create();
+    if(tablasSegmentos == NULL){
+        return false;
+    }
     return true;
 }
 bool crearListaHuecosLibres(){
+    huecosLibres = list_create();
+    if(huecosLibres == NULL){
+        return false;
+    }
     return true;
 }
 
+bool crearListaHuecosUsados(){
+    huecosUsados = list_create();
+    if(huecosUsados == NULL){
+        return false;
+    }
+    return true;
+}
 bool crearSegmento0(){
+
     //cfg_memory->TAM_SEGMENTO_0;
     return true;
 }
