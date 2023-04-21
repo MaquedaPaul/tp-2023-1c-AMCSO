@@ -13,7 +13,8 @@ extern void* espacio_contiguo;
 extern t_list* tablasSegmentos;
 extern t_list* huecosUsados;
 extern t_list* huecosLibres;
-
+extern t_segmento* segmento0;
+extern int cantidadMaximaSegmentos;
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
@@ -40,5 +41,5 @@ void crearSegmento(int cliente_socket);
 
 void eliminarSegmento(int cliente_socket);
 
-void compactarSegmentos(int cliente_socket);
+void compactacionSegmentos(int cliente_socket);
 #endif //MEMORY_MEMORY_H
