@@ -31,12 +31,12 @@ typedef struct
 } t_segmento;
 
 void escribirEnPosicion(uint32_t direccion);
-bool hayDisponibilidadDeEspacio();
+bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento);
 bool elEspacioSeEncuentraEnDiferentesHuecos();
 uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio);
 bool removerDeHuecosLibres(t_segmento* huecoLibre);
 bool agregarAHuecosUsados(t_segmento* huecoLibre);
-t_segmento* dividirEnDos(t_segmento* huecoLibre,uint32_t tamanio);
+t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre,uint32_t tamanio);
 void realizarEliminacionSegmento(uint32_t direccion);
 uint32_t realizarCompactacion();
 void informarTablasActualizadas(uint32_t tablasActualizadas,int cliente_socket);
