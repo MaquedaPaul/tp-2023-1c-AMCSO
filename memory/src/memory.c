@@ -7,14 +7,12 @@
 
 void inicializarProceso(int cliente_socket){
     uint32_t pid = recibirValor_uint32(cliente_socket,info_logger);
-    int tablaSegmentosInicial = inicializarProcesoConPid(pid);
-    //enviarTablaSegmentos(cliente_socket);
+    t_tablaSegmentos * nuevaTabla = crearTablaSegmentos(pid);
+    list_add(tablasSegmentos, nuevaTabla);
+
+    //enviarTablaSegmentos(cliente_socket); //TODO
 }
 
-int inicializarProcesoConPid(uint32_t pid){
-
-    return 0;
-}
 
 void finalizarProceso(int cliente_socket){
     uint32_t pid = recibirValor_uint32(cliente_socket, info_logger);
@@ -23,6 +21,8 @@ void finalizarProceso(int cliente_socket){
 }
 
 int finalizarProcesoConPid(uint32_t pid){
+    t_tablaSegmentos* tablaEncontrada = buscarTablaConPid(pid);
+
     return 0;
 }
 
@@ -63,7 +63,9 @@ void crearSegmento(int cliente_socket){
 }
 void eliminarSegmento(int cliente_socket){
     uint32_t direccion= recibirValor_uint32(cliente_socket,info_logger); //direccion de segmento?
-    realizarEliminacionSegmento(direccion);
+    uint32_t pid;
+    t_segmento* segmentoAEliminar = buscarSegmentoEnBaseADireccion(direccion);
+    realizarEliminacionSegmento(segmentoAEliminar, pid);
     //Deberia informar a kernel de la eliminacion? no dice nada en el tp
 }
 

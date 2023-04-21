@@ -28,7 +28,6 @@ void procesar_conexion(void *void_args) {
                 break;
             case INICIALIZAR_PROCESO_MEMORIA:
                 inicializarProceso(cliente_socket);
-
                 break;
             case FINALIZAR_PROCESO_MEMORIA:
                 finalizarProceso(cliente_socket);

@@ -26,7 +26,7 @@ extern char* path_config;
 
 
 void inicializarProceso(int cliente_socket);
-int inicializarProcesoConPid(uint32_t pid);
+
 
 void finalizarProceso(int cliente_socket);
 int finalizarProcesoConPid(uint32_t pid);
