@@ -48,7 +48,7 @@ void crearSegmento(int cliente_socket){
     uint32_t pid = list_get(listaInts, 0);
     uint32_t tamanioSegmento = list_get(listaInts, 1);
     //uint32_t pid= recibirValor_uint32(cliente_socket,info_logger);
-    if(!hayDisponibilidadDeEspacio()){
+    if(!hayDisponibilidadDeEspacio(tamanioSegmento)){
         enviarOrden(SIN_ESPACIO_DISPONIBLE,cliente_socket,info_logger);
         return;
     }

@@ -12,7 +12,7 @@
 extern void* espacio_contiguo;
 extern t_list* tablasSegmentos;
 extern t_list* huecosUsados;
-extern t_list* huecosUsados;
+extern t_list* huecosLibres;
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;
