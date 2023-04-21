@@ -11,7 +11,7 @@ extern t_list* tablasSegmentos;
 extern t_list* huecosUsados;
 extern t_list* huecosLibres;
 extern t_segmento * segmento0;
-extern int cantidadMaximaSegmentos = 0;
+extern int cantidadMaximaSegmentos;
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
