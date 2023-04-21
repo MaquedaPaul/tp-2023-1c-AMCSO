@@ -11,8 +11,8 @@ uint32_t espacioDisponible=0;
 t_segmento* segmento0;
 int cantidadMaximaSegmentos = 0;
 
-void escribirEnPosicion(uint32_t direccion){
-
+void escribirEnPosicion(uint32_t direccion, uint32_t valor){
+    memcpy(espacio_contiguo + direccion, &valor, sizeof(uint32_t));
 }
 
 bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento){
@@ -184,16 +184,101 @@ void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
 
 }
 
+void realizarEliminacionSegmentoSinPid(t_segmento* segmento){
+    eliminarDatosSegmento(segmento);
+    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite+1);
+    if(segmentoLibreSuperior != NULL){
+        consolidarSegmentos(segmento, segmentoLibreSuperior);
+    }
+    t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmento);
+    if(segmentoLibreInferior != NULL){
+        consolidarSegmentos(segmento, segmentoLibreInferior);
+    }
+
+}
+
+t_segmento* buscarPrimerHuecoLibre(){
+    bool esLaMenorBase(t_segmento* segmento,t_segmento* otroSegmento){
+        return segmento-> base < otroSegmento->base;
+    }
+    list_sort(huecosLibres, esLaMenorBase);
+    t_segmento* segmentoMenor = list_get(huecosLibres,0);
+    return segmentoMenor;
+}
 
 
+bool intercambiarDatosSegmentosEnMp(t_segmento* unSegmento, t_segmento* otroSegmento){
+    void* datosPrimer = malloc(sizeof(unSegmento->limite));
+    void* datosSegundo = malloc(sizeof(otroSegmento->limite));
+    memcpy(datosPrimer, espacio_contiguo+unSegmento->base, unSegmento->limite);
+    memcpy(datosSegundo, espacio_contiguo+otroSegmento->base, otroSegmento->limite);
+    memcpy(espacio_contiguo+unSegmento->base,datosSegundo,otroSegmento->limite);
+    memcpy(espacio_contiguo+otroSegmento->base,datosPrimer,unSegmento->limite);
+
+    return true;
+}
+bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
+
+    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmentoLibre->base+segmentoLibre->limite+1);
+    if(segmentoLibreSuperior != NULL){
+        consolidarSegmentos(segmentoLibre, segmentoLibreSuperior);
+    }
+
+    //NO HARIA FALTA
+    t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmentoLibre);
+    if(segmentoLibreInferior != NULL){
+        consolidarSegmentos(segmentoLibre, segmentoLibreInferior);
+    }
+}
+
+
+void compactarSegmentos(){
+    t_segmento* primerHuecoLibre = buscarPrimerHuecoLibre();
+    t_segmento* siguienteSegmentoUsado = buscarSegmentoEnBaseADireccion(primerHuecoLibre->base +primerHuecoLibre->limite+1);
+    uint32_t siguienteBase = primerHuecoLibre->base;
+    uint32_t siguienteLimite = primerHuecoLibre->limite;
+    intercambiarDatosSegmentosEnMp(primerHuecoLibre, siguienteSegmentoUsado);
+    removerDeHuecosUsados(siguienteSegmentoUsado);
+    removerDeHuecosLibres(primerHuecoLibre);
+    primerHuecoLibre->base = siguienteSegmentoUsado->base;
+    primerHuecoLibre->limite = siguienteSegmentoUsado->limite;
+    siguienteSegmentoUsado->base = siguienteBase;
+    siguienteSegmentoUsado->limite = siguienteLimite;
+    agregarAHuecosUsados(siguienteSegmentoUsado);
+    consolidarSiExistenAledaniosA(primerHuecoLibre);
+
+}
+
+bool hayHuecosIntercalados(){
+    bool ordenarSegunBase(t_segmento* unSegmento, t_segmento* otroSegmento){
+        return unSegmento->base < otroSegmento->base;
+    }
+    list_sort(huecosLibres, ordenarSegunBase);
+
+    bool elLimiteNoCoincideConLaBaseDelSiguiente(t_segmento* unSegmento){
+        t_segmento* siguienteSegmento = buscarSegmentoLibreEnBaseADireccion(unSegmento->base +unSegmento->limite+1);
+        if(siguienteSegmento == NULL){
+            return false;
+        }
+        return true;
+    }
+
+    list_any_satisfy(huecosLibres, elLimiteNoCoincideConLaBaseDelSiguiente);
+
+    return true;
+}
 
 
 uint32_t realizarCompactacion(){
+    while(list_size(huecosLibres) >= 2 || hayHuecosIntercalados()){
+        compactarSegmentos();
+    }
+
     return 0;
 }
 
 
-void informarTablasActualizadas(uint32_t tablasActualizadas,int cliente_socket)//Esto iria en protocolo.c
+void informarTablasActualizadas(int cliente_socket)//Esto iria en protocolo.c
 {
 
 }
