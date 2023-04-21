@@ -34,10 +34,22 @@ void escribirEnPosicion(uint32_t direccion);
 bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento);
 bool elEspacioSeEncuentraEnDiferentesHuecos();
 uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio);
+
+
+
+
+
+bool agregarAHuecosLibres(t_segmento* huecoLibre);
 bool removerDeHuecosLibres(t_segmento* huecoLibre);
 bool agregarAHuecosUsados(t_segmento* huecoLibre);
+bool removerDeHuecosUsados(t_segmento* huecoUsado);
+
+
 t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre,uint32_t tamanio);
-void realizarEliminacionSegmento(uint32_t direccion);
+t_tablaSegmentos* crearTablaSegmentos(uint32_t pid);
+t_tablaSegmentos* buscarTablaConPid(uint32_t pid);
+t_segmento* buscarSegmentoEnBaseADireccion(uint32_t direccion);
+void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid);
 uint32_t realizarCompactacion();
 void informarTablasActualizadas(uint32_t tablasActualizadas,int cliente_socket);
 

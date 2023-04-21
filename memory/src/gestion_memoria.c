@@ -9,6 +9,7 @@ t_list* huecosUsados;
 t_list* huecosLibres;
 uint32_t espacioDisponible=0;
 t_segmento* segmento0;
+int cantidadMaximaSegmentos = 0;
 
 void escribirEnPosicion(uint32_t direccion){
 
@@ -56,14 +57,19 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
     return 0;
 }
 
-
+bool removerDeHuecosUsados(t_segmento* huecoUsado){
+    bool coincidenBases(t_segmento* segmento){
+        return segmento->base == huecoUsado->base;
+    }
+    list_remove_by_condition(huecosUsados,coincidenBases);
+    return true;
+}
 
 bool removerDeHuecosLibres(t_segmento* huecoLibre){
-
-    bool coincidenLimites(t_segmento* segmento){
-        return segmento->limite == huecoLibre->limite;
+    bool coincidenBases(t_segmento* segmento){
+        return segmento->base == huecoLibre->base;
     }
-    list_remove_by_condition(huecosLibres,coincidenLimites);
+    list_remove_by_condition(huecosLibres,coincidenBases);
     return true;
 }
 
@@ -71,6 +77,11 @@ bool agregarAHuecosUsados(t_segmento* huecoLibre){
     list_add(huecosUsados, huecoLibre);
     return true;
 }
+bool agregarAHuecosLibres(t_segmento* huecoLibre){
+    list_add(huecosLibres, huecoLibre);
+    return true;
+}
+
 t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre, uint32_t tamanio){
     t_segmento* segmentoSobranteLibre = malloc(sizeof(t_segmento));
     t_segmento* segmentoUtilizado = malloc(sizeof(t_segmento));
@@ -92,16 +103,93 @@ t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre, uint32_t taman
 
 
 
+t_tablaSegmentos* crearTablaSegmentos(uint32_t pid){
+    t_tablaSegmentos* nuevaTabla = malloc(sizeof (t_tablaSegmentos));
+    nuevaTabla->pid = pid;
+    list_add(nuevaTabla->segmentos,segmento0);
+    return nuevaTabla;
+}
 
+t_tablaSegmentos* buscarTablaConPid(uint32_t pid){
+    bool coincidenPids(t_tablaSegmentos* unaTabla){
+        return unaTabla->pid == pid;
+    }
+    return list_find(tablasSegmentos, coincidenPids);
+}
+t_segmento* buscarSegmentoEnBaseADireccion(uint32_t direccion){
+    bool coincideDireccion(t_segmento* segmento){
+        return segmento->base == direccion;
+    }
+    t_segmento *usado = list_find(huecosUsados,coincideDireccion);
+    t_segmento *libre = list_find(huecosLibres,coincideDireccion);
+    if(usado != NULL){
+        return usado;
+    }
+    else if(libre != NULL){
+        return libre;
+    }
+    else {
+        log_warning(warning_logger, "Segmento con direccion: [%d] no encontrado",direccion);
+    return NULL;
+    }
 
+}
+t_segmento* buscarSegmentoLibreEnBaseADireccion(uint32_t direccion){
+    bool coincideDireccion(t_segmento* segmento){
+        return segmento->base == direccion;
+    }
+    return list_find(huecosLibres,coincideDireccion);
 
-void realizarEliminacionSegmento(uint32_t direccion){
+}
+t_segmento* sinConocerLaBaseBuscarSegmentoLibreAnteriorA(t_segmento* segmento){
+    bool laSumaDeLaBaseYElLimiteEquivaleALaBaseDelSegmentoIngresado(t_segmento* segmento){
+        return (segmento->base + segmento->limite+1)== segmento->base;
+    }
+    return list_find(huecosLibres,laSumaDeLaBaseYElLimiteEquivaleALaBaseDelSegmentoIngresado);
+}
+void eliminarDatosSegmento(t_segmento* segmento){
+
+}
+void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
+    t_segmento* nuevoSegmentoLibre = malloc(sizeof (t_segmento));
+    if(unSegmento->base < otroSegmento->base){
+        nuevoSegmentoLibre->base = unSegmento->base;
+    }else{
+        nuevoSegmentoLibre->base = otroSegmento->base;
+
+    }
+    nuevoSegmentoLibre->limite = unSegmento->limite + otroSegmento->limite;
+    removerDeHuecosLibres(unSegmento);
+    removerDeHuecosLibres(otroSegmento);
+    agregarAHuecosLibres(nuevoSegmentoLibre);
+    //TODO Frees de los segmentos
+}
+
+void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
+    eliminarDatosSegmento(segmento);
+    t_tablaSegmentos* tablaEncontrada =buscarTablaConPid(pid);
+    bool coincidenDirecciones(t_segmento* unSegmento){
+        return unSegmento->base == segmento->base;
+    }
+    list_remove_by_condition(tablaEncontrada->segmentos, coincidenDirecciones); //TODO LIBERAR Y CONTROLAR
+
+    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite+1);
+    if(segmentoLibreSuperior != NULL){
+        consolidarSegmentos(segmento, segmentoLibreSuperior);
+    }
+    t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmento);
+    if(segmentoLibreInferior != NULL){
+        consolidarSegmentos(segmento, segmentoLibreInferior);
+    }
 
 }
 
 
-uint32_t realizarCompactacion(){
 
+
+
+uint32_t realizarCompactacion(){
+    return 0;
 }
 
 
