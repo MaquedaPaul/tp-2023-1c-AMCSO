@@ -81,6 +81,9 @@ bool crearListaHuecosUsados(){
 }
 bool crearSegmento0(){
 
-    //cfg_memory->TAM_SEGMENTO_0;
+    t_segmento* huecoLibreInicial = malloc(sizeof(t_segmento));
+    huecoLibreInicial->base = 0;
+    huecoLibreInicial->limite = cfg_memory->TAM_MEMORIA;
+    segmento0 = dividirEnDosYObtenerUtilizado(huecoLibreInicial,cfg_memory->TAM_SEGMENTO_0);
     return true;
 }
