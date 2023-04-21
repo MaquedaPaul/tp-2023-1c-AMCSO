@@ -49,6 +49,7 @@ void crearEstructurasAdministrativas(){
     crearListaHuecosLibres();
     crearListaHuecosUsados();
     crearSegmento0();
+    cantidadMaximaSegmentos = cfg_memory->CANT_SEGMENTOS;
 }
 
 
