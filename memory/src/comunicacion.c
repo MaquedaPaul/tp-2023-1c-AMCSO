@@ -45,7 +45,7 @@ void procesar_conexion(void *void_args) {
                 eliminarSegmento(cliente_socket);
                 break;
             case COMPACTACION_SEGMENTOS:
-                compactarSegmentos(cliente_socket);
+                compactacionSegmentos(cliente_socket);
                 break;
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
