@@ -55,6 +55,7 @@ void crearEstructurasAdministrativas(){
 
 bool crearEspacioContiguoDeMemoria(){
     espacio_contiguo = malloc(cfg_memory->TAM_MEMORIA);
+    espacioDisponible = cfg_memory->TAM_MEMORIA;
     memset(espacio_contiguo,0,sizeof (espacio_contiguo));
     return true;
 }
@@ -86,5 +87,6 @@ bool crearSegmento0(){
     huecoLibreInicial->base = 0;
     huecoLibreInicial->limite = cfg_memory->TAM_MEMORIA;
     segmento0 = dividirEnDosYObtenerUtilizado(huecoLibreInicial,cfg_memory->TAM_SEGMENTO_0);
+    espacioDisponible-= cfg_memory->TAM_SEGMENTO_0;
     return true;
 }
