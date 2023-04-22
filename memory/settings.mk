@@ -6,7 +6,7 @@ SHARED_LIBPATHS=../shared
 STATIC_LIBPATHS=
 
 # Compiler flags
-CDEBUG=-g -Wno-return-type -DDEBUG
+CDEBUG=-g -Wno-return-type -Wno-incompatible-pointer-types -DDEBUG
 CRELEASE=-O3 -Wall -DNDEBUG
 
 # Arguments when executing with start, memcheck or helgrind

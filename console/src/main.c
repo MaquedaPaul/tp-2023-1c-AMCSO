@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
         scanf("%d", &a);
     }
     t_list* lista = crear_lista_de_instrucciones(path_pseudo);
-    list_iterate(lista, closure_mostrarListaInstrucciones);
+    list_iterate(lista, (void*)closure_mostrarListaInstrucciones);
     enviarListaInstrucciones(lista, fd_kernel, info_logger);
 
     return 0;

@@ -45,6 +45,20 @@ typedef enum
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
     //----------------------------------------------------------------------------------
+    ///MEMORIA
+    INICIALIZAR_PROCESO_MEMORIA,
+    FINALIZAR_PROCESO_MEMORIA,
+    ACCESO_PEDIDO_LECTURA,
+    ACCESO_PEDIDO_ESCRITURA,
+    CREACION_SEGMENTOS,
+    ELIMINACION_SEGMENTOS,
+    COMPACTACION_SEGMENTOS,
+    VALOR_SOLICITADO,
+    FINALIZACION_PROCESO_TERMINADA,
+    SIN_ESPACIO_DISPONIBLE,
+    SE_NECESITA_COMPACTACION,
+    CREACION_SEGMENTO_EXITOSO,
+    //////////////////
     PROCESO_INICIADO,
     PROCESO_BLOQUEADO,
     PAGINAS_INICIALIZADAS,

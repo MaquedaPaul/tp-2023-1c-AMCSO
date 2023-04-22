@@ -25,5 +25,15 @@ int init_logs_configs(char *path_config);
 t_config_memory *cfg_memory_start();
 bool checkProperties(char *path);
 
+void creacionProceso(int pid);
+void eliminacionProceso(int pid);
+void creacionSegmento(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio);
+void eliminacionSegmento(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio);
+void inicioCompactacion();
+void resultadoCompactacion(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio);
+void accesoEspacioUsuarioEscrituraCPU(int pid, uint32_t direccionFisica, uint32_t tamanio);
+void accesoEspacioUsuarioLecturaCPU(int pid, uint32_t direccionFisica, uint32_t tamanio);
+void accesoEspacioUsuarioEscrituraFS(int pid, uint32_t direccionFisica, uint32_t tamanio);
+void accesoEspacioUsuarioLecturaFS(int pid, uint32_t direccionFisica, uint32_t tamanio);
 
 #endif //TPSO_LOGGERS_CONFIGS_H

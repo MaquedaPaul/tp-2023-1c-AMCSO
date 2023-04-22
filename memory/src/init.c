@@ -42,3 +42,49 @@ int cargar_configuracion(char *path) {
     config_destroy(file_cfg_memory);
     return true;
 }
+
+void crearEstructurasAdministrativas(){
+    crearEspacioContiguoDeMemoria();
+    crearTablasSegmentos();
+    crearListaHuecosLibres();
+    crearListaHuecosUsados();
+    crearSegmento0();
+    cantidadMaximaSegmentos = cfg_memory->CANT_SEGMENTOS;
+}
+
+
+bool crearEspacioContiguoDeMemoria(){
+    espacio_contiguo = malloc(cfg_memory->TAM_MEMORIA);
+    memset(espacio_contiguo,0,sizeof (espacio_contiguo));
+    return true;
+}
+bool crearTablasSegmentos(){
+    tablasSegmentos = list_create();
+    if(tablasSegmentos == NULL){
+        return false;
+    }
+    return true;
+}
+bool crearListaHuecosLibres(){
+    huecosLibres = list_create();
+    if(huecosLibres == NULL){
+        return false;
+    }
+    return true;
+}
+
+bool crearListaHuecosUsados(){
+    huecosUsados = list_create();
+    if(huecosUsados == NULL){
+        return false;
+    }
+    return true;
+}
+bool crearSegmento0(){
+
+    t_segmento* huecoLibreInicial = malloc(sizeof(t_segmento));
+    huecoLibreInicial->base = 0;
+    huecoLibreInicial->limite = cfg_memory->TAM_MEMORIA;
+    segmento0 = dividirEnDosYObtenerUtilizado(huecoLibreInicial,cfg_memory->TAM_SEGMENTO_0);
+    return true;
+}
