@@ -137,6 +137,15 @@ instr_t* sumarTamaniosInstrucciones(instr_t *unaInstruccion,instr_t *otraInstruc
 int calcularTamanioDeInstruccion(instr_t *unaInstruccion);
 t_list* recibirListaInstrucciones(int socket_cliente);
 
+
+bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger);
+bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete);
+t_list* recibirTablasSegmentosInstrucciones(int socket_cliente);
+
+
+
+
+
 /*
 
 void *recibir_stream(int *size, int socket_cliente);

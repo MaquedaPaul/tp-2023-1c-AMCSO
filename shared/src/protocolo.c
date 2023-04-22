@@ -300,6 +300,106 @@ t_list* recibirListaInstrucciones(int socket_cliente){
 }
 
 
+////////////////////////////
+bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger)
+
+{
+    t_paquete* paquete = crear_paquete(GESTIONAR_CONSOLA_NUEVA, logger);
+    if(!agregarTablasAPaquete(tablasSegmentos, paquete)){
+        log_error(logger, "Hubo un error cuando se intento agregar las tablas de segmentos al paquete");
+        return false;
+    }
+    enviar_paquete(paquete, socket_cliente);
+    log_info(logger, "Se envio el paquete");
+    eliminar_paquete(paquete, logger);
+    return true;
+}
+
+bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete)
+{
+
+
+    void sumarTamaniosTablas(t_tablaSegmentos* tablaSegmentos){
+        int pid = sizeof(uint32_t);
+        int cantidadSegmentos = list_size(tablaSegmentos->segmentos) * 2*sizeof(uint32_t);
+        paquete->buffer->size+= pid + cantidadSegmentos;
+    }
+    list_iterate(tablasSegmentos,sumarTamaniosTablas);
+    void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
+    int offset=0; //desplazamiento
+
+    //Sumo la cantidad de tablas al buffer
+    paquete->buffer->size += sizeof(uint8_t);
+
+    void copiarElementos(t_tablaSegmentos* unaTablaSegmentos){
+
+            memcpy(stream + offset, &unaTablaSegmentos->pid, sizeof(uint32_t));
+            offset += sizeof(uint32_t);
+
+            void copiarSegmentos(t_segmento* unSegmento){
+                memcpy(stream + offset, &unSegmento->base, sizeof(uint32_t));
+                offset += sizeof(uint32_t);
+                memcpy(stream + offset, &unSegmento->limite, sizeof(uint32_t));
+                offset += sizeof(uint32_t);
+
+            }
+            int cantidad_segmentos = list_size(unaTablaSegmentos->segmentos);
+            memcpy(stream + offset, &cantidad_segmentos, sizeof(uint8_t));
+            list_iterate(unaTablaSegmentos->segmentos, copiarSegmentos);
+
+    }
+    int cantidad_tablas = list_size(tablasSegmentos);
+    memcpy(stream + offset, &cantidad_tablas, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
+
+    list_iterate(tablasSegmentos,copiarElementos);
+    paquete->buffer->stream = stream;
+    printf("SE AGREGO EL PAQUETE\n");
+    return true;
+
+}
+
+
+
+
+
+t_list* recibirTablasSegmentosInstrucciones(int socket_cliente){
+    int tamanio;
+    int desplazamiento = 0;
+    void *buffer = recibir_stream(&tamanio, socket_cliente);
+    t_list* tablasSegmentos = list_create();
+    int cantidad_tablas = 0;
+    memcpy(&cantidad_tablas, buffer + desplazamiento, sizeof(uint8_t));
+    desplazamiento+=sizeof(uint8_t);
+    for (int i = 0; i < cantidad_tablas; ++i) {
+        t_tablaSegmentos* nuevaTabla= malloc(sizeof(t_tablaSegmentos));
+        uint8_t cantidadSegmentos = 0;
+        t_list* segmentos = list_create();
+
+        memcpy(&nuevaTabla->pid, buffer + desplazamiento, sizeof(uint32_t));
+        desplazamiento+=sizeof(uint32_t);
+
+        memcpy(&cantidadSegmentos, buffer + desplazamiento, sizeof(uint8_t));
+        desplazamiento+=sizeof(uint8_t);
+
+        for (int j = 0; j <cantidadSegmentos ; ++j) {
+            t_segmento* nuevoSegmento = malloc(sizeof(t_segmento));
+            memcpy(&nuevoSegmento->base, buffer + desplazamiento, sizeof(uint32_t));
+            desplazamiento+=sizeof(uint32_t);
+            memcpy(&nuevoSegmento->limite, buffer + desplazamiento, sizeof(uint32_t));
+            desplazamiento+=sizeof(uint32_t);
+            list_add(segmentos, nuevoSegmento);
+        }
+
+        list_add(tablasSegmentos, nuevaTabla);
+    }
+    free(buffer);
+    return tablasSegmentos;
+
+}
+
+
+
 /*
  *
  * typedef struct {
