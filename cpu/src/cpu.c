@@ -18,6 +18,10 @@ char[16] registroRCX;
 char[16] registroRBX;
 char[16] registroRDX;
 
+
+uint32_t dir_logica_actual;
+
+
 instr_t* fetch(pcb* pcbActual){
     return list_get(pcbActual->instr, pcbActual->programCounter);
 }
@@ -31,23 +35,40 @@ char* decode(instr_t* instruccion){
 void execute(char* nombre_instruccion_actual){
     
     if(strcmp(nombre_instruccion_actual, "SET") == 0) {
-            //SET (Registro, Valor)
+            //SET (Registro, Valor) set ax/eax/rax 5
             int valor = atoi(instruccion->param2);
-            if(strlen(instruccion->param2) == 4){
+
+            if(strlen(instruccion->param2) == 4){ // o (strcmp(instruccion-> param1, "AX") == 0) 
                 escribir_en_registro_de_4_bytes(instruccion->param1, valor)
             }else if(strlen(instruccion->param2) == 8)
                 escribir_en_registro_de_8_bytes(instruccion->param1, valor);
             }else if(strlen(instruccion->param2) == 16){
                 escribir_en_registro_de_16_bytes(instruccion->param1, instruccion->param2); //ver como le paso el valor de 16 bytes
-            }
+            } 
 
-            //Similar retardo
+            //Simular retardo
         }
             else if (strcmp(nombre_instruccion_actual, "MOV_IN") == 0){
                 //MOV_IN (Registro, Dirección Lógica)
+                
+                direccionLogica = obtener_direccion_logica();
+
+                //direccion_fisica = traducir_direccion_logica_a_fisica(direccionLogica);?
+                //valor = leer_de_memoria(direccion_fisica);
+
+                if(starln(valor) == 4){ //si viene en formato char* el valor guardado en memoria
+                    escribir_en_registro_de_4_bytes(instruccion->param1, valor){
+                }else if(starln(valor) == 8){
+                    escribir_en_registro_de_8_bytes(instruccion->param1, valor);{
+                }else if(starln(valor) == 16){
+                    escribir_en_registro_de_16_bytes(instruccion->param1, valor);
+                    }
 
             } else if (strcmp(nombre_instruccion_actual, "MOV_OUT") == 0) {
                 //MOV_OUT (Dirección Lógica, Registro)
+
+                 dir_logica_actual = obtener_direccion_logica();
+                //traducir_direccion_logica_a_fisica(direccionLogica);?
 
 
             } else if (strcmp(nombre_instruccion_actual, "F_OPEN ") == 0) {
@@ -128,4 +149,15 @@ void escribir_en_registro_de_16_bytes(char* registro, char[16] valor){
     }else if(strcmp(registro, "RDX") == 0){	
         registroRDX = valor;
     }
+}
+
+
+int obtener_direccion_logica(){
+    int dl;
+    if(strcmp(nombre_instruccion_actual, "MOV_IN") == 0){
+        dl = atoi(instruccion->param2);
+    }else if(strcmp(nombre_instruccion_actual, "MOV_OUT") == 0){
+        dl = atoi(instruccion->param1);
+    }
+    return dl;
 }
