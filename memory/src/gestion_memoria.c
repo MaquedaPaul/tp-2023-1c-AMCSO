@@ -53,6 +53,7 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
         segmentoParaAgregar= dividirEnDosYObtenerUtilizado(huecoLibre,tamanio);
     }
 
+    espacioDisponible-=tamanio;
     list_add(tablaEncontrada->segmentos, segmentoParaAgregar);
     return 0;
 }
@@ -147,8 +148,14 @@ t_segmento* sinConocerLaBaseBuscarSegmentoLibreAnteriorA(t_segmento* segmento){
     }
     return list_find(huecosLibres,laSumaDeLaBaseYElLimiteEquivaleALaBaseDelSegmentoIngresado);
 }
-void eliminarDatosSegmento(t_segmento* segmento){
+bool limpiarSeccionDeMemoria(uint32_t direccion, uint32_t tamanio){
+    memset(espacio_contiguo+direccion,0,tamanio);
+    return true;
+}
 
+
+void eliminarDatosSegmento(t_segmento* segmento){
+    limpiarSeccionDeMemoria(segmento->base, segmento->limite);
 }
 void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
     t_segmento* nuevoSegmentoLibre = malloc(sizeof (t_segmento));
@@ -167,10 +174,13 @@ void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
 
 void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
     eliminarDatosSegmento(segmento);
+    espacioDisponible+=segmento->limite;
     t_tablaSegmentos* tablaEncontrada =buscarTablaConPid(pid);
+
     bool coincidenDirecciones(t_segmento* unSegmento){
         return unSegmento->base == segmento->base;
     }
+
     list_remove_by_condition(tablaEncontrada->segmentos, coincidenDirecciones); //TODO LIBERAR Y CONTROLAR
 
     t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite+1);

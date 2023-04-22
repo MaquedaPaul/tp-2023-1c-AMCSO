@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <commons/collections/list.h>
+#include <estructuras.h>
 #include <loggers_configs.h>
 
 extern t_log* trace_logger;
@@ -18,18 +19,9 @@ extern t_log* error_logger;
 extern t_config* file_cfg_memory;
 extern t_config_memory *cfg_memory;
 
-typedef struct
-{
-    int pid;
-    t_list* segmentos;
-} t_tablaSegmentos;
 
-typedef struct
-{
-    uint32_t base;
-    uint32_t limite;
-    uint8_t nro_segmento;
-} t_segmento;
+
+
 
 void escribirEnPosicion(uint32_t direccion, uint32_t valor);
 bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento);

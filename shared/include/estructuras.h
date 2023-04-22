@@ -43,6 +43,18 @@ typedef struct{
 
 //Tabla de Segmentos
 
+typedef struct
+{
+    uint32_t pid;
+    t_list* segmentos;
+} t_tablaSegmentos;
+
+typedef struct
+{
+    uint32_t base;
+    uint32_t limite;
+} t_segmento;
+
 
 typedef struct{
     uint16_t tamanioSegmento;
