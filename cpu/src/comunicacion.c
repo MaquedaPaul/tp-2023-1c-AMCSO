@@ -85,7 +85,7 @@ bool generar_conexiones(){
 
 
 void* crearServidor(){
-    puerto_cpu=cfg_cpu->PUERTO_ESCUCHA;
+    puerto_cpu = cfg_cpu->PUERTO_ESCUCHA;
     fd_cpu = iniciar_servidor(info_logger, "SERVER CPU", ip_cpu,puerto_cpu);
 
     if (fd_cpu == 0) {
@@ -95,8 +95,6 @@ void* crearServidor(){
 
     while (server_escuchar(info_logger, "SERVER CPU", fd_cpu));
 }
-
-
 
 
 

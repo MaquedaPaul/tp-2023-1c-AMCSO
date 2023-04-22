@@ -38,7 +38,7 @@ typedef struct{
     uint32_t AX;
     uint32_t BX;
     uint32_t CX;
-    uint32_t DX;
+    uint32_t DX; 
 }registros_cpu;
 
 //Tabla de Segmentos
