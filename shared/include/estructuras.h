@@ -35,10 +35,18 @@ typedef struct {
 
 //Registros de CPU
 typedef struct{
-    uint32_t AX;
-    uint32_t BX;
-    uint32_t CX;
-    uint32_t DX;
+    char[4] AX;
+    char[4] BX;
+    char[4] CX;
+    char[4] DX;
+    char[8] EAX;
+    char[8] EBX;
+    char[8] ECX;
+    char[8] EDX;
+    char[16] RAX;
+    char[16] RBX;
+    char[16] RCX;
+    char[16] RDX;
 }registros_cpu;
 
 //Tabla de Segmentos
