@@ -77,7 +77,7 @@ void eliminarSegmento(int cliente_socket){
     uint32_t direccion= recibirValor_uint32(cliente_socket,info_logger); //direccion de segmento?
     uint32_t pid;
     t_segmento* segmentoAEliminar = buscarSegmentoEnBaseADireccion(direccion);
-
+    realizarEliminacionSegmento(segmentoAEliminar,pid);
     //Deberia informar a kernel de la eliminacion? no dice nada en el tp
 }
 
