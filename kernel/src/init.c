@@ -4,6 +4,23 @@
 
 #include <init.h>
 
+
+//COLAS
+t_queue* colaNew;
+t_list* colaExec;
+t_queue* colaExit;
+t_list* colaBloq;
+t_queue* colaReady_FIFO; //en caso de FIFO
+t_list* colaReady; //en caso de HRRN
+
+
+//CONTADORES Y MUTEX
+int procesosEnNew = 0;
+pthread_mutex_t mutex_colaNew;
+pthread_mutex_t mutex_ColaReady; 
+pthread_mutex_t mutex_colaExec;
+pthread_mutex_t mutex_colaBloq;
+
 int cargar_configuracion(char *path) {
 
     file_cfg_kernel = config_create(path);
@@ -59,24 +76,39 @@ int cargar_configuracion(char *path) {
     return true;
 }
 
-bool activar_kernel(){
+void inicializar_kernel(){
+
+//COLAS
+    colaNew = queue_create();
+    colaReady = list_create();
+    colaExec = list_create();
+    colaBloq = list_create();
+    colaExit = queue_create();
+
+//CONTADORES Y MUTEX
+
+    pthread_mutex_init(&mutex_colaNew, NULL);
+    pthread_mutex_init(&mutex_ColaReady, NULL);
+    pthread_mutex_init(&mutex_colaExec, NULL);
+    pthread_mutex_init(&mutex_colaBloq, NULL);
+
+ //HILOS
+    pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);
+    pthread_create(&conexion_con_cpu, NULL, (void*)conectarConCPU, NULL);
+    pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
+    pthread_create(&conexion_con_filesystem, NULL, (void*)conectarConFileSystem, NULL);
+
+    pthread_join(conexion_con_consola, NULL);
+    pthread_join(conexion_con_cpu, NULL);
+    pthread_join(conexion_con_memoria, NULL);
+    pthread_join(conexion_con_filesystem, NULL);
 
 
-    pthread_t planiALargoPlazo;
-    pthread_t planiACortoPlazo;
-    pthread_t interfaz;
-
-    generar_conexiones();
-
-
-
-    //pthread_create(&planiALargoPlazo, NULL, planificadorALargoPlazo, NULL);
-    //pthread_create(&planiACortoPlazo, NULL,planificadorACortoPlazo, NULL);
-    //pthread_create(&interfaz, NULL, interfaz_function,NULL);
-
-    //pthread_join(planiALargoPlazo, NULL);
-    //pthread_join(planiACortoPlazo, NULL);
 return true;
 
-//
+}
+
+Logger *iniciar_logger_kernel()
+{
+  return log_create("Kernel.log", "Kernel", 1, LOG_LEVEL_INFO);
 }

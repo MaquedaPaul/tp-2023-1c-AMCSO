@@ -21,7 +21,6 @@ extern char* path_config;
 static void procesar_conexion(void *void_args);
 void* crearServidor();
 int server_escuchar(t_log *logger, char *server_name, int server_socket);
-bool generar_conexiones();
 
 void* conectarConCPU();
 bool generarConexionesConCPU();

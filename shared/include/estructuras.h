@@ -67,11 +67,14 @@ typedef struct {
 
 //Estructura del pcb
 typedef struct{
-	uint32_t id;
+	uint32_t pid;
 	t_list* instr;
     registros_cpu* registrosCpu;
 	uint32_t programCounter;
     t_list* tablaSegmentos;
+    float estimacionRafaga;
+    unsigned int tiempoLlegadaReady;
+    t_list* tablaArchivosAbiertos;
 } pcb;
 
 typedef struct{ //Usada cuando hay PF

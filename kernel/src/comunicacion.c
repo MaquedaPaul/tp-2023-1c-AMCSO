@@ -78,24 +78,14 @@ void procesar_conexion(void *void_args) {
             }
 
                 //----------------------------------MEMORIA----------------------------------------
-            case 300:
+            case CREADA_ESTRUCTURA_PCB_NUEVO:
             {
+                //FALTA ACLARAR COMO LLEGA EL DATO
+               // log_info(logger_kernel, "PID: [%d] - Estado Anterior: NEW - Estado Actual: READY.", pcbReady->pid);
                 break;
             }
 
             case 3000:
-            {
-                break;
-            }
-            case 30000:
-            {
-                break;
-            }
-            case 300000:
-            {
-                break;
-            }
-            case 40:
             {
                 break;
             }
@@ -136,24 +126,6 @@ int server_escuchar(t_log *logger, char *server_name, int server_socket) {
         return 1;
     }
     return 0;
-}
-
-
-bool generar_conexiones(){
-    pthread_t conexion_con_consola;
-    pthread_t conexion_con_cpu;
-    pthread_t conexion_con_memoria;
-    pthread_t conexion_con_filesystem;
-    pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);
-    pthread_create(&conexion_con_cpu, NULL, (void*)conectarConCPU, NULL);
-    pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
-    pthread_create(&conexion_con_filesystem, NULL, (void*)conectarConFileSystem, NULL);
-
-    pthread_join(conexion_con_consola, NULL);
-    pthread_join(conexion_con_cpu, NULL);
-    pthread_join(conexion_con_memoria, NULL);
-    pthread_join(conexion_con_filesystem, NULL);
-    return true;
 }
 
 

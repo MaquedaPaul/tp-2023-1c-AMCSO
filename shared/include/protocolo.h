@@ -17,6 +17,8 @@
 #include <commons/collections/list.h>
 #include <estructuras.h>
 
+typedef t_config Config;
+typedef t_log Logger;
 typedef enum
 {
     //-------------MENSAJES ENTRE CONSOLA-KERNEL------------------------------------
@@ -40,7 +42,6 @@ typedef enum
     BLOCKED_PANTALLA,
     CPU_VACIA,
     ERROR_SIGSEGV,
-    INTERRUPCION,
     //---------------------------------------------------------------------------------
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
@@ -74,6 +75,16 @@ typedef enum
     PROCESO_CARGADO_EN_MP,
     ERROR,
     ERROR_INDICE_TP,
+
+
+
+    //-----------NUEVOS COD OPS--------------
+    //------Memoria - Kernel--------
+    INICIAR_ESTRUCTURA_PCB_NUEVO,
+    CREADA_ESTRUCTURA_PCB_NUEVO,
+    //------CPU - Kernel--------
+    PCB,
+    INTERRUPCION,
 
 } op_code;
 
