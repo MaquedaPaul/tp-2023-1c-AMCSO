@@ -25,6 +25,7 @@ int finalizarProcesoConPid(uint32_t unPid){
     bool coincideBase(t_segmento* unSegmento){
         return unSegmento->base == segmento0->base;
     }
+
     list_remove_by_condition(tablaEncontrada->segmentos, coincideBase);
     list_iterate(tablaEncontrada->segmentos,realizarEliminacionSegmentoSinPid);
     list_clean(tablaEncontrada->segmentos); //TODO FALTARIA EL DESTROY
@@ -32,26 +33,32 @@ int finalizarProcesoConPid(uint32_t unPid){
         return tablaEncontrada->pid == unPid;
     }
     list_remove_by_condition(tablasSegmentos,coincidePid);
+    eliminacionProceso(unPid);
     return 0;
 }
 
+
 void realizarPedidoLectura(int cliente_socket){
     uint32_t posicion = recibirValor_uint32(cliente_socket, info_logger);
-    uint32_t valor = buscarValorEnPosicion(posicion);
-    enviarValor_uint32(valor,cliente_socket,VALOR_SOLICITADO,info_logger);
+    bool esCpu;
+    uint32_t tamanio;
+    uint32_t pid;
+    //TODO Definir si el valor es uint32_t o void*
+    void* datos = buscarDatosEnPosicion(pid, posicion, tamanio, esCpu);
+    //enviarDatos(datos, cliente_socket, VALOR_SOLICITADO, info_logger);
+    //enviarValor_uint32(valor,cliente_socket,VALOR_SOLICITADO,info_logger);
 }
 
-int buscarValorEnPosicion(uint32_t posicion){
-    uint32_t valor;
-    memcpy(&valor, espacio_contiguo + posicion, sizeof (uint32_t));
-    return valor;
-}
+
 
 
 void realizarPedidoEscritura(int cliente_socket){
     uint32_t direccion = recibirValor_uint32(cliente_socket, info_logger);
-    uint32_t valor;
-    escribirEnPosicion(direccion, valor);
+    bool esCpu;
+    uint32_t pid;
+    uint32_t tamanio;
+    void* datos;
+    escribirEnPosicion(direccion,datos, tamanio, pid,esCpu);
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
 
@@ -83,6 +90,7 @@ void eliminarSegmento(int cliente_socket){
 
 void compactacionSegmentos(int cliente_socket){
     recibirOrden(cliente_socket);
+    inicioCompactacion();
     realizarCompactacion();
     informarTablasActualizadas(cliente_socket);
 }

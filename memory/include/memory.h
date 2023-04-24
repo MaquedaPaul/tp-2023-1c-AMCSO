@@ -33,7 +33,7 @@ void finalizarProceso(int cliente_socket);
 int finalizarProcesoConPid(uint32_t pid);
 
 void realizarPedidoLectura(int cliente_socket);
-int buscarValorEnPosicion(uint32_t posicion);
+
 
 void realizarPedidoEscritura(int cliente_socket);
 
