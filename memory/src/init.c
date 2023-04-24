@@ -86,6 +86,8 @@ bool crearSegmento0(){
     t_segmento* huecoLibreInicial = malloc(sizeof(t_segmento));
     huecoLibreInicial->base = 0;
     huecoLibreInicial->limite = cfg_memory->TAM_MEMORIA;
+    huecoLibreInicial->id= idDisponible;
+    idDisponible++;
     segmento0 = dividirEnDosYObtenerUtilizado(huecoLibreInicial,cfg_memory->TAM_SEGMENTO_0);
     espacioDisponible-= cfg_memory->TAM_SEGMENTO_0;
     return true;

@@ -20,6 +20,7 @@ extern t_log* warning_logger;
 extern t_log* error_logger;
 extern t_config* file_cfg_memory;
 extern t_config_memory *cfg_memory;
+extern uint32_t idDisponible;
 extern char* path_config;
 
 int cargar_configuracion(char *path);
