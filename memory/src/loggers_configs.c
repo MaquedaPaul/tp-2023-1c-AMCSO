@@ -74,9 +74,11 @@ void eliminacionSegmento(int pid, int idSegmento, uint32_t direccionBase, uint32
 void inicioCompactacion(){
     log_info(info_logger,"Solicitud de Compactacion");
 }
-void resultadoCompactacion(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio){
+
+void resultadoCompactacion(uint32_t pid, uint32_t idSegmento, uint32_t direccionBase, uint32_t tamanio){
     log_info(info_logger,"PID: <%d> - Segmento: <%d> - Base: <%d> - TAMANIO <%d>", pid,idSegmento,direccionBase,tamanio);
 }
+
 void accesoEspacioUsuarioEscrituraCPU(int pid, uint32_t direccionFisica, uint32_t tamanio){
     log_info(info_logger,"PID: <%d> - Accion: <ESCRIBIR> - Direccion fisica: <%d> - Tamanio: <%d> - Origen: <CPU>", pid,direccionFisica,tamanio);
 }
