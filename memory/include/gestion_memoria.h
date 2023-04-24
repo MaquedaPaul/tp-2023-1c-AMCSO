@@ -23,7 +23,8 @@ extern t_config_memory *cfg_memory;
 
 
 
-void escribirEnPosicion(uint32_t direccion, uint32_t valor);
+void escribirEnPosicion(uint32_t direccion, void* datos, uint32_t tamanio, uint32_t pid, bool esCpu);
+void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, bool esCpu);
 bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento);
 bool elEspacioSeEncuentraEnDiferentesHuecos();
 uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio);

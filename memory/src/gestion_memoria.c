@@ -9,10 +9,28 @@ t_list* huecosUsados;
 t_list* huecosLibres;
 uint32_t espacioDisponible=0;
 t_segmento* segmento0;
+uint32_t idDisponible = 0;
+
 int cantidadMaximaSegmentos = 0;
 
-void escribirEnPosicion(uint32_t direccion, uint32_t valor){
-    memcpy(espacio_contiguo + direccion, &valor, sizeof(uint32_t));
+void escribirEnPosicion(uint32_t direccion, void* datos, uint32_t tamanio, uint32_t pid, bool esCpu){
+    if(esCpu){
+        accesoEspacioUsuarioEscrituraCPU(pid, direccion,tamanio);
+    }else{
+        accesoEspacioUsuarioEscrituraFS(pid, direccion,tamanio);
+    }
+    memcpy(espacio_contiguo + direccion, datos, tamanio);
+}
+
+void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, bool esCpu){
+    void* datos= malloc(tamanio);
+    if(esCpu){
+        accesoEspacioUsuarioLecturaCPU(pid, posicion, tamanio);
+    }else{
+        accesoEspacioUsuarioLecturaFS(pid, posicion, tamanio);
+    }
+    memcpy(datos, espacio_contiguo + posicion, tamanio);
+    return datos;
 }
 
 bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento){
@@ -55,6 +73,8 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
 
     espacioDisponible-=tamanio;
     list_add(tablaEncontrada->segmentos, segmentoParaAgregar);
+    int idSegmento; //TODO CONSULTAR POR ID SEGMENTO
+    creacionSegmento(pid,idSegmento,segmentoParaAgregar->base, segmentoParaAgregar->limite);
     return 0;
 }
 
@@ -90,12 +110,16 @@ t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre, uint32_t taman
     //pero menor que su limite, por eso usamos el tamanio pasado por parámetro
     segmentoUtilizado->limite=tamanio;
     segmentoUtilizado->base=huecoLibre->base;
+    segmentoUtilizado->id= idDisponible;
+    idDisponible++;
     //El segmento libre tiene que tener como base la misma que el hueco libre, pero sumando el tamanio
     //El limite es limite-tamanio
     uint32_t baseSobrante = huecoLibre->base+tamanio;
     uint32_t limiteSobrante = huecoLibre->limite - tamanio;
     segmentoSobranteLibre->base = baseSobrante;
     segmentoSobranteLibre->limite = limiteSobrante;
+    segmentoSobranteLibre->id= idDisponible;
+    idDisponible++;
     list_add(huecosUsados, segmentoUtilizado);
     list_add(huecosLibres, segmentoSobranteLibre);
 
@@ -108,6 +132,7 @@ t_tablaSegmentos* crearTablaSegmentos(uint32_t pid){
     t_tablaSegmentos* nuevaTabla = malloc(sizeof (t_tablaSegmentos));
     nuevaTabla->pid = pid;
     list_add(nuevaTabla->segmentos,segmento0);
+    creacionProceso(pid);
     return nuevaTabla;
 }
 
@@ -173,6 +198,9 @@ void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
 }
 
 void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
+    int idSegmento; //TODO
+    eliminacionSegmento(pid, idSegmento,segmento->base,segmento->limite);
+
     eliminarDatosSegmento(segmento);
     espacioDisponible+=segmento->limite;
     t_tablaSegmentos* tablaEncontrada =buscarTablaConPid(pid);
@@ -191,6 +219,7 @@ void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
     if(segmentoLibreInferior != NULL){
         consolidarSegmentos(segmento, segmentoLibreInferior);
     }
+
 
 }
 
@@ -279,11 +308,22 @@ bool hayHuecosIntercalados(){
 }
 
 
+
 uint32_t realizarCompactacion(){
     while(list_size(huecosLibres) >= 2 || hayHuecosIntercalados()){
         compactarSegmentos();
     }
-
+    void detallarTablas(t_tablaSegmentos* unaTabla){
+        uint32_t pid = unaTabla->pid;
+        void detallarSegmento(t_segmento* unSegmento){
+            uint32_t idSegmento = unSegmento->id;
+            uint32_t direccionBase = unSegmento->base;
+            uint32_t tamanio= unSegmento->limite;
+            resultadoCompactacion(pid,idSegmento,direccionBase,tamanio);
+        }
+        list_iterate(unaTabla->segmentos,detallarSegmento);
+    }
+    list_iterate(tablasSegmentos,detallarTablas);
     return 0;
 }
 
