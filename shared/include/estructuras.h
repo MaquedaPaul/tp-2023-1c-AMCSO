@@ -53,6 +53,7 @@ typedef struct
 {
     uint32_t base;
     uint32_t limite;
+    uint32_t id;
 } t_segmento;
 
 
