@@ -9,6 +9,9 @@
 #include <estructuras.h>
 #include <loggers_configs.h>
 #include <pthread.h>
+#include <init.h>
+
+extern t_log* logger_kernel;
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
@@ -33,6 +36,9 @@ bool atenderMemoria();
 void* conectarConFileSystem();
 bool generarConexionesConFilesystem();
 bool atenderFilesystem();
+
+void cerrar_servers();
+void cortar_conexiones();
 
 
 #endif //TEMPLATE_COMUNICACION_H

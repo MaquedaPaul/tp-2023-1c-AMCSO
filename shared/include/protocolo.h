@@ -83,7 +83,7 @@ typedef enum
     INICIAR_ESTRUCTURA_PCB_NUEVO,
     CREADA_ESTRUCTURA_PCB_NUEVO,
     //------CPU - Kernel--------
-    PCB,
+    // TODO PCB este mensaje colisiona con otro que se llama PCB
     INTERRUPCION,
 
 } op_code;

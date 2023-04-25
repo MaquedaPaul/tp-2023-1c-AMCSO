@@ -1,3 +1,6 @@
+#ifndef TPSO_LOGGERS_INIT_H
+#define TPSO_LOGGERS_INIT_H
+
 #include <loggers_configs.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -39,6 +42,17 @@ extern pthread_t conexion_con_cpu;
 extern pthread_t conexion_con_memoria;
 extern pthread_t conexion_con_filesystem;
 
+//Manejo de recursos
+extern t_list* listaRecursos;
+extern sem_t* semaforos_io;
+
 int cargar_configuracion(char *path);
 void inicializar_kernel();
 Logger *iniciar_logger_kernel();
+int tamanioArray(char** array);
+void iniciarSemaforoDinamico(sem_t* semaforo, int dim);
+int cargarRecursos();
+void cerrar_programa();
+
+
+#endif

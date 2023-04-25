@@ -9,6 +9,10 @@ int fd_kernel;
 int fd_memoria;
 int fd_cpu;
 int fd_filesystem;
+
+t_log* logger_kernel;
+
+
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
     int cliente_socket = args->fd;
@@ -277,6 +281,17 @@ bool atenderFilesystem(){
 }
 
 
+void cortar_conexiones(){
+    liberar_conexion(&fd_kernel);
+    liberar_conexion(&fd_cpu);
+    liberar_conexion(&fd_memoria);
+    liberar_conexion(&fd_filesystem);
+    log_info(logger_kernel,"CONEXIONES LIBERADAS");
+}
 
+void cerrar_servers(){
+    close(fd_kernel);
+    log_info(logger_kernel,"SERVIDORES CERRADOS");
+}
 
 

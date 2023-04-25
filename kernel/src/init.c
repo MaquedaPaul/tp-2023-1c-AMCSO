@@ -10,6 +10,7 @@ t_queue* colaNew;
 t_list* colaExec;
 t_queue* colaExit;
 t_list* colaBloq;
+t_list* estadoBlockRecursos;
 t_queue* colaReady_FIFO; //en caso de FIFO
 t_list* colaReady; //en caso de HRRN
 
@@ -20,6 +21,16 @@ pthread_mutex_t mutex_colaNew;
 pthread_mutex_t mutex_ColaReady; 
 pthread_mutex_t mutex_colaExec;
 pthread_mutex_t mutex_colaBloq;
+
+//HILOS
+ pthread_t conexion_con_consola;
+ pthread_t conexion_con_cpu;
+ pthread_t conexion_con_memoria;
+ pthread_t conexion_con_filesystem;
+
+//Manejo de recursos
+t_list* listaRecursos;
+sem_t* semaforos_io;
 
 int cargar_configuracion(char *path) {
 
@@ -73,6 +84,14 @@ int cargar_configuracion(char *path) {
     log_trace(trace_logger, "Archivo de configuracion cargado correctamente");
 
     config_destroy(file_cfg_kernel);
+
+    int dim = tamanioArray(cfg_kernel->RECURSOS);
+    semaforos_io = calloc(dim,sizeof(sem_t));
+    iniciarSemaforoDinamico(semaforos_io, dim);
+
+    //TODO ACA ARRANCA EL FLUJO
+    cargarRecursos();
+
     return true;
 }
 
@@ -111,4 +130,44 @@ return true;
 Logger *iniciar_logger_kernel()
 {
   return log_create("Kernel.log", "Kernel", 1, LOG_LEVEL_INFO);
+}
+
+int tamanioArray(char ** array){
+    int n=0;
+    for(int i=0 ;*(array+i)!= NULL; i++)
+        n++;
+    return n;
+}
+
+void iniciarSemaforoDinamico(sem_t* semaforo, int dim){
+    for (int i = 0; i <dim ; ++i) {
+        sem_init(&semaforo[i],0,0);
+    }
+}
+
+int cargarRecursos(){
+    listaRecursos = list_create();
+    int dim = tamanioArray(cfg_kernel->RECURSOS);
+    char** recursos = cfg_kernel->RECURSOS;
+    char** instancias = cfg_kernel->INSTANCIAS_RECURSOS;
+    for(int i = 0 ; i < dim ; i++){
+        t_recurso* recurso = malloc(sizeof (t_recurso));
+        recurso->nombreRecurso = recursos[i];
+        recurso->instanciasRecurso = atoi(instancias[i]);
+        recurso->indiceSemaforo = i;
+        recurso->cola = queue_create();
+        list_add(listaRecursos,recurso);
+    }
+    estadoBlockRecursos = listaRecursos;
+    return true;
+}
+
+void cerrar_programa() {
+
+    cortar_conexiones();
+    cerrar_servers();
+    config_destroy(file_cfg_kernel);
+    log_info(logger_kernel,"TERMINADA_LA_CONFIG");
+    log_info(logger_kernel,"TERMINANDO_EL_LOG");
+    log_destroy(logger_kernel);
 }

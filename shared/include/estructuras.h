@@ -56,18 +56,18 @@ typedef struct {
 } t_procesar_conexion_args;
 
 typedef struct {
-    t_queue cola;
-    char* nombre;
+    t_queue* cola;
+    char* nombreRecurso;
     int indiceSemaforo;
-    int tiempoRetardo;
-} t_atenderColaDispositivo_args;
+    int instanciasRecurso;
+} t_recurso;
 
 
 
 
 //Estructura del pcb
 typedef struct{
-	uint32_t pid;
+	uint32_t id;
 	t_list* instr;
     registros_cpu* registrosCpu;
 	uint32_t programCounter;

@@ -1,5 +1,5 @@
 #include <plan_aux.h>
-
+/*
 
 void eliminarElementoLista(pcb *pcbBuscado, t_list *listaX){
 
@@ -16,3 +16,4 @@ void eliminarElementoLista(pcb *pcbBuscado, t_list *listaX){
 
   }
 }
+ */

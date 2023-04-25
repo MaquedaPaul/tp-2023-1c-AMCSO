@@ -1,5 +1,5 @@
 #include <planificacion.h>
-
+/*
 int fd_cpu;
 int fd_memoria;
 
@@ -7,7 +7,7 @@ int fd_memoria;
 void agregarProceso_New(pcb *pcbNew){
 
     queue_push(colaNew, (void *) pcbNew);
-    log_info(logger_kernel, "Se crea el proceso [%d] en NEW.", pcbNew->pid);
+    log_info(logger_kernel, "Se crea el proceso [%d] en NEW.", pcbNew->id);
     procesosEnNew++;
 
 }
@@ -22,7 +22,7 @@ void moverProceso_NewReady(){
     enviar_paquete_pcb(pcbNew, fd_memoria,INICIAR_ESTRUCTURA_PCB_NUEVO, logger_kernel);
     log_info(logger_kernel, "Mensaje enviado a %d (MEMORIA) con motivo proceso NUEVO", fd_memoria);
 
-    liberar_pcb(pcbNew);
+    liberarPcb(pcbNew);
 }
 
 
@@ -49,6 +49,7 @@ void moverProceso_readyExec(){
         pthread_mutex_unlock(&mutex_ColaReady);
         pthread_mutex_unlock(&mutex_colaExec);
 
+        //TODO rompo por el pcbReady undeclared
         enviar_paquete_pcb(pcbReady, fd_cpu,PCB, logger_kernel);
         log_info(logger_kernel, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->pid);
 
@@ -112,3 +113,4 @@ void moverProceso_ExecExit(pcb *pcbBuscado){
     queue_push(colaExit,(void *) pcbBuscado);
 
 }
+*/

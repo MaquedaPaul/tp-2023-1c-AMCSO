@@ -5,8 +5,6 @@
 
 #include <commons/collections/queue.h>
 #include <commons/collections/list.h>
-#include <shared/include/estructuras.h>>
-#include <shared/include/protocolo.h>>
 #include <kernel_config.h>
 #include <pthread.h>
 #include <comunicacion.h>

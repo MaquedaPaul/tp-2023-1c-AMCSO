@@ -5,7 +5,7 @@ void handle_sigint(int sig){
     exit(0);
 }
 
-char* path_config;
+//char* path_config;
 
 int main(int argc, char *argv[]) {
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     inicializar_kernel();
 
 
-    cerrar_programa(logger_kernel);
+    cerrar_programa();
 
     return EXIT_SUCCESS;
 }
