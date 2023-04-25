@@ -54,12 +54,12 @@ void procesar_conexion(void *void_args) {
             case WAIT:
             {
                 pcb* pcbRecibida = recibir_pcb(cliente_socket);
-                waitRecursoPcb(pcbRecibida);
+                manejoDeRecursos(pcbRecibida,"WAIT");
                 break;
             }
             case SIGNAL:{
                 pcb* pcbRecibida = recibir_pcb(cliente_socket);
-                signalRecursoPcb(pcbRecibida);
+                manejoDeRecursos(pcbRecibida,"SIGNAL");
                 break;
             }
 
@@ -297,27 +297,35 @@ void cerrar_servers(){
     log_info(logger_kernel,"SERVIDORES CERRADOS");
 }
 
-void waitRecursoPcb(pcb* unaPcb){
+void waitRecursoPcb(t_recurso * recurso, pcb* unaPcb) {
+    recurso->instanciasRecurso--;
+    if (recurso->instanciasRecurso < 0) {
+        queue_push(recurso->cola, unaPcb);
+    }
+}
+
+
+void signalRecursoPcb(t_recurso * recurso, pcb* unaPcb){
+    recurso->instanciasRecurso++;
+    //TODO terminar
+}
+
+void manejoDeRecursos(pcb* unaPcb,char* orden){
     int apunteProgramCounter = unaPcb->programCounter;
     instr_t* instruccion = list_get(unaPcb->instr,apunteProgramCounter);
     char* recursoSolicitado = instruccion->param2;
-    //TODO hay que agregarle semaforo mutex al la cola bloqueado
+    //TODO hay que agregarle semaforo mutex a la cola bloqueado
+
     for(int i = 0 ; i < list_size(estadoBlockRecursos); i++){
         t_recurso* recurso = list_get(estadoBlockRecursos,i);
         if((strcmp(recurso->nombreRecurso,recursoSolicitado)) == 0){
-            recurso->instanciasRecurso--;
-            if(recurso->instanciasRecurso < 0){
-                queue_push(recurso->cola,unaPcb);
+            if((strcmp(orden,"WAIT")) == 0){
+                waitRecursoPcb(recurso,unaPcb);
+            }else{
+                signalRecursoPcb(recurso,unaPcb);
             }
-
         }else{
             //moverProceso_ExecExit(unaPcb);
         }
-    }
-
-
-}
-
-void signalRecursoPcb(pcb* unaPcb){
-
+        }
 }
