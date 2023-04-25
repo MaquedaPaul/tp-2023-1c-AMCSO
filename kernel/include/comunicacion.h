@@ -40,5 +40,8 @@ bool atenderFilesystem();
 void cerrar_servers();
 void cortar_conexiones();
 
+void waitRecursoPcb(pcb* unaPcb);
+void signalRecursoPcb(pcb* unaPcb);
+
 
 #endif //TEMPLATE_COMUNICACION_H

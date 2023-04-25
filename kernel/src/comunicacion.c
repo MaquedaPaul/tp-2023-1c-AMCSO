@@ -51,12 +51,15 @@ void procesar_conexion(void *void_args) {
 
                 //--------------------------------CPU-------------------------------------------
 
-            case 10000:
+            case WAIT:
             {
-
+                pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                waitRecursoPcb(pcbRecibida);
                 break;
             }
-            case 20:{
+            case SIGNAL:{
+                pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                signalRecursoPcb(pcbRecibida);
                 break;
             }
 
@@ -294,4 +297,27 @@ void cerrar_servers(){
     log_info(logger_kernel,"SERVIDORES CERRADOS");
 }
 
+void waitRecursoPcb(pcb* unaPcb){
+    int apunteProgramCounter = unaPcb->programCounter;
+    instr_t* instruccion = list_get(unaPcb->instr,apunteProgramCounter);
+    char* recursoSolicitado = instruccion->param2;
+    //TODO hay que agregarle semaforo mutex al la cola bloqueado
+    for(int i = 0 ; i < list_size(estadoBlockRecursos); i++){
+        t_recurso* recurso = list_get(estadoBlockRecursos,i);
+        if((strcmp(recurso->nombreRecurso,recursoSolicitado)) == 0){
+            recurso->instanciasRecurso--;
+            if(recurso->instanciasRecurso < 0){
+                queue_push(recurso->cola,unaPcb);
+            }
 
+        }else{
+            //moverProceso_ExecExit(unaPcb);
+        }
+    }
+
+
+}
+
+void signalRecursoPcb(pcb* unaPcb){
+
+}

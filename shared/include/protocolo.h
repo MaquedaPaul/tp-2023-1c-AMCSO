@@ -32,6 +32,8 @@ typedef enum
     PCB = 30,
     //-----------------------------------------------------------------------------
     //-----------MENSAJES CPU-KERNEL---------------------------------------------
+    WAIT,
+    SIGNAL,
     PROCESO_TERMINADO,
     BLOCKED_IO,
     PROCESO_DESALOJADO,

@@ -88,8 +88,6 @@ int cargar_configuracion(char *path) {
     int dim = tamanioArray(cfg_kernel->RECURSOS);
     semaforos_io = calloc(dim,sizeof(sem_t));
     iniciarSemaforoDinamico(semaforos_io, dim);
-
-    //TODO ACA ARRANCA EL FLUJO
     cargarRecursos();
 
     return true;
@@ -171,3 +169,4 @@ void cerrar_programa() {
     log_info(logger_kernel,"TERMINANDO_EL_LOG");
     log_destroy(logger_kernel);
 }
+
