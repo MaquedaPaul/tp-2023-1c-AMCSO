@@ -34,7 +34,6 @@ typedef enum
     BLOCKED_IO,
     PROCESO_DESALOJADO,
     PROCESO_DESALOJADO_CON_PAGEFAULT,
-    HANDSHAKE_CPU,
     BLOCKED_PF,
     BLOCKED_TECLADO,
     BLOCKED_PANTALLA,
@@ -45,7 +44,11 @@ typedef enum
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
     //----------------------------------------------------------------------------------
-    ///MEMORIA
+    //////HANDSHAKES
+    HANDSHAKE_FS,
+    HANDSHAKE_CPU,
+    /////////////////////////////////MEMORIA///////////////////////////////////////////
+
     INICIALIZAR_PROCESO_MEMORIA,
     FINALIZAR_PROCESO_MEMORIA,
     ACCESO_PEDIDO_LECTURA,
