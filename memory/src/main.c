@@ -10,12 +10,10 @@ int main(int argc, char* argv[]) {
 
     }
 
-    if (!generar_conexiones()){
+    if (!iniciarMemoria()){
         //cerrar_programa();
-        return EXIT_FAILURE;
+        return false;
     }
-
-    crearEstructurasAdministrativas();
 
 
 
