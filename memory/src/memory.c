@@ -11,7 +11,11 @@ void inicializarProceso(int cliente_socket){
     pthread_mutex_lock(&mutex_tablasSegmentos);
     list_add(tablasSegmentos, nuevaTabla);
     pthread_mutex_unlock(&mutex_tablasSegmentos);
-    //enviarTablaSegmentos(cliente_socket); //TODO
+    t_list* listaConUnElemento = list_create();
+    list_add(listaConUnElemento, nuevaTabla);
+
+    enviarTablasSegmentos(listaConUnElemento, cliente_socket, info_logger);
+    limpiarYEliminarListaAuxiliarPeroSinEliminarContenido(listaConUnElemento);
 }
 
 
@@ -37,31 +41,35 @@ int finalizarProcesoConPid(uint32_t unPid){
     list_remove_by_condition(tablaEncontrada->segmentos, coincideId);
 
     list_iterate(tablaEncontrada->segmentos,realizarEliminacionSegmentoSinPid);
-    list_clean(tablaEncontrada->segmentos); //TODO FALTARIA EL DESTROY
+    list_clean(tablaEncontrada->segmentos);
+    list_destroy(tablaEncontrada->segmentos);
+
     bool coincidePid(t_tablaSegmentos* tablaEncontrada){
         return tablaEncontrada->pid == unPid;
     }
 
     list_remove_by_condition(tablasSegmentos,coincidePid);
+    free(tablaEncontrada);
+    eliminacionProceso(unPid);
     pthread_mutex_unlock(&mutex_espacioContiguo);
     pthread_mutex_unlock(&mutex_espacioDisponible);
     pthread_mutex_unlock(&mutex_huecosDisponibles);
     pthread_mutex_unlock(&mutex_huecosUsados);
     pthread_mutex_unlock(&mutex_tablasSegmentos);
-    eliminacionProceso(unPid);
+
     return 0;
 }
 
 
 void realizarPedidoLectura(int cliente_socket){
     uint32_t posicion = recibirValor_uint32(cliente_socket, info_logger);
-    bool esCpu;
+    bool esCpu= cliente_socket == ipCpu;
     uint32_t tamanio;
     uint32_t pid;
-    //TODO Definir si el valor es uint32_t o void*
     pthread_mutex_lock(&mutex_espacioContiguo);
     void* datos = buscarDatosEnPosicion(pid, posicion, tamanio, esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
+
     //enviarDatos(datos, cliente_socket, VALOR_SOLICITADO, info_logger);
     //enviarValor_uint32(valor,cliente_socket,VALOR_SOLICITADO,info_logger);
 }
@@ -71,7 +79,7 @@ void realizarPedidoLectura(int cliente_socket){
 
 void realizarPedidoEscritura(int cliente_socket){
     uint32_t direccion = recibirValor_uint32(cliente_socket, info_logger);
-    bool esCpu;
+    bool esCpu= cliente_socket == ipCpu;
     uint32_t pid;
     uint32_t tamanio;
     void* datos;
@@ -104,6 +112,9 @@ void crearSegmento(int cliente_socket) {
     pthread_mutex_lock(&mutex_idSegmento);
     pthread_mutex_lock(&mutex_espacioDisponible);
     t_segmento* huecoLibre = buscarHuecoLibre(tamanioSegmento);
+    if(huecoLibre == NULL){
+        log_error(error_logger,"Ocurrio algo que no debia pasar, ayuda :(");
+    }
 
     uint32_t direccion = realizarCreacionSegmento(pid, huecoLibre, tamanioSegmento);
     pthread_mutex_unlock(&mutex_huecosDisponibles);

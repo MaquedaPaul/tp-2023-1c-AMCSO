@@ -11,6 +11,8 @@ uint32_t espacioDisponible=0;
 t_segmento* segmento0;
 uint32_t idDisponible = 0;
 int cantidadMaximaSegmentos = 0;
+uint32_t ipCpu;
+uint32_t ipFs;
 
 pthread_mutex_t mutex_espacioContiguo;
 pthread_mutex_t mutex_tablasSegmentos;
@@ -104,16 +106,17 @@ bool removerDeHuecosUsados(t_segmento* huecoUsado){
     bool coincidenBases(t_segmento* segmento){
         return segmento->base == huecoUsado->base;
     }
-    list_remove_by_condition(huecosUsados,coincidenBases);
-    return true;
+    t_segmento* huecoEliminado = list_remove_by_condition(huecosUsados,coincidenBases);
+    return huecoEliminado != NULL;
 }
 
 bool removerDeHuecosLibres(t_segmento* huecoLibre){
     bool coincidenBases(t_segmento* segmento){
         return segmento->base == huecoLibre->base;
     }
-    list_remove_by_condition(huecosLibres,coincidenBases);
-    return true;
+    t_segmento* huecoEliminado = list_remove_by_condition(huecosLibres,coincidenBases);
+
+    return huecoEliminado != NULL;
 }
 
 bool agregarAHuecosUsados(t_segmento* huecoLibre){
@@ -223,16 +226,20 @@ void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
     }
 
     nuevoSegmentoLibre->limite = unSegmento->limite + otroSegmento->limite;
-    removerDeHuecosLibres(unSegmento);
-    removerDeHuecosLibres(otroSegmento);
-    agregarAHuecosLibres(nuevoSegmentoLibre);
+    if(!removerDeHuecosLibres(unSegmento)){
+        log_warning(warning_logger,"Se intento remover un segmento que no era libre");
+    }
+    if(!removerDeHuecosLibres(otroSegmento)){
+        log_warning(warning_logger,"Se intento remover un segmento que no era libre");
+    }
 
-    //TODO Frees de los segmentos
+
+
+    agregarAHuecosLibres(nuevoSegmentoLibre);
 }
 
 void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
-    int idSegmento; //TODO
-    eliminacionSegmento(pid, idSegmento,segmento->base,segmento->limite);
+    eliminacionSegmento(pid, segmento->id,segmento->base,segmento->limite);
 
     eliminarDatosSegmento(segmento);
     espacioDisponible+=segmento->limite;
@@ -247,12 +254,14 @@ void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
     t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite+1);
     if(segmentoLibreSuperior != NULL){
         consolidarSegmentos(segmento, segmentoLibreSuperior);
+        limpiarHueco(segmentoLibreSuperior);
     }
     t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmento);
     if(segmentoLibreInferior != NULL){
         consolidarSegmentos(segmento, segmentoLibreInferior);
+        limpiarHueco(segmentoLibreInferior);
     }
-
+    limpiarHueco(segmento);
 
 }
 
@@ -262,11 +271,14 @@ void realizarEliminacionSegmentoSinPid(t_segmento* segmento){
     t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite+1);
     if(segmentoLibreSuperior != NULL){
         consolidarSegmentos(segmento, segmentoLibreSuperior);
+        limpiarHueco(segmentoLibreSuperior);
     }
     t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmento);
     if(segmentoLibreInferior != NULL){
         consolidarSegmentos(segmento, segmentoLibreInferior);
+        limpiarHueco(segmentoLibreInferior);
     }
+    limpiarHueco(segmento);
 
 }
 
@@ -296,14 +308,22 @@ bool intercambiarDatosSegmentosEnMp(t_segmento* unSegmento, t_segmento* otroSegm
 bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
 
     t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmentoLibre->base+segmentoLibre->limite+1);
+    bool seConsolido= false;
     if(segmentoLibreSuperior != NULL){
         consolidarSegmentos(segmentoLibre, segmentoLibreSuperior);
+        limpiarHueco(segmentoLibreSuperior);
+        seConsolido=true;
     }
 
     //NO HARIA FALTA
     t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmentoLibre);
     if(segmentoLibreInferior != NULL){
         consolidarSegmentos(segmentoLibre, segmentoLibreInferior);
+        limpiarHueco(segmentoLibreSuperior);
+        seConsolido=true;
+    }
+    if(seConsolido){
+        limpiarHueco(segmentoLibre);
     }
 }
 
