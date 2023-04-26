@@ -6,6 +6,7 @@
 #define TPSO_INIT_H
 #include <loggers_configs.h>
 #include <memory.h>
+#include <comunicacion.h>
 #include <pthread.h>
 extern void* espacio_contiguo;
 extern t_list* tablasSegmentos;
@@ -34,7 +35,7 @@ extern pthread_mutex_t mutex_espacioDisponible;
 
 
 int cargar_configuracion(char *path);
-void crearEstructurasAdministrativas();
+bool crearEstructurasAdministrativas();
 
 bool crearEspacioContiguoDeMemoria();
 bool crearTablasSegmentos();
@@ -42,5 +43,5 @@ bool crearListaHuecosLibres();
 bool crearListaHuecosUsados();
 bool crearSegmento0();
 bool crearSemaforos();
-
+bool iniciarMemoria();
 #endif //TEMPLATE_INIT_H
