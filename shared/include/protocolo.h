@@ -109,15 +109,32 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente);
 t_proceso* recibir_paquete(int socket_cliente);
 void eliminar_paquete(t_paquete* paquete, t_log* logger);
 
+bool enviarListaUint32_t(t_list* listaInts, int socket_cliente, t_log* logger, op_code codigo);
+bool agregarUint32_tsAPaquete(t_list* listaInts, t_paquete* paquete);
+t_list* recibirListaUint32_t(int socket_cliente);
+
+
+bool enviarDatos(void* datos, uint32_t tamanioDatos, op_code codigo, int socket_cliente, t_log* logger);
+bool agregarDatosAPaquete(void* datos, uint32_t tamanioDatos, t_paquete* paquete);
+void* recibirDatos(int socket_cliente, uint32_t tamanioDatos);
+
+
+
+
+
+
 //Necesarias para cpu-kernel
+/*
 void enviar_paquete_pcb(pcb* pcbDelProceso, int conexion, op_code codigo, t_log* logger);
+ */
+/*
 void agregarPcbAPaquete(t_paquete* paquete, pcb* pcb);
 pcb* recibir_pcb(int conexion);
 
 void enviar_paquete_pcbPf(pcb_page_fault* pcbPfDelProceso, int conexion, op_code codigo, t_log* logger);
 void agregarPcbPfAPaquete(t_paquete* paquete, pcb_page_fault* pcbDelProceso);
 pcb_page_fault* recibir_pcbPf(int conexion);
-
+*/
 //int array
 uint32_t enviar_int_array(uint32_t *array, int conexion, op_code codigo, t_log* logger);
 void agregarIntArrayAPaquete(t_paquete* paquete, uint32_t *array);
@@ -144,6 +161,13 @@ t_list* recibirListaInstrucciones(int socket_cliente);
 bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger);
 bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete);
 t_list* recibirTablasSegmentosInstrucciones(int socket_cliente);
+
+
+
+bool enviarListaIntsYDatos(t_list* listaInts,t_datos* datos, int socket_cliente, t_log* logger, op_code codigo);
+bool agregarIntsYDatosAPaquete(t_list* listaInts, t_datos* datos, t_paquete* paquete);
+t_list* recibirListaIntsYDatos(int cliente_socket,t_datos* datos);
+
 
 
 
