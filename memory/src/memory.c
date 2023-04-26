@@ -62,38 +62,36 @@ int finalizarProcesoConPid(uint32_t unPid){
 
 
 void realizarPedidoLectura(int cliente_socket){
-    uint32_t posicion = recibirValor_uint32(cliente_socket, info_logger);
+    t_list* listaInts = recibirListaUint32_t(cliente_socket);
+    uint32_t posicion = list_get(listaInts,0);
     bool esCpu= cliente_socket == ipCpu;
-    uint32_t tamanio;
-    uint32_t pid;
+    uint32_t tamanio = list_get(listaInts,1);
+    uint32_t pid = list_get(listaInts,2);
     pthread_mutex_lock(&mutex_espacioContiguo);
     void* datos = buscarDatosEnPosicion(pid, posicion, tamanio, esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-
-    //enviarDatos(datos, cliente_socket, VALOR_SOLICITADO, info_logger);
-    //enviarValor_uint32(valor,cliente_socket,VALOR_SOLICITADO,info_logger);
+    enviarDatos(datos,tamanio, VALOR_SOLICITADO,cliente_socket , info_logger);
 }
 
 
 
 
 void realizarPedidoEscritura(int cliente_socket){
-    uint32_t direccion = recibirValor_uint32(cliente_socket, info_logger);
+    t_datos* unosDatos = malloc(sizeof(t_datos));
+    t_list* listaInts = recibirListaIntsYDatos(cliente_socket, unosDatos);
+    uint32_t posicion = list_get(listaInts,0);
     bool esCpu= cliente_socket == ipCpu;
-    uint32_t pid;
-    uint32_t tamanio;
-    void* datos;
+    uint32_t pid = list_get(listaInts,2);
     pthread_mutex_lock(&mutex_espacioContiguo);
-    escribirEnPosicion(direccion,datos, tamanio, pid,esCpu);
+    escribirEnPosicion(posicion,unosDatos->datos, unosDatos->tamanio, pid,esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
 
 void crearSegmento(int cliente_socket) {
-    t_list *listaInts;// = recibirListaInts(cliente_socket); //TODO HACER FUNCION
+    t_list *listaInts = recibirListaUint32_t(cliente_socket);
     uint32_t pid = list_get(listaInts, 0);
     uint32_t tamanioSegmento = list_get(listaInts, 1);
-    //uint32_t pid= recibirValor_uint32(cliente_socket,info_logger);
     pthread_mutex_lock(&mutex_espacioDisponible);
     if (!hayDisponibilidadDeEspacio(tamanioSegmento)) {
         enviarOrden(SIN_ESPACIO_DISPONIBLE, cliente_socket, info_logger);
@@ -141,7 +139,7 @@ void eliminarSegmento(int cliente_socket){
     pthread_mutex_unlock(&mutex_espacioDisponible);
     pthread_mutex_unlock(&tablasSegmentos);
     pthread_mutex_unlock(&espacio_contiguo);
-    //Deberia informar a kernel de la eliminacion? no dice nada en el tp
+    //Deberia informar a kernel de la eliminacion? no dice nada en el tp //TODO
 }
 
 void compactacionSegmentos(int cliente_socket){
