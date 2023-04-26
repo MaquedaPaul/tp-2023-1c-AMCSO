@@ -10,8 +10,17 @@ t_list* huecosLibres;
 uint32_t espacioDisponible=0;
 t_segmento* segmento0;
 uint32_t idDisponible = 0;
-
 int cantidadMaximaSegmentos = 0;
+
+pthread_mutex_t mutex_espacioContiguo;
+pthread_mutex_t mutex_tablasSegmentos;
+pthread_mutex_t mutex_huecosUsados;
+pthread_mutex_t mutex_huecosDisponibles;
+pthread_mutex_t mutex_idSegmento;
+pthread_mutex_t mutex_espacioDisponible;
+
+
+
 
 void escribirEnPosicion(uint32_t direccion, void* datos, uint32_t tamanio, uint32_t pid, bool esCpu){
     if(esCpu){
@@ -19,7 +28,9 @@ void escribirEnPosicion(uint32_t direccion, void* datos, uint32_t tamanio, uint3
     }else{
         accesoEspacioUsuarioEscrituraFS(pid, direccion,tamanio);
     }
+
     memcpy(espacio_contiguo + direccion, datos, tamanio);
+
 }
 
 void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, bool esCpu){
@@ -29,11 +40,14 @@ void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, b
     }else{
         accesoEspacioUsuarioLecturaFS(pid, posicion, tamanio);
     }
+
     memcpy(datos, espacio_contiguo + posicion, tamanio);
+
     return datos;
 }
 
 bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento){
+
     return espacioDisponible > tamanioSegmento;
 }
 bool elEspacioSeEncuentraEnDiferentesHuecos(uint32_t tamanioSegmento){
@@ -41,7 +55,9 @@ bool elEspacioSeEncuentraEnDiferentesHuecos(uint32_t tamanioSegmento){
     bool tieneEspacioSuficiente(t_segmento* unSegmento){
         return unSegmento->limite >= tamanioSegmento;
     }
+
     bool resultado = list_any_satisfy(huecosLibres, tieneEspacioSuficiente);
+
     return !resultado;
 }
 
@@ -49,7 +65,9 @@ t_tablaSegmentos* buscarEnTablasSegmentos(uint32_t unPid){
     bool coincidenPids(t_tablaSegmentos* unaTabla){
         return unaTabla->pid == unPid;
     }
+    pthread_mutex_lock(&mutex_tablasSegmentos);
     t_tablaSegmentos* tablaEncontrada = list_find(tablasSegmentos,coincidenPids);
+    pthread_mutex_unlock(&mutex_tablasSegmentos);
     return tablaEncontrada;
 }
 
@@ -58,6 +76,8 @@ t_tablaSegmentos* buscarEnTablasSegmentos(uint32_t unPid){
 uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio){
     t_segmento* segmentoParaAgregar;
     t_tablaSegmentos* tablaEncontrada = buscarEnTablasSegmentos(pid);
+
+
     if(huecoLibre->limite == tamanio){
         removerDeHuecosLibres(huecoLibre);
         agregarAHuecosUsados(huecoLibre);
@@ -65,6 +85,7 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
     }
     if(huecoLibre->limite < tamanio){
         log_error(error_logger,"Ocurrio algo que no debia pasar, ayuda");
+
         return -1;
     }
     if(huecoLibre->limite > tamanio){
@@ -75,6 +96,7 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
     list_add(tablaEncontrada->segmentos, segmentoParaAgregar);
     int idSegmento; //TODO CONSULTAR POR ID SEGMENTO
     creacionSegmento(pid,idSegmento,segmentoParaAgregar->base, segmentoParaAgregar->limite);
+
     return 0;
 }
 
@@ -140,7 +162,10 @@ t_tablaSegmentos* buscarTablaConPid(uint32_t pid){
     bool coincidenPids(t_tablaSegmentos* unaTabla){
         return unaTabla->pid == pid;
     }
-    return list_find(tablasSegmentos, coincidenPids);
+
+    t_tablaSegmentos* tablaEncontrada =list_find(tablasSegmentos, coincidenPids);
+
+    return tablaEncontrada;
 }
 t_segmento* buscarSegmentoEnBaseADireccion(uint32_t direccion){
     bool coincideDireccion(t_segmento* segmento){
@@ -164,7 +189,10 @@ t_segmento* buscarSegmentoLibreEnBaseADireccion(uint32_t direccion){
     bool coincideDireccion(t_segmento* segmento){
         return segmento->base == direccion;
     }
-    return list_find(huecosLibres,coincideDireccion);
+    pthread_mutex_lock(&mutex_huecosDisponibles);
+    t_segmento* segmentoEncontrado =list_find(huecosLibres,coincideDireccion);
+    pthread_mutex_unlock(&mutex_huecosDisponibles);
+    return segmentoEncontrado;
 
 }
 t_segmento* sinConocerLaBaseBuscarSegmentoLibreAnteriorA(t_segmento* segmento){
@@ -174,7 +202,10 @@ t_segmento* sinConocerLaBaseBuscarSegmentoLibreAnteriorA(t_segmento* segmento){
     return list_find(huecosLibres,laSumaDeLaBaseYElLimiteEquivaleALaBaseDelSegmentoIngresado);
 }
 bool limpiarSeccionDeMemoria(uint32_t direccion, uint32_t tamanio){
+
     memset(espacio_contiguo+direccion,0,tamanio);
+    espacioDisponible+= tamanio;
+
     return true;
 }
 
@@ -190,10 +221,12 @@ void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
         nuevoSegmentoLibre->base = otroSegmento->base;
 
     }
+
     nuevoSegmentoLibre->limite = unSegmento->limite + otroSegmento->limite;
     removerDeHuecosLibres(unSegmento);
     removerDeHuecosLibres(otroSegmento);
     agregarAHuecosLibres(nuevoSegmentoLibre);
+
     //TODO Frees de los segmentos
 }
 
@@ -224,6 +257,7 @@ void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
 }
 
 void realizarEliminacionSegmentoSinPid(t_segmento* segmento){
+
     eliminarDatosSegmento(segmento);
     t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite+1);
     if(segmentoLibreSuperior != NULL){
@@ -240,7 +274,10 @@ t_segmento* buscarPrimerHuecoLibre(){
     bool esLaMenorBase(t_segmento* segmento,t_segmento* otroSegmento){
         return segmento-> base < otroSegmento->base;
     }
+    pthread_mutex_lock(&mutex_huecosDisponibles);
     list_sort(huecosLibres, esLaMenorBase);
+    pthread_mutex_unlock(&mutex_huecosDisponibles);
+
     t_segmento* segmentoMenor = list_get(huecosLibres,0);
     return segmentoMenor;
 }

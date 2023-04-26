@@ -24,6 +24,13 @@ extern t_config* file_cfg_memory;
 extern t_config_memory *cfg_memory;
 extern char* path_config;
 
+extern pthread_mutex_t mutex_espacioContiguo;
+extern pthread_mutex_t mutex_tablasSegmentos;
+extern pthread_mutex_t mutex_huecosUsados;
+extern pthread_mutex_t mutex_huecosDisponibles;
+extern pthread_mutex_t mutex_idSegmento;
+extern pthread_mutex_t mutex_espacioDisponible;
+
 
 
 void inicializarProceso(int cliente_socket);

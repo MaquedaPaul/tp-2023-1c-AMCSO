@@ -44,12 +44,24 @@ int cargar_configuracion(char *path) {
 }
 
 void crearEstructurasAdministrativas(){
+    crearSemaforos();
     crearEspacioContiguoDeMemoria();
     crearTablasSegmentos();
     crearListaHuecosLibres();
     crearListaHuecosUsados();
     crearSegmento0();
     cantidadMaximaSegmentos = cfg_memory->CANT_SEGMENTOS;
+}
+
+bool crearSemaforos(){
+    pthread_mutex_init(&mutex_espacioContiguo,NULL);
+    pthread_mutex_init(&mutex_espacioDisponible,NULL);
+    pthread_mutex_init(&mutex_huecosDisponibles,NULL);
+    pthread_mutex_init(&mutex_huecosUsados,NULL);
+    pthread_mutex_init(&mutex_idSegmento,NULL);
+    pthread_mutex_init(&mutex_tablasSegmentos,NULL);
+
+    return true;
 }
 
 

@@ -8,8 +8,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <commons/collections/list.h>
+#include <semaphore.h>
 #include <estructuras.h>
 #include <loggers_configs.h>
+#include <pthread.h>
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;
