@@ -56,11 +56,12 @@ typedef struct
     uint32_t id;
 } t_segmento;
 
+typedef struct
+{
+    uint32_t tamanio;
+    void* datos;
+} t_datos;
 
-typedef struct{
-    uint16_t tamanioSegmento;
-    uint32_t indiceTablaPaginas;
-}segmento;
 
 
 typedef struct {

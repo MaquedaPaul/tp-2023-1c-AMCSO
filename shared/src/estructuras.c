@@ -26,7 +26,7 @@ void liberarPcb(pcb* pcbALiberar)
         free(instruccion->param2);
         free(instruccion);
     }
-    void liberarTablaSegmentos(segmento* seg){
+    void liberarTablaSegmentos(t_segmento* seg){
         free(seg);
     }
     
