@@ -12,7 +12,7 @@
 #include <estructuras.h>
 #include <loggers_configs.h>
 #include <pthread.h>
-#include <clean_memory.h>
+#include <clean_memory_utils.h>
 #include <protocolo.h>
 
 extern t_log* trace_logger;

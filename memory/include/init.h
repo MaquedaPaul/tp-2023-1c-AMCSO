@@ -32,6 +32,12 @@ extern pthread_mutex_t mutex_huecosDisponibles;
 extern pthread_mutex_t mutex_idSegmento;
 extern pthread_mutex_t mutex_espacioDisponible;
 
+extern bool memoriaInicializada;
+extern bool listaDisponiblesCreada;
+extern bool listaUsadosCreada;
+extern bool tablaSegmentosCreada;
+extern bool segmento0Creado;
+extern bool semaforosCreados;
 
 
 int cargar_configuracion(char *path);

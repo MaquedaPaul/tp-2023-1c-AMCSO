@@ -3,6 +3,7 @@
 //
 
 #include <comunicacion.h>
+bool conexionesHechas = false;
 int fd_memoria;
 char* ip_memory;
 char* puerto_memory;
