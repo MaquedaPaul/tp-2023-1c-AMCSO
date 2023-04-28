@@ -2,9 +2,7 @@
 // Created by utnso on 4/26/23.
 //
 
-#include <clean_memory.h>
-
-
+#include <clean_memory_utils.h>
 
 
 void limpiarYEliminarListaAuxiliarPeroSinEliminarContenido(t_list* unaLista){
@@ -15,3 +13,6 @@ void limpiarYEliminarListaAuxiliarPeroSinEliminarContenido(t_list* unaLista){
 void limpiarHueco(t_segmento* unSegmento){
     free(unSegmento);
 }
+
+
+
