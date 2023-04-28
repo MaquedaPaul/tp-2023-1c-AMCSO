@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <init.h>
 #include <comunicacion.h>
+#include <clean_memory.h>
+#include <signal.h>
 extern char* ip_memory;
 
 #endif //TEMPLATE_MAIN_H
