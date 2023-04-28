@@ -86,6 +86,19 @@ void procesar_conexion(void *void_args) {
                 break;
             }
             case DELETE_SEGMENT: {
+                pcb* pcbRecibida = recibir_pcb(cliente_socket);
+
+                uint32_t* arrayParaMemoria;
+                uint32_t arraySize = 2;
+                arrayParaMemoria = calloc(arraySize+1,sizeof (uint32_t));
+                arrayParaMemoria[0] = arraySize;
+                arrayParaMemoria[1] = pcbRecibida->id;
+
+                instr_t* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter);
+                uint32_t idSegmento = atoi(instruccion->param2);
+
+                arrayParaMemoria[2] = idSegmento;
+                enviar_int_array(arrayParaMemoria,fd_memoria,DELETE_SEGMENT,logger_kernel);
 
                 break;
             }
@@ -126,7 +139,6 @@ void procesar_conexion(void *void_args) {
                 log_info(logger_kernel,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbRecibida->id);
                 break;
             }
-            case 
 
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
