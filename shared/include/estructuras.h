@@ -73,6 +73,7 @@ typedef struct{
 	uint32_t programCounter;
     t_list* tablaSegmentos;
     float estimacionRafaga;
+    //TODO PREGUNTAR POR QUE UNSIGNED?
     unsigned int tiempoLlegadaReady;
     t_list* tablaArchivosAbiertos;
 } pcb;

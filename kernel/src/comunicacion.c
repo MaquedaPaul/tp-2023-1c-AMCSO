@@ -307,7 +307,11 @@ void waitRecursoPcb(t_recurso * recurso, pcb* unaPcb) {
 
 void signalRecursoPcb(t_recurso * recurso, pcb* unaPcb){
     recurso->instanciasRecurso++;
-    //TODO terminar
+    if(!queue_is_empty(recurso->cola)){
+        pcb* pcbLiberada = queue_pop(recurso->cola);
+        // moverProceso_BloqReady(pcbLiberada);
+    }
+    enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,logger_kernel);
 }
 
 void manejoDeRecursos(pcb* unaPcb,char* orden){
@@ -329,3 +333,4 @@ void manejoDeRecursos(pcb* unaPcb,char* orden){
         }
         }
 }
+

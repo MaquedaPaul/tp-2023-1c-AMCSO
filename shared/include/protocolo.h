@@ -82,8 +82,11 @@ typedef enum
 
     //-----------NUEVOS COD OPS--------------
     //------Memoria - Kernel--------
-    INICIAR_ESTRUCTURA_PCB_NUEVO,
+    INICIAR_ESTRUCTURA_PCB_NUEVO, //De Kernel a Memoria
     CREADA_ESTRUCTURA_PCB_NUEVO,
+    OUT_OF_MEMORY,
+    NECESITO_COMPACTAR,
+    CONFIRMAR_COMPACTACION,
     //------CPU - Kernel--------
     // TODO PCB este mensaje colisiona con otro que se llama PCB
     INTERRUPCION,
