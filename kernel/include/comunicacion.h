@@ -45,6 +45,7 @@ void signalRecursoPcb(t_recurso* recurso,pcb* unaPcb);
 void manejoDeRecursos(pcb* unaPcb,char* orden);
 
 t_list* recibirListaInstrucciones(int socket_cliente);
+void creacionSegmentoExitoso(pcb* unaPcb, uint32_t* array);
 
 
 #endif //TEMPLATE_COMUNICACION_H

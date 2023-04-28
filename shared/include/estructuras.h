@@ -15,6 +15,20 @@
 
 typedef struct
 {
+    uint32_t pid;
+    t_list* segmentos;
+} t_tablaSegmentos;
+
+typedef struct
+{
+    uint32_t base;
+    uint32_t limite;
+    uint32_t id;
+} t_segmento;
+
+
+typedef struct
+{
     uint32_t PID; // 4 bytes
     uint8_t cantidad_instrucciones;
     t_list* instrucciones; //12 bytes
@@ -79,7 +93,7 @@ typedef struct{
 } pcb;
 
 typedef struct{ //Usada cuando hay PF
-    uint32_t  segmento;
+    uint32_t segmento;
     uint32_t pagina;
     pcb* pcb;
 }pcb_page_fault;

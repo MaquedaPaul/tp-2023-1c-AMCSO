@@ -34,6 +34,8 @@ typedef enum
     //-----------MENSAJES CPU-KERNEL---------------------------------------------
     WAIT,
     SIGNAL,
+    CREATE_SEGMENT,
+    DELETE_SEGMENT,
     PROCESO_TERMINADO,
     BLOCKED_IO,
     PROCESO_DESALOJADO,
@@ -47,6 +49,7 @@ typedef enum
     //---------------------------------------------------------------------------------
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
+    CONTINUAR_EJECUCION,
     //----------------------------------------------------------------------------------
     ///MEMORIA
     INICIALIZAR_PROCESO_MEMORIA,

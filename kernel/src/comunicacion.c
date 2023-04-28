@@ -63,11 +63,30 @@ void procesar_conexion(void *void_args) {
                 break;
             }
 
-            case 200:
+            case CREATE_SEGMENT:
             {
+                pcb* pcbRecibida = recibir_pcb(cliente_socket);
+
+                //Usamos enviar int array para no tener que hacer funciones de serializacion
+                //la estructura es la siguiente [dimVector,Id segmento,Tam segmento]
+                //el pid del proceso no lo necesito pq lo saco de la cola de execute
+                uint32_t* arrayParaMemoria;
+                uint32_t arraySize = 2;
+                arrayParaMemoria = calloc(arraySize+1,sizeof (uint32_t));
+                arrayParaMemoria[0] = arraySize;
+
+                instr_t* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter);
+                uint32_t idSegmento = atoi(instruccion->param2);
+                uint32_t tamSegmento = atoi(instruccion->param3);
+                arrayParaMemoria[1] = idSegmento;
+                arrayParaMemoria[2] = tamSegmento;
+
+                enviar_int_array(arrayParaMemoria,fd_memoria,CREACION_SEGMENTOS,logger_kernel);
+
                 break;
             }
-            case 2000: {
+            case DELETE_SEGMENT: {
+
                 break;
             }
             case 20000: {
@@ -92,10 +111,22 @@ void procesar_conexion(void *void_args) {
                 break;
             }
 
-            case 3000:
+            case CREACION_SEGMENTO_EXITOSO:
             {
+                uint32_t *array= recibir_int_array(cliente_socket);
+                pcb* pcbRecibida = list_remove(colaExec,0);
+                creacionSegmentoExitoso(pcbRecibida,array);
                 break;
             }
+            case OUT_OF_MEMORY:
+            {
+                recibirOrden(cliente_socket);
+                pcb* pcbRecibida = list_remove(colaExec,0);
+                //moverProceso_ExecExit(pcbRecibida);
+                log_info(logger_kernel,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbRecibida->id);
+                break;
+            }
+            case 
 
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
@@ -332,5 +363,22 @@ void manejoDeRecursos(pcb* unaPcb,char* orden){
             //moverProceso_ExecExit(unaPcb);
         }
         }
+}
+
+void creacionSegmentoExitoso(pcb* unaPcb, uint32_t* array){
+    t_list* tablaSeg = unaPcb->tablaSegmentos;
+    uint32_t idSeg = array[1];
+    uint32_t baseSeg = array[2];
+    uint32_t limSeg = array[3];
+
+
+    for(int i = 0; i < list_size(tablaSeg) ; i++) {
+        t_segmento *segmento = list_get(tablaSeg, i);
+        if (segmento->id == idSeg) {
+            segmento->base = baseSeg;
+            segmento->limite = limSeg;
+        }
+    }
+      enviar_paquete_pcb(unaPcb,fd_cpu,CONTINUAR_EJECUCION,logger_kernel);
 }
 
