@@ -123,8 +123,10 @@ void crearSegmento(int cliente_socket) {
 
 }
 void eliminarSegmento(int cliente_socket){
-    uint32_t direccion= recibirValor_uint32(cliente_socket,info_logger); //direccion de segmento?
-    uint32_t pid;
+    t_list *listaInts = recibirListaUint32_t(cliente_socket);
+    uint32_t pid = list_get(listaInts, 0);
+    uint32_t direccion = list_get(listaInts, 1);
+
     pthread_mutex_lock(&mutex_huecosDisponibles);
     pthread_mutex_lock(&mutex_huecosUsados);
     pthread_mutex_lock(&mutex_espacioDisponible);
@@ -157,3 +159,4 @@ void compactacionSegmentos(int cliente_socket){
     informarTablasActualizadas(cliente_socket);
 
 }
+

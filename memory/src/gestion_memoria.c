@@ -3,6 +3,16 @@
 //
 
 #include <gestion_memoria.h>
+
+
+
+bool memoriaInicializada = false;
+bool listaDisponiblesCreada = false;
+bool listaUsadosCreada = false;
+bool tablaSegmentosCreada = false;
+bool segmento0Creado = false;
+bool semaforosCreados = false;
+
 void* espacio_contiguo;
 t_list* tablasSegmentos;
 t_list* huecosUsados;

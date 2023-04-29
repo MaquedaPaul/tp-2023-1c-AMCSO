@@ -73,6 +73,7 @@ bool crearSemaforos(){
         log_error(error_logger, "No se pudieron inicializar los semaforos");
         return false;
     }
+    semaforosCreados = true;
     return true;
 }
 
@@ -82,6 +83,7 @@ bool crearEspacioContiguoDeMemoria(){
     espacioDisponible = cfg_memory->TAM_MEMORIA;
     memset(espacio_contiguo,0,sizeof (espacio_contiguo));
     //Sin comprobación posible aparente
+    memoriaInicializada = true;
     return true;
 }
 bool crearTablasSegmentos(){
@@ -89,6 +91,7 @@ bool crearTablasSegmentos(){
     if(tablasSegmentos == NULL){
         return false;
     }
+    tablaSegmentosCreada = true;
     return true;
 }
 bool crearListaHuecosLibres(){
@@ -96,6 +99,7 @@ bool crearListaHuecosLibres(){
     if(huecosLibres == NULL){
         return false;
     }
+    listaDisponiblesCreada = true;
     return true;
 }
 
@@ -104,6 +108,7 @@ bool crearListaHuecosUsados(){
     if(huecosUsados == NULL){
         return false;
     }
+    listaUsadosCreada = true;
     return true;
 }
 bool crearSegmento0(){
@@ -116,6 +121,7 @@ bool crearSegmento0(){
     segmento0 = dividirEnDosYObtenerUtilizado(huecoLibreInicial,cfg_memory->TAM_SEGMENTO_0);
     espacioDisponible-= cfg_memory->TAM_SEGMENTO_0;
     //Sin comprobación posible
+    segmento0Creado = true;
     return true;
 }
 
