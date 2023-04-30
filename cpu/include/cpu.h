@@ -8,7 +8,7 @@
 #include <mmu.h>
 #include <init.h>
 
-extern pcb* pcb_actual;
+
 extern int fd_memoria;
 extern int fd_kernel;
 

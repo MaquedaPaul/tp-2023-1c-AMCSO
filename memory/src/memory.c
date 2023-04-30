@@ -70,7 +70,7 @@ void realizarPedidoLectura(int cliente_socket){
     pthread_mutex_lock(&mutex_espacioContiguo);
     void* datos = buscarDatosEnPosicion(pid, posicion, tamanio, esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-    enviarDatos(datos,tamanio, VALOR_SOLICITADO,cliente_socket , info_logger);
+    enviarDatos(datos,tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
 }
 
 

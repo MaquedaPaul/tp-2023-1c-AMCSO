@@ -31,7 +31,8 @@ void procesar_conexion(void *void_args) {
                 //proceso_iniciado(cliente_socket);
 
                 break;
-            case LECTURA_REALIZADA:{
+            case LECTURA_REALIZADA:
+            {
                 char* valor = (char *) recibirValor_uint32(cliente_socket, info_logger); // recibir_valor(cliente_socket, info_logger) y que sea char*
                 //log_info(info_logger, "CPU: Memoria confirma la lectura del valor");
                 terminar_ejecucion_lectura(valor);

@@ -19,7 +19,7 @@ char registroRCX[16];
 char registroRBX[16];
 char registroRDX[16];
 
-
+pcb* pcb_actual;
 uint32_t dir_logica_actual;
 uint32_t dir_fisica_actual;
 
@@ -165,7 +165,7 @@ void ejecutar_lectura(){
 
     //log_info(info_logger,  "Pido a Memoria el valor de la Direccion Fisica: <%d> para lectura", dir_fisica_actual);
 
-    enviar_int_array(array_datos, fd_memoria, PEDIDO_LECTURA, info_logger);
+    enviar_int_array(array_datos, fd_memoria, ACCESO_PEDIDO_LECTURA, info_logger);
 }
 
 void terminar_ejecucion_lectura(char* leido){ //TERMINA EL MOV_IN ESCRIBIENDO EN EL REGISTRO ASOCIADO
