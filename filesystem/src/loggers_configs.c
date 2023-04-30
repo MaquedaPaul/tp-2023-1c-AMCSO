@@ -65,3 +65,32 @@ bool checkProperties(char *path) {
 
     return true;
 }
+
+
+
+void creacionArchivo(char* nombreArchivo){
+    log_info(info_logger,"Crear Archivo: <%s>", nombreArchivo);
+}
+void aperturaArchivo(char* nombreArchivo){
+    log_info(info_logger,"Abrir Archivo: <%s>", nombreArchivo);
+}
+
+void truncacionArchivo(char* nombreArchivo, uint32_t tamanioArchivo){
+    log_info(info_logger,"Truncar Archivo: <%s> - Tamanio: <%d>", nombreArchivo,tamanioArchivo);
+}
+
+void accesoABitmap(uint32_t numeroBloque, uint8_t estado){
+    log_info(info_logger,"Acceso a Bitmap - Bloque: <%d> - Estado: <%d>", numeroBloque,estado);
+}
+
+void lecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t direccionMemoria, uint32_t tamanioArchivo){
+    log_info(info_logger,"Leer Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamanio: <%d>", nombreArchivo,punteroArchivo, direccionMemoria,tamanioArchivo);
+}
+
+void escrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t direccionMemoria, uint32_t tamanioArchivo){
+    log_info(info_logger,"Escribir Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamanio: <%d>", nombreArchivo,punteroArchivo, direccionMemoria,tamanioArchivo);
+}
+
+void accesoABloqueArchivo(char* nombreArchivo, uint32_t numeroBloqueArchivo, uint32_t numeroBloqueFs){
+    log_info(info_logger,"Acceso Bloque - Archivo: <NOMBRE_ARCHIVO> - Bloque Archivo: <NUMERO BLOQUE ARCHIVO> - Bloque File System <NUMERO BLOQUE FS>", nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
+}
