@@ -31,11 +31,17 @@ void procesar_conexion(void *void_args) {
                 //proceso_iniciado(cliente_socket);
 
                 break;
-            case 100:
-                //proceso_terminado(cliente_socket);
+            case LECTURA_REALIZADA:{
+                char* valor = (char *) recibirValor_uint32(cliente_socket, info_logger); // recibir_valor(cliente_socket, info_logger) y que sea char*
+                //log_info(info_logger, "CPU: Memoria confirma la lectura del valor");
+                terminar_ejecucion_lectura(valor);
                 break;
-            case 1000:
-                //solicitud_marco(cliente_socket);
+            }
+                break;
+            case ESCRITURA_REALIZADA:
+                recibirOrden(cliente_socket);
+                log_info(info_logger, "CPU: Memoria confirma la escritura del valor");
+                terminar_ejecucion_escritura();
                 break;
             case 20:
                 //pedido_escritura(cliente_socket);
