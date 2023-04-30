@@ -7,7 +7,7 @@ int fd_filesystem;
 char* ip_filesystem;
 char* puerto_filesystem;
 pthread_t crear_server_filesystem;
-int fd_memoria;
+
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -27,22 +27,27 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
-            case 10:
-                //proceso_iniciado(cliente_socket);
+            case APERTURA_ARCHIVO:
+                abrirArchivo(cliente_socket);
+                break;
+            case CREACION_ARCHIVO:
+                crearArchivo(cliente_socket);
+                break;
+            case TRUNCACION_ARCHIVO:
+                truncarArchivo(cliente_socket);
+                break;
+            case LECTURA_ARCHIVO:
+                leerArchivo(cliente_socket);
+                break;
+            case VALOR_SOLICITADO:
 
                 break;
-            case 100:
-                //proceso_terminado(cliente_socket);
+            case ESCRITURA_ARCHIVO:
+                escribirArchivo(cliente_socket);
                 break;
-            case 1000:
-                //solicitud_marco(cliente_socket);
-                break;
-            case 20:
-                //pedido_escritura(cliente_socket);
-                break;
-            case 200:
-                //pedido_lectura(cliente_socket);
-                break;
+            case ESCRITURA_REALIZADA:
+                finalizarEscrituraArchivo(cliente_socket);
+            break;
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;
