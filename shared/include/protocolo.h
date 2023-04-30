@@ -120,7 +120,13 @@ bool agregarDatosAPaquete(void* datos, uint32_t tamanioDatos, t_paquete* paquete
 void* recibirDatos(int socket_cliente, uint32_t tamanioDatos);
 
 
+bool enviarString(char* string, int cliente_socket, op_code codigoOperacion);
 
+bool agregarStringAPaquete();
+char* recibirString(int cliente_socket);
+
+void recibirParamsParaLecturaArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid);
+void recibirParamsParaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t pid,  uint32_t direccionFisica);
 
 
 

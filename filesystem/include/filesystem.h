@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <protocolo.h>
 #include <loggers_configs.h>
+#include <gestion_filesystem.h>
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;

@@ -425,6 +425,18 @@ t_list* recibirListaInstrucciones(int socket_cliente){
 }
 
 
+bool enviarString(char* string, int cliente_socket, op_code codigoOperacion){
+    return true;
+}
+
+bool agregarStringAPaquete(){
+    return true;
+}
+char* recibirString(int cliente_socket){
+    return "0";
+}
+
+
 ////////////////////////////
 bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger)
 
@@ -604,6 +616,14 @@ t_list* recibirListaIntsYDatos(int socket_cliente,t_datos* datos)
 
 
 
+
+
+void recibirParamsParaLecturaArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid){
+
+}
+void recibirParamsParaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t pid,  uint32_t direccionFisica){
+
+}
 
 
 /*
