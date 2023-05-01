@@ -7,9 +7,6 @@
 int cargar_configuracion(char *path) {
 
 
-
-    file_cfg_memory = config_create(path);
-
     cfg_memory->PUERTO_ESCUCHA = strdup(config_get_string_value(file_cfg_memory, "PUERTO_ESCUCHA"));
     log_trace(trace_logger, "PUERTO_ESCUCHA Cargada Correctamente: %s", cfg_memory->PUERTO_ESCUCHA);
 
@@ -39,7 +36,6 @@ int cargar_configuracion(char *path) {
 
     log_trace(trace_logger, "Archivo de configuracion cargado correctamente");
 
-    config_destroy(file_cfg_memory);
     return true;
 }
 
