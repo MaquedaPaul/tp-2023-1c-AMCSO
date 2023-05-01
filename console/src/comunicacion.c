@@ -4,6 +4,7 @@
 
 #include <comunicacion.h>
 int fd_kernel;
+bool conexionesHechas false;
 
 void* procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -19,19 +20,8 @@ void* procesar_conexion(void *void_args) {
         switch (cop) {
             case DEBUG:
                 break;
-            case 10:
-            {
-                break;
-            }
-            case 100:
-            {
-                break;
-            }
-            case 1000://PROCESO_TERMINADO:
-            {
-                //finalizarme();
+            case PROCESO_TERMINADO:
                 return;
-            }
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;
@@ -46,9 +36,7 @@ void* procesar_conexion(void *void_args) {
     return;
 }
 
-
-
-bool generar_conexiones() {
+bool generarConexionConKernel(){
     char* ip;
     char* puerto;
     ip = strdup(cfg_console->IP_KERNEL);
@@ -67,4 +55,24 @@ bool generar_conexiones() {
     free(ip);
     free(puerto);
     return fd_kernel != 0;
+}
+
+
+
+bool generar_conexiones() {
+    return generarConexionConKernel();
+
+
+}
+bool atenderKernel(){
+    if (fd_kernel == -1){
+        return EXIT_FAILURE;
+    }
+    pthread_t atenderKernel;
+    t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
+    args->fd = fd_kernel;
+    args->server_name = "ATENDER_KERNEL";
+    pthread_create(&atenderKernel, NULL,(void*)procesar_conexion,args);
+    pthread_join(atenderKernel, NULL);
+    return true;
 }
