@@ -68,6 +68,9 @@ void realizarPedidoLectura(int cliente_socket){
     uint32_t tamanio = list_get(listaInts,1);
     uint32_t pid = list_get(listaInts,2);
     pthread_mutex_lock(&mutex_espacioContiguo);
+    accesoEspacioUsuarioLecturaRetardoPrevio(posicion, tamanio, pid);
+    simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
+    accesoEspacioUsuarioLecturaRetardoConcedido();
     void* datos = buscarDatosEnPosicion(pid, posicion, tamanio, esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
     enviarDatos(datos,tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
@@ -83,7 +86,11 @@ void realizarPedidoEscritura(int cliente_socket){
     bool esCpu= cliente_socket == ipCpu;
     uint32_t pid = list_get(listaInts,2);
     pthread_mutex_lock(&mutex_espacioContiguo);
+    accesoEspacioUsuarioEscrituraRetardoPrevio(posicion, pid);
+    simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
+    accesoEspacioUsuarioEscrituraRetardoConcedido();
     escribirEnPosicion(posicion,unosDatos->datos, unosDatos->tamanio, pid,esCpu);
+
     pthread_mutex_unlock(&mutex_espacioContiguo);
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
@@ -147,6 +154,8 @@ void eliminarSegmento(int cliente_socket){
 void compactacionSegmentos(int cliente_socket){
     recibirOrden(cliente_socket);
     inicioCompactacion();
+    compactacionRetardoPrevio(cfg_memory->RETARDO_MEMORIA);
+    simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
     pthread_mutex_lock(&mutex_huecosDisponibles);
     pthread_mutex_lock(&mutex_huecosUsados);
     pthread_mutex_lock(&tablasSegmentos);
@@ -156,6 +165,7 @@ void compactacionSegmentos(int cliente_socket){
     pthread_mutex_unlock(&mutex_huecosUsados);
     pthread_mutex_unlock(&tablasSegmentos);
     pthread_mutex_unlock(&espacio_contiguo);
+    compactacionRetardoTerminada();
     informarTablasActualizadas(cliente_socket);
 
 }
