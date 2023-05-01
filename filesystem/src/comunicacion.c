@@ -39,8 +39,8 @@ void procesar_conexion(void *void_args) {
             case LECTURA_ARCHIVO:
                 leerArchivo(cliente_socket);
                 break;
-            case VALOR_SOLICITADO:
-
+            case LECTURA_REALIZADA:
+                finalizarEscrituraArchivo(cliente_socket);
                 break;
             case ESCRITURA_ARCHIVO:
                 escribirArchivo(cliente_socket);
