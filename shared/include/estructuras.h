@@ -12,6 +12,7 @@
 #include <config_utils.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 
 typedef struct
 {
@@ -106,7 +107,7 @@ typedef struct {
 
 t_proceso *crearNuevoProceso();
 void closure_mostrarListaInstrucciones(instr_t* element);
-
+void liberarInstruccion(instr_t* instruccion);
 
 bool esInstruccionSinParametros(instr_t* instruccion);
 bool esInstruccionConUnParametro(instr_t* instruccion);
@@ -116,6 +117,7 @@ bool esInstruccionConTresParametros(instr_t* instruccion);
 void mostrarPcb(pcb* pcbProceso);
 void mostrarIntArray(uint32_t *array, char*message, t_log* logger);
 int retornarEnSegundos(int milisegundos);
+void simularRetardoSinMensaje(int retardo);
 void simularRetardo(char* message,char* messageFinal, t_log* logger, int retardo);
 void mostrarSegmentos(pcb* pcbProceso);
 void liberarPcb(pcb* pcbALiberar);

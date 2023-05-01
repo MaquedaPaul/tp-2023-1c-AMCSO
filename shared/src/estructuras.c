@@ -15,6 +15,13 @@ t_proceso *crearNuevoProceso()
 
     return nuevoProceso;
 }
+void liberarInstruccion(instr_t* instruccion){
+    free(instruccion->id);
+    free(instruccion->param1);
+    free(instruccion->param2);
+    free(instruccion);
+}
+
 
 void liberarPcb(pcb* pcbALiberar)
 {
@@ -100,6 +107,10 @@ void mostrarIntArray(uint32_t *array, char*message, t_log* logger){
 
 int retornarEnSegundos(int milisegundos){
     return milisegundos/1000; //TODO MEJOR UTILIZAR USLEEP
+}
+
+void simularRetardoSinMensaje(int retardo){
+    usleep(retardo*1000);
 }
 
 void simularRetardo(char* message,char* messageFinal, t_log* logger, int retardo){
