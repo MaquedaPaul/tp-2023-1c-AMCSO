@@ -21,25 +21,10 @@ typedef enum
 {
     //-------------MENSAJES ENTRE CONSOLA-KERNEL------------------------------------
 	GESTIONAR_CONSOLA_NUEVA = 0,
-    SOLICITAR_VALOR,
-    IMPRIMIR_VALOR,
     //------------------------------------------------------------------------------
-    //-------------MENSAJES SERIALIZACION GLOBALES---------------------------------
-    PAQUETE = 3,
-    MENSAJE,
-    PCB = 30,
-    //-----------------------------------------------------------------------------
     //-----------MENSAJES CPU-KERNEL---------------------------------------------
-    PROCESO_TERMINADO,
-    BLOCKED_IO,
+    PROCESO_TERMINADO = 2,
     PROCESO_DESALOJADO,
-    PROCESO_DESALOJADO_CON_PAGEFAULT,
-    BLOCKED_PF,
-    BLOCKED_TECLADO,
-    BLOCKED_PANTALLA,
-    CPU_VACIA,
-    ERROR_SIGSEGV,
-    INTERRUPCION,
     //---------------------------------------------------------------------------------
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
@@ -120,40 +105,34 @@ bool agregarDatosAPaquete(void* datos, uint32_t tamanioDatos, t_paquete* paquete
 void* recibirDatos(int socket_cliente, uint32_t tamanioDatos);
 
 
-bool enviarString(char* string, int cliente_socket, op_code codigoOperacion);
+bool enviarString(char* string, int socket_cliente, op_code codigoOperacion, t_log* logger);
+bool agregarStringAPaquete(char* string, t_paquete* paquete);
+char* recibirString(int socket_cliente);
 
-bool agregarStringAPaquete();
-char* recibirString(int cliente_socket);
-
-void recibirParamsParaLecturaArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid);
-void recibirParamsParaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t pid,  uint32_t direccionFisica);
-
-
-
-//Necesarias para cpu-kernel
-/*
-void enviar_paquete_pcb(pcb* pcbDelProceso, int conexion, op_code codigo, t_log* logger);
- */
-/*
-void agregarPcbAPaquete(t_paquete* paquete, pcb* pcb);
-pcb* recibir_pcb(int conexion);
-
-void enviar_paquete_pcbPf(pcb_page_fault* pcbPfDelProceso, int conexion, op_code codigo, t_log* logger);
-void agregarPcbPfAPaquete(t_paquete* paquete, pcb_page_fault* pcbDelProceso);
-pcb_page_fault* recibir_pcbPf(int conexion);
-*/
-//int array
 uint32_t enviar_int_array(uint32_t *array, int conexion, op_code codigo, t_log* logger);
 void agregarIntArrayAPaquete(t_paquete* paquete, uint32_t *array);
 uint32_t * recibir_int_array(int conexion);
 
-void enviar_pantalla_teclado(char* registro,int conexion, op_code codigo, t_log* logger);
-void agregarRegistroAPaquete(t_paquete* paquete, char* registro);
-char* recibir_pantalla_teclado(int conexion);
+
 
 void enviar_mensaje(char* mensaje, int socket_cliente, op_code codigoOperacion, t_log* logger);
 char* recibir_mensaje(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
+
+
+
+
+
+bool enviarParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, op_code codigoOperacion, t_log* logger, int socket_cliente);
+bool agregarParamsParaLecturaEscrituraArchivoAPaquete(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, t_paquete* paquete);
+void recibirParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, int socket_cliente);
+
+
+
+
+
+
+
 
 
 
@@ -178,21 +157,4 @@ t_list* recibirListaIntsYDatos(int cliente_socket,t_datos* datos);
 
 
 
-
-
-/*
-
-void *recibir_stream(int *size, int socket_cliente);
-void recibir_mensaje(t_log *logger, int socket_cliente);
-t_list *recibir_paquete(int socket_cliente);
-
-
-bool send_aprobar_operativos(int fd, uint8_t nota1, uint8_t nota2);
-bool recv_aprobar_operativos(int fd, uint8_t *nota1, uint8_t *nota2);
-
-bool send_mirar_netflix(int fd, char *peli, uint8_t cant_pochoclos);
-bool recv_mirar_netflix(int fd, char **peli, uint8_t *cant_pochoclos);
-
-bool send_debug(int fd);
-*/
 #endif

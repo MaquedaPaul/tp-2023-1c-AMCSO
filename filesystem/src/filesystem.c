@@ -41,7 +41,7 @@ void leerArchivo(int cliente_socket){
     uint32_t tamanio;
     uint32_t direccionFisica;
     uint32_t pid;
-    recibirParamsParaLecturaArchivo(nombreArchivo, puntero, tamanio, direccionFisica, pid);
+    recibirParamsParaLecturaEscrituraArchivo(nombreArchivo, puntero, tamanio, direccionFisica, pid, cliente_socket);
     t_datos* datosAEnviar = malloc(sizeof(t_datos));
     datosAEnviar->tamanio = tamanio;
     datosAEnviar->datos = realizarLecturaArchivo(nombreArchivo, puntero, tamanio);
@@ -58,7 +58,7 @@ void escribirArchivo(int cliente_socket){
     uint32_t tamanio;
     uint32_t pid;
     uint32_t direccion;
-    recibirParamsParaEscrituraArchivo(archivoPendienteDeEscribir, punteroPendiente, tamanio, pid, direccion);
+    recibirParamsParaLecturaEscrituraArchivo(archivoPendienteDeEscribir, punteroPendiente, tamanio, pid, direccion, cliente_socket);
     t_list* listaInts = list_create();
     list_add(listaInts, direccion);
     list_add(listaInts, tamanio);
