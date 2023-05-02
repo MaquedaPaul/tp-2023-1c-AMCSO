@@ -114,13 +114,10 @@ bool esInstruccionConUnParametro(instr_t* instruccion);
 bool esInstruccionConDosParametros(instr_t* instruccion);
 bool esInstruccionConTresParametros(instr_t* instruccion);
 
-void mostrarPcb(pcb* pcbProceso);
 void mostrarIntArray(uint32_t *array, char*message, t_log* logger);
-int retornarEnSegundos(int milisegundos);
+
 void simularRetardoSinMensaje(int retardo);
 void simularRetardo(char* message,char* messageFinal, t_log* logger, int retardo);
-void mostrarSegmentos(pcb* pcbProceso);
-void liberarPcb(pcb* pcbALiberar);
 t_list * convertirIntArrayALista(uint32_t * array);
 uint32_t* convertirIntListaToArray(t_list* lista);
 

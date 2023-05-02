@@ -23,26 +23,6 @@ void liberarInstruccion(instr_t* instruccion){
 }
 
 
-void liberarPcb(pcb* pcbALiberar)
-{
-    
-    void liberarListaDeInstrucciones(instr_t* instruccion)
-    {
-        free(instruccion->id);
-        free(instruccion->param1);
-        free(instruccion->param2);
-        free(instruccion);
-    }
-    void liberarTablaSegmentos(t_segmento* seg){
-        free(seg);
-    }
-    
-    //list_destroy_and_destroy_elements(pcbALiberar->instr, (void*)liberarListaDeInstrucciones);
-    //TODO ROMPE list_destroy_and_destroy_elements(pcbALiberar->tablaSegmentos, (void*)liberarTablaSegmentos);
-    free(pcbALiberar->registrosCpu);
-    free(pcbALiberar);
-}
-
 void closure_mostrarListaInstrucciones(instr_t* element) //Es compartido con consola
 {
     printf("%s",element->id);
@@ -87,16 +67,6 @@ bool esInstruccionConTresParametros(instr_t* instruccion){
 
 
 
-void mostrarPcb(pcb* pcbProceso){
-    printf("\n--------------------------------------------------");
-    printf("\nLa PCB del proceso es: \n");
-    printf("La id es %d: ", pcbProceso->id);
-    printf("\nLas instrucciones son: \n");
-    list_iterate(pcbProceso->instr, closure_mostrarListaInstrucciones);
-    printf("\nLa lista de segmentos es: \n[");
-
-
-}
 
 void mostrarIntArray(uint32_t *array, char*message, t_log* logger){
     //CUIDADO, MANDAR %d siempre en el mensaje
@@ -105,9 +75,7 @@ void mostrarIntArray(uint32_t *array, char*message, t_log* logger){
     }
 }
 
-int retornarEnSegundos(int milisegundos){
-    return milisegundos/1000; //TODO MEJOR UTILIZAR USLEEP
-}
+
 
 void simularRetardoSinMensaje(int retardo){
     usleep(retardo*1000);
