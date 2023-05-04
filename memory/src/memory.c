@@ -132,7 +132,7 @@ void crearSegmento(int cliente_socket) {
 void eliminarSegmento(int cliente_socket){
     t_list *listaInts = recibirListaUint32_t(cliente_socket);
     uint32_t pid = list_get(listaInts, 0);
-    uint32_t direccion = list_get(listaInts, 1);
+    uint32_t idSegmento = list_get(listaInts, 1);
 
     pthread_mutex_lock(&mutex_huecosDisponibles);
     pthread_mutex_lock(&mutex_huecosUsados);
@@ -140,14 +140,15 @@ void eliminarSegmento(int cliente_socket){
     pthread_mutex_lock(&tablasSegmentos);
     pthread_mutex_lock(&espacio_contiguo);
 
-    t_segmento* segmentoAEliminar = buscarSegmentoEnBaseADireccion(direccion);
-
+    t_segmento* segmentoAEliminar = buscarSegmentoSegunId(idSegmento);
     realizarEliminacionSegmento(segmentoAEliminar,pid);
+    t_tablaSegmentos* tablaAEnviar = buscarTablaConPid(pid);
     pthread_mutex_unlock(&mutex_huecosDisponibles);
     pthread_mutex_unlock(&mutex_huecosUsados);
     pthread_mutex_unlock(&mutex_espacioDisponible);
     pthread_mutex_unlock(&tablasSegmentos);
     pthread_mutex_unlock(&espacio_contiguo);
+    enviarTablasSegmentos(tablaAEnviar,cliente_socket, info_logger);
     //Deberia informar a kernel de la eliminacion? no dice nada en el tp //TODO
 }
 
