@@ -47,6 +47,7 @@ t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre,uint32_t tamani
 t_tablaSegmentos* crearTablaSegmentos(uint32_t pid);
 t_tablaSegmentos* buscarTablaConPid(uint32_t pid);
 t_segmento* buscarSegmentoEnBaseADireccion(uint32_t direccion);
+t_segmento* buscarSegmentoSegunId(uint32_t unId);
 void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid);
 void realizarEliminacionSegmentoSinPid(t_segmento* segmento);
 uint32_t realizarCompactacion();

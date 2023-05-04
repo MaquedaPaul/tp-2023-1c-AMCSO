@@ -180,6 +180,26 @@ t_tablaSegmentos* buscarTablaConPid(uint32_t pid){
 
     return tablaEncontrada;
 }
+
+t_segmento* buscarSegmentoSegunId(uint32_t unId){
+    bool coincideId(t_segmento* segmento){
+        return segmento->id == unId;
+    }
+    t_segmento *usado = list_find(huecosUsados,coincideId);
+    t_segmento *libre = list_find(huecosLibres,coincideId);
+    if(usado != NULL){
+        return usado;
+    }
+    else if(libre != NULL){
+        return libre;
+    }
+    else {
+        log_warning(warning_logger, "Segmento con ID: [%d] no encontrado",unId);
+        return NULL;
+    }
+
+}
+
 t_segmento* buscarSegmentoEnBaseADireccion(uint32_t direccion){
     bool coincideDireccion(t_segmento* segmento){
         return segmento->base == direccion;
