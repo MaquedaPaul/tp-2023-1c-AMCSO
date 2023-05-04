@@ -3,7 +3,7 @@
 //
 
 #include <init.h>
-
+bool semaforosCreados = false;
 
 int cargar_configuracion(char *path) {
 
@@ -43,3 +43,45 @@ int cargar_configuracion(char *path) {
     return true;
 }
 
+
+
+bool crearEstructurasAdministrativas(){
+    bool comp1 = crearSemaforos();
+    bool comp2 = crearBitmapBloques();
+    bool comp3 = crearSuperbloque();
+    bool comp4 = crearArchivoBloques();
+    bool comp5 = recorrerDirectorioFcb();
+    return comp1 && comp2 && comp3 && comp4 && comp5;
+}
+
+bool crearSemaforos(){
+    semaforosCreados = true;
+    return true;
+}
+
+
+bool crearBitmapBloques(){
+    return true;
+}
+bool crearSuperbloque(){
+    return true;
+}
+bool crearArchivoBloques(){
+    return true;
+}
+bool recorrerDirectorioFcb(){
+    return true;
+}
+
+
+
+
+bool iniciarMemoria(){
+    //TODO Si hiciera falta que exclusivamente tiene que generarse las conexiones antes que las estructuras, acá es donde hay que tocar.
+    bool estructurasAdministrativas = crearEstructurasAdministrativas();
+    if (!generar_conexiones()){
+        //cerrar_programa();
+        return false;
+    }
+    return estructurasAdministrativas;
+}
