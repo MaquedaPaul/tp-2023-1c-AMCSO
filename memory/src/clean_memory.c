@@ -9,7 +9,7 @@ void cerrar_programa(){
     destruirLoggers();
     }
     if(configCreado){
-    //destruirConfig();
+    destruirConfig();
     }
     if(cfgCreado){
     destruirCfg();
