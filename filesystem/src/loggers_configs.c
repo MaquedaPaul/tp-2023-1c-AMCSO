@@ -11,10 +11,16 @@ t_log* error_logger;
 t_config* file_cfg_filesystem;
 t_config_filesystem *cfg_filesystem;
 char* path_config;
-
+bool logsCreados = false;
+bool configCreado = false;
+bool cfgCreado = false;
 
 int init_logs_configs(char *path_config) {
     cfg_filesystem = cfg_filesystem_start();
+    if(cfg_filesystem == NULL){
+        return false;
+    }
+    cfgCreado= true;
     trace_logger = log_create("trace_logger.log","Filesystem", true, LOG_LEVEL_TRACE);
     debug_logger = log_create("debug_logger.log","Filesystem", true, LOG_LEVEL_DEBUG);
     info_logger = log_create("info_logger.log","Filesystem", true, LOG_LEVEL_INFO);
@@ -25,7 +31,12 @@ int init_logs_configs(char *path_config) {
         printf("No pude crear los loggers");
         return false;
     }
+    logsCreados = true;
     file_cfg_filesystem = iniciar_config(path_config);
+    if(file_cfg_filesystem == NULL){
+        return false;
+    }
+    configCreado = true;
     return checkProperties(path_config);
 }
 
