@@ -8,6 +8,7 @@ char* ip_filesystem;
 char* puerto_filesystem;
 pthread_t crear_server_filesystem;
 
+bool conexionesHechas = false;
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -82,8 +83,10 @@ bool generar_conexiones(){
 
     pthread_create(&crear_server_filesystem,NULL, crearServidor,NULL);
     pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
+    conexionesHechas = true;
     pthread_join(crear_server_filesystem, NULL);
     pthread_join(conexion_con_memoria, NULL);
+
     return true; //debe tomarse lo que retorna el hilo al crear el servidor
 }
 
