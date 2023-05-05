@@ -105,6 +105,14 @@ void eliminar_paquete(t_paquete* paquete, t_log* logger) {
 
 }
 
+void agregar_a_paquete(t_paquete *paquete, void *valor, int tamanio) {
+    paquete->buffer->stream = realloc(paquete->buffer->stream, paquete->buffer->size + tamanio);
+    memcpy(paquete->buffer->stream + paquete->buffer->size, valor, tamanio);
+    paquete->buffer->size += tamanio;
+}
+
+
+
 int recibir_operacion(int socket_cliente)
 {
     int cod_op;
@@ -806,6 +814,115 @@ void recibirParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t punt
     free(buffer);
 
 }
+
+
+
+
+void agregar_instrucciones_a_paquete(t_paquete *paquete, t_list *instrucciones) {
+
+    int cantidad_instrucciones = list_size(instrucciones);
+
+    agregar_a_paquete(paquete, &cantidad_instrucciones, sizeof(int));
+
+    for (int i = 0; i < cantidad_instrucciones; i++) {
+        t_instr *instruccion = list_get(instrucciones, i);
+
+        agregar_a_paquete(paquete, &(instruccion->idLength), sizeof(int));
+        agregar_a_paquete(paquete, instruccion->id, instruccion->idLength);
+
+        agregar_a_paquete(paquete, &(instruccion->cantidad_parametros), sizeof(int));
+
+        if(instruccion->cantidad_parametros == 1){
+
+            agregar_a_paquete(paquete, &(instruccion->param1Length), sizeof(int));
+            agregar_a_paquete(paquete, instruccion->param1, instruccion->param1Length);          }
+
+        if(instruccion->cantidad_parametros == 2){
+
+            agregar_a_paquete(paquete, &(instruccion->param1Length), sizeof(int));
+            agregar_a_paquete(paquete, instruccion->param1, instruccion->param1Length);
+            agregar_a_paquete(paquete,  &(instruccion->param2Length), sizeof(int));
+            agregar_a_paquete(paquete, instruccion->param2, instruccion->param2Length);        }
+
+    }
+}
+
+
+void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos) {
+
+    int cantidad_segmentos = list_size(segmentos);
+
+    agregar_a_paquete(paquete, &cantidad_segmentos, sizeof(int));
+
+    for (int i = 0; i < cantidad_segmentos; i++) {
+        t_segmento *segmen = list_get(segmentos, i);
+        agregar_a_paquete(paquete, &(segmen->id), sizeof(u_int32_t));
+        agregar_a_paquete(paquete, &(segmen->limite), sizeof(u_int32_t));
+        agregar_a_paquete(paquete, &(segmen->base), sizeof(u_int32_t));
+    }
+}
+
+void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro) {
+
+int tamanioAX = strlen(registro->registroAX) + 1;
+agregar_a_paquete(paquete, &tamanioAX, sizeof(int));
+agregar_a_paquete(paquete, (registro->registroAX), tamanioAX);
+
+int tamanioBX = strlen(registro->registroBX) + 1;
+agregar_a_paquete(paquete, &(tamanioBX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroBX), tamanioBX);
+
+int tamanioCX = strlen(registro->registroCX) + 1;
+agregar_a_paquete(paquete, &(tamanioCX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroCX), tamanioCX);
+
+int tamanioDX = strlen(registro->registroDX) + 1;
+agregar_a_paquete(paquete, &(tamanioDX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroDX), tamanioDX);
+
+int tamanioEAX = strlen(registro->registroEAX) + 1;
+agregar_a_paquete(paquete, &tamanioEAX, sizeof(int));
+agregar_a_paquete(paquete, (registro->registroEAX), tamanioEAX);
+
+int tamanioEBX = strlen(registro->registroEBX) + 1;
+agregar_a_paquete(paquete, &(tamanioEBX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroEBX), tamanioEBX);
+
+int tamanioECX = strlen(registro->registroECX) + 1;
+agregar_a_paquete(paquete, &(tamanioECX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroECX), tamanioECX);
+
+int tamanioEDX = strlen(registro->registroEDX) + 1;
+agregar_a_paquete(paquete, &(tamanioEDX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroEDX), tamanioEDX);
+
+int tamanioRAX = strlen(registro->registroRAX) + 1;
+agregar_a_paquete(paquete, &tamanioRAX, sizeof(int));
+agregar_a_paquete(paquete, (registro->registroRAX), tamanioRAX);
+
+int tamanioRBX = strlen(registro->registroRBX) + 1;
+agregar_a_paquete(paquete, &(tamanioRBX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroRBX), tamanioRBX);
+
+int tamanioRCX = strlen(registro->registroRCX) + 1;
+agregar_a_paquete(paquete, &(tamanioRCX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroRCX), tamanioRCX);
+
+int tamanioRDX = strlen(registro->registroRDX) + 1;
+agregar_a_paquete(paquete, &(tamanioRDX), sizeof(int));
+agregar_a_paquete(paquete, (registro->registroRDX), tamanioRDX);
+
+}
+
+
+void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb) {
+    agregar_a_paquete(paquete, &(pcb->id), sizeof(u_int32_t));
+    agregar_a_paquete(paquete, &(pcb->programCounter), sizeof(u_int32_t));
+    agregar_instrucciones_a_paquete(paquete, pcb->instr);
+    agregar_segmentos_a_paquete(paquete, pcb->tablaSegmentos);
+    agregar_registros_a_paquete(paquete, pcb->registrosCpu);
+}
+
 
 
 

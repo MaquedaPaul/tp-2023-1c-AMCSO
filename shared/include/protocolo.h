@@ -17,10 +17,9 @@
 #include <commons/collections/list.h>
 #include <estructuras.h>
 
-typedef enum
-{
+typedef enum {
     //-------------MENSAJES ENTRE CONSOLA-KERNEL------------------------------------
-	GESTIONAR_CONSOLA_NUEVA = 0,
+    GESTIONAR_CONSOLA_NUEVA = 0,
     //------------------------------------------------------------------------------
     //-----------MENSAJES CPU-KERNEL---------------------------------------------
     PROCESO_TERMINADO = 2,
@@ -29,6 +28,22 @@ typedef enum
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
     //----------------------------------------------------------------------------------
+    /////////////////////////////////////CPU///////////////////////////////////////////
+    IO_BLOCK,
+    F_OPEN,
+    F_CLOSE,
+    F_SEEK,
+    SEGMENTATION_FAULT,
+    F_READ,
+    F_WRITE,
+    F_TRUNCATE,
+    WAIT,
+    SIGNAL,
+    CREATE_SEGMENT,
+    DELETE_SEGMENT,
+    YIELD,
+    EXIT,
+
     //////HANDSHAKES
     HANDSHAKE_FS,
     HANDSHAKE_CPU,
@@ -94,6 +109,9 @@ void* serializar_paquete(t_paquete* paquete, int bytes);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
 t_proceso* recibir_paquete(int socket_cliente);
 void eliminar_paquete(t_paquete* paquete, t_log* logger);
+void agregar_a_paquete(t_paquete *paquete, void *valor, int tamanio);
+
+
 
 bool enviarListaUint32_t(t_list* listaInts, int socket_cliente, t_log* logger, op_code codigo);
 bool agregarUint32_tsAPaquete(t_list* listaInts, t_paquete* paquete);
@@ -153,6 +171,14 @@ t_list* recibirTablasSegmentosInstrucciones(int socket_cliente);
 bool enviarListaIntsYDatos(t_list* listaInts,t_datos* datos, int socket_cliente, t_log* logger, op_code codigo);
 bool agregarIntsYDatosAPaquete(t_list* listaInts, t_datos* datos, t_paquete* paquete);
 t_list* recibirListaIntsYDatos(int cliente_socket,t_datos* datos);
+
+
+
+void agregar_instrucciones_a_paquete(t_paquete *paquete, t_list *instrucciones);
+void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos);
+void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro);
+void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb);
+
 
 
 

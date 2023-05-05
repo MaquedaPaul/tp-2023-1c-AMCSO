@@ -34,14 +34,35 @@ typedef struct {
     char* param3;
 } instr_t;
 
+typedef struct {
+    uint8_t idLength;
+    char* id; // el id seria el nombre de la instruccion
+    uint8_t param1Length;
+    uint8_t cantidad_parametros;
+    char* param1;
+    uint8_t param2Length;
+    char* param2;
+    uint8_t param3Length;
+    char* param3;
+} t_instr;
+
+
 //Registros de CPU
 typedef struct{
-    uint32_t AX;
-    uint32_t BX;
-    uint32_t CX;
-    uint32_t DX; 
-}registros_cpu;
 
+    char registroAX[4];
+    char registroBX[4];
+    char registroCX[4];
+    char registroDX[4];
+    char registroEAX[8];
+    char registroEBX[8];
+    char registroECX[8];
+    char registroEDX[8];
+    char registroRAX[16];
+    char registroRCX[16];
+    char registroRBX[16];
+    char registroRDX[16];
+}registros_cpu;
 //Tabla de Segmentos
 
 typedef struct
@@ -87,12 +108,14 @@ typedef struct{
     registros_cpu* registrosCpu;
 	uint32_t programCounter;
     t_list* tablaSegmentos;
-} pcb;
+} t_pcb;
+
+
 
 typedef struct{ //Usada cuando hay PF
     uint32_t  segmento;
     uint32_t pagina;
-    pcb* pcb;
+    t_pcb* pcb;
 }pcb_page_fault;
 
 typedef struct {
