@@ -5,6 +5,9 @@
 #ifndef FILESYSTEM_CLEAN_FILESYSTEM_H
 #define FILESYSTEM_CLEAN_FILESYSTEM_H
 #include <init.h>
+#include <comunicacion.h>
+#include <loggers_configs.h>
+#include <signal.h>
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
@@ -20,7 +23,7 @@ extern bool configCreado;
 extern bool cfgCreado;
 extern bool conexionesHechas;
 extern bool semaforosCreados;
-
+void cerrar_programa();
 void destruirLoggers();
 void destruirConfig();
 void destruirCfg();
