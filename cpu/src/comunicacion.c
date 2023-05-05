@@ -35,8 +35,9 @@ void procesar_conexion(void *void_args) {
                 break;
             case LECTURA_REALIZADA:
             {
-                char* valor = (char *) recibirValor_uint32(cliente_socket, info_logger); // recibir_valor(cliente_socket, info_logger) y que sea char*
+                uint32_t valorInt =recibirValor_uint32(cliente_socket, info_logger); // recibir_valor(cliente_socket, info_logger) y que sea char*
                 //log_info(info_logger, "CPU: Memoria confirma la lectura del valor");
+                char* valor = string_itoa(valorInt);
                 terminar_ejecucion_lectura(valor);
                 break;
             }
