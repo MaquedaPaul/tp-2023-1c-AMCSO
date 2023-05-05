@@ -93,12 +93,12 @@ void execute() {
         char* registro = instruccion->param2;
         log_info(info_logger, "PID: <%d> - Ejecutando: <MOV_OUT> - <%d> - <%s>", pcb_actual->id, direccion_logica, registro );
 
-        ejecutar_MOV_OUT(direccion_logica, registro);
+        ejecutar_MOV_OUT(registro,direccion_logica);
     }
 
     else if (strcmp(nombre_instruccion_actual, "I/O") == 0) {
 
-        int tiempo = instruccion->param1;
+        int tiempo = atoi(instruccion->param1);
         log_info(info_logger, "PID: <%d> - Ejecutando <I/O> - <%d>", pcb_actual->id, tiempo);
         ejecutar_IO(tiempo);
     }
