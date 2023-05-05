@@ -7,10 +7,38 @@
 #include <protocolo.h>
 #include <mmu.h>
 #include <init.h>
-
+#include <gestion_cpu.h>
 
 extern int fd_memoria;
 extern int fd_kernel;
+
+//Instruccion a ejecutar actual
+extern instr_t* instruccion;
+
+extern bool cicloInstruccionesDebeEjecutarse;
+extern char* nombre_instruccion_actual;
+extern t_pcb *pcb_actual;
+extern uint32_t tam_max_segmento;
+extern char registro_AX[4];
+extern char registro_BX[4];
+extern char registro_CX[4];
+extern char registro_DX[4];
+extern char registro_EAX[8];
+extern char registro_EBX[8];
+extern char registro_ECX[8];
+extern char registro_EDX[8];
+extern char registro_RAX[16];
+extern char registro_RBX[16];
+extern char registro_RCX[16];
+extern char registro_RDX[16];
+
+extern int cliente_servidor;
+
+extern t_segmento* segmento;
+
+//Registros temporales
+extern uint32_t dir_logica_actual;
+extern uint32_t dir_fisica_actual;
 
 
 
