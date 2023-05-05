@@ -63,17 +63,17 @@ int finalizarProcesoConPid(uint32_t unPid){
 
 void realizarPedidoLectura(int cliente_socket){
     t_list* listaInts = recibirListaUint32_t(cliente_socket);
-    uint32_t posicion = list_get(listaInts,0);
+    uint32_t* posicion = list_get(listaInts,0);
     bool esCpu= cliente_socket == ipCpu;
-    uint32_t tamanio = list_get(listaInts,1);
-    uint32_t pid = list_get(listaInts,2);
+    uint32_t* tamanio = list_get(listaInts,1);
+    uint32_t* pid = list_get(listaInts,2);
     pthread_mutex_lock(&mutex_espacioContiguo);
-    accesoEspacioUsuarioLecturaRetardoPrevio(posicion, tamanio, pid);
+    accesoEspacioUsuarioLecturaRetardoPrevio(*posicion, *tamanio, *pid);
     simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
     accesoEspacioUsuarioLecturaRetardoConcedido();
-    void* datos = buscarDatosEnPosicion(pid, posicion, tamanio, esCpu);
+    void* datos = buscarDatosEnPosicion(*pid, *posicion, *tamanio, esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-    enviarDatos(datos,tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
+    enviarDatos(datos,*tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
 }
 
 
@@ -82,14 +82,14 @@ void realizarPedidoLectura(int cliente_socket){
 void realizarPedidoEscritura(int cliente_socket){
     t_datos* unosDatos = malloc(sizeof(t_datos));
     t_list* listaInts = recibirListaIntsYDatos(cliente_socket, unosDatos);
-    uint32_t posicion = list_get(listaInts,0);
+    uint32_t* posicion = list_get(listaInts,0);
     bool esCpu= cliente_socket == ipCpu;
-    uint32_t pid = list_get(listaInts,2);
+    uint32_t* pid = list_get(listaInts,2);
     pthread_mutex_lock(&mutex_espacioContiguo);
-    accesoEspacioUsuarioEscrituraRetardoPrevio(posicion, pid);
+    accesoEspacioUsuarioEscrituraRetardoPrevio(*posicion, *pid);
     simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
     accesoEspacioUsuarioEscrituraRetardoConcedido();
-    escribirEnPosicion(posicion,unosDatos->datos, unosDatos->tamanio, pid,esCpu);
+    escribirEnPosicion(*posicion,unosDatos->datos, unosDatos->tamanio, *pid,esCpu);
 
     pthread_mutex_unlock(&mutex_espacioContiguo);
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
@@ -97,10 +97,10 @@ void realizarPedidoEscritura(int cliente_socket){
 
 void crearSegmento(int cliente_socket) {
     t_list *listaInts = recibirListaUint32_t(cliente_socket);
-    uint32_t pid = list_get(listaInts, 0);
-    uint32_t tamanioSegmento = list_get(listaInts, 1);
+    uint32_t* pid = list_get(listaInts, 0);
+    uint32_t* tamanioSegmento = list_get(listaInts, 1);
     pthread_mutex_lock(&mutex_espacioDisponible);
-    if (!hayDisponibilidadDeEspacio(tamanioSegmento)) {
+    if (!hayDisponibilidadDeEspacio(*tamanioSegmento)) {
         enviarOrden(SIN_ESPACIO_DISPONIBLE, cliente_socket, info_logger);
         pthread_mutex_unlock(&mutex_espacioDisponible);
         return;
@@ -116,12 +116,12 @@ void crearSegmento(int cliente_socket) {
     pthread_mutex_lock(&mutex_huecosUsados);
     pthread_mutex_lock(&mutex_idSegmento);
     pthread_mutex_lock(&mutex_espacioDisponible);
-    t_segmento* huecoLibre = buscarHuecoLibre(tamanioSegmento);
+    t_segmento* huecoLibre = buscarHuecoLibre(*tamanioSegmento);
     if(huecoLibre == NULL){
         log_error(error_logger,"Ocurrio algo que no debia pasar, ayuda :(");
     }
 
-    uint32_t direccion = realizarCreacionSegmento(pid, huecoLibre, tamanioSegmento);
+    uint32_t direccion = realizarCreacionSegmento(*pid, huecoLibre, *tamanioSegmento);
     pthread_mutex_unlock(&mutex_huecosDisponibles);
     pthread_mutex_unlock(&mutex_huecosUsados);
     pthread_mutex_unlock(&mutex_idSegmento);
@@ -131,8 +131,8 @@ void crearSegmento(int cliente_socket) {
 }
 void eliminarSegmento(int cliente_socket){
     t_list *listaInts = recibirListaUint32_t(cliente_socket);
-    uint32_t pid = list_get(listaInts, 0);
-    uint32_t idSegmento = list_get(listaInts, 1);
+    uint32_t* pid = list_get(listaInts, 0);
+    uint32_t* idSegmento = list_get(listaInts, 1);
 
     pthread_mutex_lock(&mutex_huecosDisponibles);
     pthread_mutex_lock(&mutex_huecosUsados);
@@ -140,9 +140,9 @@ void eliminarSegmento(int cliente_socket){
     pthread_mutex_lock(&tablasSegmentos);
     pthread_mutex_lock(&espacio_contiguo);
 
-    t_segmento* segmentoAEliminar = buscarSegmentoSegunId(idSegmento);
-    realizarEliminacionSegmento(segmentoAEliminar,pid);
-    t_tablaSegmentos* tablaAEnviar = buscarTablaConPid(pid);
+    t_segmento* segmentoAEliminar = buscarSegmentoSegunId(*idSegmento);
+    realizarEliminacionSegmento(segmentoAEliminar,*pid);
+    t_tablaSegmentos* tablaAEnviar = buscarTablaConPid(*pid);
     pthread_mutex_unlock(&mutex_huecosDisponibles);
     pthread_mutex_unlock(&mutex_huecosUsados);
     pthread_mutex_unlock(&mutex_espacioDisponible);
