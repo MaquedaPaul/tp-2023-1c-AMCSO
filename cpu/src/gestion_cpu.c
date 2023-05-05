@@ -56,8 +56,7 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
 
 
 
-void ejecutar_MOV_OUT(char* nombre_archivo, int direccion_logica) {
-    char* registro;
+void ejecutar_MOV_OUT(char* registro, int direccion_logica) {
     int cantidad_bytes = buscar_registro(registro);
 
     //if( buscar_registro(registro) < 0 )
