@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <init.h>
 #include <comunicacion.h>
+#include <clean_filesystem.h>
 extern char* ip_filesystem;
 
 

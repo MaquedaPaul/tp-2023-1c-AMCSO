@@ -3,7 +3,7 @@
 //
 
 #include <init.h>
-
+bool semaforosCreados = false;
 
 int cargar_configuracion(char *path) {
     config_destroy(file_cfg_cpu);  //Destruye antes?
