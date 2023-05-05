@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <comunicacion.h>
+#include <clean_cpu.h>
 extern char* path_config;
 extern char* ip_cpu;
 

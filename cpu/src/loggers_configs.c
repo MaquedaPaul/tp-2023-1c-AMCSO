@@ -12,9 +12,16 @@ t_config* file_cfg_cpu;
 t_config_cpu *cfg_cpu;
 char* path_config;
 
+bool logsCreados = false;
+bool configCreado = false;
+bool cfgCreado = false;
 
 int init_logs_configs(char *path_config) {
     cfg_cpu = cfg_cpu_start();
+    if(cfg_cpu == NULL){
+        return  false;
+    }
+    cfgCreado = true;
     trace_logger = log_create("trace_logger.log","Cpu", true, LOG_LEVEL_TRACE);
     debug_logger = log_create("debug_logger.log","Cpu", true, LOG_LEVEL_DEBUG);
     info_logger = log_create("info_logger.log","Cpu", true, LOG_LEVEL_INFO);
@@ -25,7 +32,12 @@ int init_logs_configs(char *path_config) {
         printf("No pude crear los loggers");
         return false;
     }
+    logsCreados = true;
     file_cfg_cpu = iniciar_config(path_config);
+    if(file_cfg_cpu == NULL){
+        return false;
+    }
+    configCreado = true;
     return checkProperties(path_config);
 }
 
