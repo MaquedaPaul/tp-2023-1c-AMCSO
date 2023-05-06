@@ -4,19 +4,20 @@ uint32_t tam_max_segmento;
 t_pcb *pcb_actual;
 t_segmento* segmento;
 int cliente_servidor;
+int num_segmento;
 
-char registro_AX[4];
-char registro_BX[4];
-char registro_CX[4];
-char registro_DX[4];
-char registro_EAX[8];
-char registro_EBX[8];
-char registro_ECX[8];
-char registro_EDX[8];
-char registro_RAX[16];
-char registro_RBX[16];
-char registro_RCX[16];
-char registro_RDX[16];
+char registroCPU_AX[4];
+char registroCPU_BX[4];
+char registroCPU_CX[4];
+char registroCPU_DX[4];
+char registroCPU_EAX[8];
+char registroCPU_EBX[8];
+char registroCPU_ECX[8];
+char registroCPU_EDX[8];
+char registroCPU_RAX[16];
+char registroCPU_RBX[16];
+char registroCPU_RCX[16];
+char registroCPU_RDX[16];
 
 
 int obtener_direccion_logica(char* direccion_logica, char* nombre_instruccion){
@@ -51,16 +52,21 @@ int es_segmetation_fault(int direccion_fisica, int direccion_logica, int tamaño
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
 
-    int num_segmento = floor(direccion_logica / tam_max_segmento);
-    int desplazamiento_segmento = direccion_logica % tam_max_segmento;
+    num_segmento = floor(direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO);
+    int desplazamiento_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
 
-    if (error_segmentationFault(num_segmento, desplazamiento_segmento, cantidad_de_bytes)) {
+    if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes)) {
 
         copiar_registros(pcb_actual->registrosCpu);
         t_paquete* paquete = crear_paquete(SEGMENTATION_FAULT, info_logger);
         agregar_PCB_a_paquete(paquete, pcb_actual);
         enviar_paquete(paquete, cliente_servidor);
+         //    log_info(logger, "PID: <%d> - Error SEG_FAULT- Segmento: <%d> - Offset: <%d> - Tamaño: <%d>\n", pcb_actual->id, num_segmento,    ,segmento->tamanio_segmento );  
+
         eliminar_paquete(paquete, info_logger);
+
+        cicloInstruccionesDebeEjecutarse = false;
+
         return -1;
     }
 
@@ -69,36 +75,38 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
     return direccion_fisica;
 }
 
-bool error_segmentationFault(int numero_segmento, int desplazamiento_segmento, int cantidad_bytes) {
+bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes) {
 
     //if (numero_segmento >= list_size(pcb_actual->tabla_segmentos))  return true;
 
-    segmento = list_get(pcb_actual->tablaSegmentos, numero_segmento);
+    segmento = list_get(pcb_actual->tablaSegmentos, num_segmento);
 
     return ((desplazamiento_segmento + cantidad_bytes) > segmento->limite);
 }
 
 
-void copiar_registros(registros_cpu* registros_PCB) {
-    strcpy( registros_PCB->registroAX , registro_AX );
-    strcpy( registros_PCB->registroBX , registro_BX );
-    strcpy( registros_PCB->registroCX , registro_CX );
-    strcpy( registros_PCB->registroDX , registro_DX );
-    strcpy( registros_PCB->registroEAX , registro_EAX );
-    strcpy( registros_PCB->registroEBX , registro_EBX );
-    strcpy( registros_PCB->registroECX , registro_ECX );
-    strcpy( registros_PCB->registroEDX , registro_EDX );
-    strcpy( registros_PCB->registroRAX , registro_RAX );
-    strcpy( registros_PCB->registroRBX , registro_RBX );
-    strcpy( registros_PCB->registroRCX , registro_RCX );
-    strcpy( registros_PCB->registroRDX , registro_RDX );
 
+
+void copiar_registros(registros_cpu* registro) {
+
+memcpy(registro->registro_AX,registroCPU_AX,4);
+memcpy(registro->registro_BX,registroCPU_BX,4);
+memcpy(registro->registro_CX,registroCPU_CX,4);
+memcpy(registro->registro_DX,registroCPU_DX,4);
+memcpy(registro->registro_EAX,registroCPU_EAX,8);
+memcpy(registro->registro_EBX,registroCPU_EBX,8);
+memcpy(registro->registro_ECX,registroCPU_ECX,8);
+memcpy(registro->registro_EDX,registroCPU_EDX,8);
+memcpy(registro->registro_RAX,registroCPU_RAX,16);
+memcpy(registro->registro_RBX,registroCPU_RBX,16);
+memcpy(registro->registro_RCX,registroCPU_RCX,16);
+memcpy(registro->registro_RDX,registroCPU_RDX,16);
 }
 
 
 int buscar_registro(char* registro)  {
 
-    int bytes = -1;
+    int bytes;
 
     if ((strcmp(registro, "AX") == 0)||(strcmp(registro, "BX") == 0)||(strcmp(registro, "CX") == 0)||(strcmp(registro, "DX") == 0))
         bytes = 4;

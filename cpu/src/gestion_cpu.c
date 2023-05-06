@@ -5,7 +5,6 @@
 #include <gestion_cpu.h>
 
 //Instruccion a ejecutar actual
-instr_t* instruccion;
 
 bool cicloInstruccionesDebeEjecutarse = true;
 instr_t* instruccion;
@@ -17,7 +16,10 @@ uint32_t dir_fisica_actual;
 
 
 void ejecutar_SET(char* registro, char* valor){
-//TODO
+
+    cambiar_valor_registro(registro,valor);
+    pcb_actual->programCounter++;
+
 }
 
 void ejecutar_MOV_IN(char* registro, int direccion_logica) {
@@ -48,6 +50,11 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
     int direccion_fisica = traducir_direccion_logica(direccion_logica,cantidad_bytes);
     if (!(direccion_fisica < 0)) {
 
+           char* valor = leer_valor_de_memoria(direccion_fisica);
+
+           cambiar_valor_registro(registro,valor);
+
+           pcb_actual->programCounter++;
 
     }
 
@@ -56,14 +63,16 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
 
 
 
-void ejecutar_MOV_OUT(char* registro, int direccion_logica) {
+void ejecutar_MOV_OUT(int direccion_logica,char* registro ) {
     int cantidad_bytes = buscar_registro(registro);
 
     //if( buscar_registro(registro) < 0 )
 
     int direccion_fisica = traducir_direccion_logica(direccion_logica, cantidad_bytes);
     if (!(direccion_fisica < 0)) {
-
+        char valor[17];
+        obtener_valor_registro(registro, valor)
+        pcb_actual->programCounter++;
     }
 
 
@@ -259,6 +268,7 @@ void ejecutar_DELETE_SEGMENT(int id_del_segmento) {
 
 void ejecutar_YIELD() {
     copiar_registros(pcb_actual->registrosCpu);
+    pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(YIELD, info_logger);
     agregar_PCB_a_paquete(paquete, pcb_actual);
     enviar_paquete(paquete, cliente_servidor);

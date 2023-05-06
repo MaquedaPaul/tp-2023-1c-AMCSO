@@ -50,18 +50,18 @@ typedef struct {
 //Registros de CPU
 typedef struct{
 
-    char registroAX[4];
-    char registroBX[4];
-    char registroCX[4];
-    char registroDX[4];
-    char registroEAX[8];
-    char registroEBX[8];
-    char registroECX[8];
-    char registroEDX[8];
-    char registroRAX[16];
-    char registroRCX[16];
-    char registroRBX[16];
-    char registroRDX[16];
+    char registro_AX[5];
+    char registro_BX[5];
+    char registro_CX[5];
+    char registro_DX[5];
+    char registro_EAX[9];
+    char registro_EBX[9];
+    char registro_ECX[9];
+    char registro_EDX[9];
+    char registro_RAX[17];
+    char registro_RCX[17];
+    char registro_RBX[17];
+    char registro_RDX[17];
 }registros_cpu;
 //Tabla de Segmentos
 

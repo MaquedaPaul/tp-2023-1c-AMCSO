@@ -12,18 +12,18 @@ extern t_pcb *pcb_actual;
 extern t_segmento* segmento;
 extern int cliente_servidor;
 
-extern char registro_AX[4];
-extern char registro_BX[4];
-extern char registro_CX[4];
-extern char registro_DX[4];
-extern char registro_EAX[8];
-extern char registro_EBX[8];
-extern char registro_ECX[8];
-extern char registro_EDX[8];
-extern char registro_RAX[16];
-extern char registro_RBX[16];
-extern char registro_RCX[16];
-extern char registro_RDX[16];
+extern char registroCPU_AX[4];
+extern char registroCPU_BX[4];
+extern char registroCPU_CX[4];
+extern char registroCPU_DX[4];
+extern char registroCPU_EAX[8];
+extern char registroCPU_EBX[8];
+extern char registroCPU_ECX[8];
+extern char registroCPU_EDX[8];
+extern char registroCPU_RAX[16];
+extern char registroCPU_RBX[16];
+extern char registroCPU_RCX[16];
+extern char registroCPU_RDX[16];
 
 void ejecutar_SET(char* registro, char* valor);
 
