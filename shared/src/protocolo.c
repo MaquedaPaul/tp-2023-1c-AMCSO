@@ -844,6 +844,19 @@ void agregar_instrucciones_a_paquete(t_paquete *paquete, t_list *instrucciones) 
             agregar_a_paquete(paquete,  &(instruccion->param2Length), sizeof(int));
             agregar_a_paquete(paquete, instruccion->param2, instruccion->param2Length);        }
 
+        if(instruccion->cantidad_parametros == 3){
+
+            agregar_a_paquete(paquete, &(instruccion->param1Length), sizeof(int));
+            agregar_a_paquete(paquete, instruccion->param1, instruccion->param1Length);
+            agregar_a_paquete(paquete,  &(instruccion->param2Length), sizeof(int));
+            agregar_a_paquete(paquete, instruccion->param2, instruccion->param2Length);        
+            agregar_a_paquete(paquete,  &(instruccion->param3Length), sizeof(int));
+            agregar_a_paquete(paquete, instruccion->param3, instruccion->param3Length); 
+            
+            }
+
+        
+
     }
 }
 
@@ -866,51 +879,51 @@ void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro) {
 
 int tamanioAX = strlen(registro->registroAX) + 1;
 agregar_a_paquete(paquete, &tamanioAX, sizeof(int));
-agregar_a_paquete(paquete, (registro->registroAX), tamanioAX);
+agregar_a_paquete(paquete, (registro->registro_AX), tamanioAX);
 
 int tamanioBX = strlen(registro->registroBX) + 1;
 agregar_a_paquete(paquete, &(tamanioBX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroBX), tamanioBX);
+agregar_a_paquete(paquete, (registro->registro_BX), tamanioBX);
 
 int tamanioCX = strlen(registro->registroCX) + 1;
 agregar_a_paquete(paquete, &(tamanioCX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroCX), tamanioCX);
+agregar_a_paquete(paquete, (registro->registro_CX), tamanioCX);
 
 int tamanioDX = strlen(registro->registroDX) + 1;
 agregar_a_paquete(paquete, &(tamanioDX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroDX), tamanioDX);
+agregar_a_paquete(paquete, (registro->registro_DX), tamanioDX);
 
 int tamanioEAX = strlen(registro->registroEAX) + 1;
 agregar_a_paquete(paquete, &tamanioEAX, sizeof(int));
-agregar_a_paquete(paquete, (registro->registroEAX), tamanioEAX);
+agregar_a_paquete(paquete, (registro->registro_EAX), tamanioEAX);
 
 int tamanioEBX = strlen(registro->registroEBX) + 1;
 agregar_a_paquete(paquete, &(tamanioEBX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroEBX), tamanioEBX);
+agregar_a_paquete(paquete, (registro->registro_EBX), tamanioEBX);
 
 int tamanioECX = strlen(registro->registroECX) + 1;
 agregar_a_paquete(paquete, &(tamanioECX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroECX), tamanioECX);
+agregar_a_paquete(paquete, (registro->registro_ECX), tamanioECX);
 
 int tamanioEDX = strlen(registro->registroEDX) + 1;
 agregar_a_paquete(paquete, &(tamanioEDX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroEDX), tamanioEDX);
+agregar_a_paquete(paquete, (registro->registro_EDX), tamanioEDX);
 
-int tamanioRAX = strlen(registro->registroRAX) + 1;
+int tamanioRAX = strlen(registro->registro_RAX) + 1;
 agregar_a_paquete(paquete, &tamanioRAX, sizeof(int));
-agregar_a_paquete(paquete, (registro->registroRAX), tamanioRAX);
+agregar_a_paquete(paquete, (registro->registro_RAX), tamanioRAX);
 
-int tamanioRBX = strlen(registro->registroRBX) + 1;
+int tamanioRBX = strlen(registro->registro_RBX) + 1;
 agregar_a_paquete(paquete, &(tamanioRBX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroRBX), tamanioRBX);
+agregar_a_paquete(paquete, (registro->registro_RBX), tamanioRBX);
 
-int tamanioRCX = strlen(registro->registroRCX) + 1;
+int tamanioRCX = strlen(registro->registro_RCX) + 1;
 agregar_a_paquete(paquete, &(tamanioRCX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroRCX), tamanioRCX);
+agregar_a_paquete(paquete, (registro->registro_RCX), tamanioRCX);
 
-int tamanioRDX = strlen(registro->registroRDX) + 1;
+int tamanioRDX = strlen(registro->registro_RDX) + 1;
 agregar_a_paquete(paquete, &(tamanioRDX), sizeof(int));
-agregar_a_paquete(paquete, (registro->registroRDX), tamanioRDX);
+agregar_a_paquete(paquete, (registro->registro_RDX), tamanioRDX);
 
 }
 
