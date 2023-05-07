@@ -21,6 +21,11 @@ extern t_config* file_cfg_cpu;
 extern t_config_cpu *cfg_cpu;
 extern char* path_config;
 
+extern int fd_cpu;
+extern char* ip_cpu;
+extern char* puerto_cpu;
+extern int fd_memoria;
+
 void procesar_conexion(void *void_args);
 int server_escuchar(t_log *logger, char *server_name, int server_socket);
 bool generar_conexiones();

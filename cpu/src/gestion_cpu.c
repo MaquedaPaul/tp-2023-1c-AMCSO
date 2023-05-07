@@ -1,12 +1,17 @@
 #include <gestion_cpu.h>
 
+int fd_cpu;
+char* ip_cpu;
+char* puerto_cpu;
+int fd_memoria;
+
 
 //Instruccion a ejecutar actual
-/*
+
 bool cicloInstruccionesDebeEjecutarse = true;
 instr_t* instruccion;
 char* nombre_instruccion_actual;
-*/
+
 
 void ejecutar_SET(char* registro, char* valor){
 
@@ -58,7 +63,7 @@ void ejecutar_MOV_OUT(int direccion_logica,char* registro ) {
     int direccion_fisica = traducir_direccion_logica(direccion_logica, cantidad_bytes);
     if (!(direccion_fisica < 0)) {
         char valor[17];
-        obtener_valor_registro(registro, valor)
+        obtener_valor_registro(registro, valor);
         pcb_actual->programCounter++;
     }
 
@@ -384,13 +389,14 @@ void obtener_valor_registro(char* registro,char valor[]) {
 
 char* leer_valor_de_memoria(int direccion_fisica) {
     char* valor;
-    t_paquete* paquete = crear_paquete(LEER_EN_MEMORIA);
+    t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_LECTURA, info_logger);
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
-    enviar_paquete(paquete, conexion_memoria);
+    enviar_paquete(paquete, fd_memoria);
 
-    log_info(logger, "PID: <%d> - Acción: <LEER> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->pid, num_segmento, direccion_fisica, valor);
 
-    eliminar_paquete(paquete);
+    log_info(info_logger, "PID: <%d> - Acción: <LEER> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
+
+    eliminar_paquete(paquete, info_logger);
 
     // recv(,  , MSG_WAITALL);
 

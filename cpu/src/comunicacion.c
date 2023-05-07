@@ -4,10 +4,7 @@
 
 #include <comunicacion.h>
 
-int fd_cpu;
-char* ip_cpu;
-char* puerto_cpu;
-int fd_memoria;
+
 bool conexionesHechas = false;
 
 

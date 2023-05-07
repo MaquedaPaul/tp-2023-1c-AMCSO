@@ -25,7 +25,7 @@ extern char registroCPU_RAX[16];
 extern char registroCPU_RBX[16];
 extern char registroCPU_RCX[16];
 extern char registroCPU_RDX[16];
-
+extern int num_segmento;
 extern uint32_t dir_logica_actual;
 extern uint32_t dir_fisica_actual;
 

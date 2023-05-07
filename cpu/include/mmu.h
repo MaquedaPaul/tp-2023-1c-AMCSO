@@ -17,4 +17,4 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes );
 int obtener_direccion_logica();
 int obtener_direccion_fisica(int direccion_logica);
 int es_segmetation_fault(int direccion_fisica, int direccion_logica, int tamaño_a_leer_o_escribir);
-bool error_segmentationFault(int numero_segmento, int desplazamiento_segmento, int cantidad_bytes);
+bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes);

@@ -9,6 +9,7 @@
 #include <init.h>
 #include <gestion_cpu.h>
 
+
 extern int fd_memoria;
 extern int fd_kernel;
 
@@ -58,8 +59,6 @@ void terminar_ejecucion_escritura();
 
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes);
-bool error_segmentationFault(int numero_segmento, int desplazamiento_segmento, int cantidad_bytes);
-
 /*
 void ejecutar_SET(char* registro, char* valor);
 void ejecutar_MOV_IN(char* registro, int direccion_logica);

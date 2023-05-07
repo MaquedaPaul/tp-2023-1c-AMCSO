@@ -5,6 +5,8 @@ t_pcb *pcb_actual;
 t_segmento* segmento;
 int cliente_servidor;
 int num_segmento;
+uint32_t dir_logica_actual;
+uint32_t dir_fisica_actual;
 
 char registroCPU_AX[4];
 char registroCPU_BX[4];

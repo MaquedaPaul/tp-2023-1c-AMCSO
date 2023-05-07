@@ -187,29 +187,29 @@ char* leer_valor_de_registro(char* registro){
     char* valor_registro = NULL;
 
     if(strcmp(registro, "AX") == 0){
-        valor_registro = registro_AX;
+        valor_registro = registroCPU_AX;
     }else if(strcmp(registro, "BX") == 0){
-        valor_registro = registro_BX;
+        valor_registro = registroCPU_BX;
     }else if(strcmp(registro, "CX") == 0){
-        valor_registro = registro_CX;
+        valor_registro = registroCPU_CX;
     }else if(strcmp(registro, "DX") == 0){
-        valor_registro = registro_DX;
+        valor_registro = registroCPU_DX;
     }else if(strcmp(registro, "EAX") == 0){
-        valor_registro = registro_EAX;
+        valor_registro = registroCPU_EAX;
     }else if(strcmp(registro, "EBX") == 0){
-        valor_registro = registro_EBX;
+        valor_registro = registroCPU_EBX;
     }else if(strcmp(registro, "ECX") == 0){
-        valor_registro = registro_ECX;
+        valor_registro = registroCPU_ECX;
     }else if(strcmp(registro, "EDX") == 0){
-        valor_registro = registro_EDX;
+        valor_registro = registroCPU_EDX;
     }else if(strcmp(registro, "RAX") == 0){
-        valor_registro = registro_RAX;
+        valor_registro = registroCPU_RAX;
     }else if(strcmp(registro, "RBX") == 0){
-        valor_registro = registro_RBX;
+        valor_registro = registroCPU_RBX;
     }else if(strcmp(registro, "RCX") == 0){
-        valor_registro = registro_RCX;
+        valor_registro = registroCPU_RCX;
     }else if(strcmp(registro, "RDX") == 0){
-        valor_registro = registro_RDX;
+        valor_registro = registroCPU_RDX;
     }
 
     return valor_registro;
@@ -257,18 +257,19 @@ void ejecutar_escritura(){ //ver si recibe o no el valor
 
 void escribir_valor_en_memoria(int direccion_fisica, char valor[]) {
 
-    log_info(logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->pid, num_segmento, direccion_fisica, valor);
 
-    t_paquete* paquete = crear_paquete(ESCRIBIR_EN_MEMORIA); 
+    log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
+
+    t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA,info_logger);
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
 
     int largo_nombre = strlen(valor) + 1;
     agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
     agregar_a_paquete(paquete, valor, largo_nombre);
 
-    enviar_paquete(paquete, conexion_memoria);
+    enviar_paquete(paquete, fd_memoria);
 
-    eliminar_paquete(paquete);
+    eliminar_paquete(paquete,info_logger);
 
     // recv(, ,    , MSG_WAITALL);
 

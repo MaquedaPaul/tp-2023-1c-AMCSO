@@ -877,35 +877,35 @@ void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos) {
 
 void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro) {
 
-int tamanioAX = strlen(registro->registroAX) + 1;
+int tamanioAX = strlen(registro->registro_AX) + 1;
 agregar_a_paquete(paquete, &tamanioAX, sizeof(int));
 agregar_a_paquete(paquete, (registro->registro_AX), tamanioAX);
 
-int tamanioBX = strlen(registro->registroBX) + 1;
+int tamanioBX = strlen(registro->registro_BX) + 1;
 agregar_a_paquete(paquete, &(tamanioBX), sizeof(int));
 agregar_a_paquete(paquete, (registro->registro_BX), tamanioBX);
 
-int tamanioCX = strlen(registro->registroCX) + 1;
+int tamanioCX = strlen(registro->registro_CX) + 1;
 agregar_a_paquete(paquete, &(tamanioCX), sizeof(int));
 agregar_a_paquete(paquete, (registro->registro_CX), tamanioCX);
 
-int tamanioDX = strlen(registro->registroDX) + 1;
+int tamanioDX = strlen(registro->registro_DX) + 1;
 agregar_a_paquete(paquete, &(tamanioDX), sizeof(int));
 agregar_a_paquete(paquete, (registro->registro_DX), tamanioDX);
 
-int tamanioEAX = strlen(registro->registroEAX) + 1;
+int tamanioEAX = strlen(registro->registro_EAX) + 1;
 agregar_a_paquete(paquete, &tamanioEAX, sizeof(int));
 agregar_a_paquete(paquete, (registro->registro_EAX), tamanioEAX);
 
-int tamanioEBX = strlen(registro->registroEBX) + 1;
+int tamanioEBX = strlen(registro->registro_EBX) + 1;
 agregar_a_paquete(paquete, &(tamanioEBX), sizeof(int));
 agregar_a_paquete(paquete, (registro->registro_EBX), tamanioEBX);
 
-int tamanioECX = strlen(registro->registroECX) + 1;
+int tamanioECX = strlen(registro->registro_ECX) + 1;
 agregar_a_paquete(paquete, &(tamanioECX), sizeof(int));
 agregar_a_paquete(paquete, (registro->registro_ECX), tamanioECX);
 
-int tamanioEDX = strlen(registro->registroEDX) + 1;
+int tamanioEDX = strlen(registro->registro_EDX) + 1;
 agregar_a_paquete(paquete, &(tamanioEDX), sizeof(int));
 agregar_a_paquete(paquete, (registro->registro_EDX), tamanioEDX);
 
