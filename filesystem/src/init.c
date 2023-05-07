@@ -3,6 +3,8 @@
 //
 
 #include <init.h>
+#include <sys/mman.h>
+
 bool semaforosCreados = false;
 
 int cargar_configuracion(char *path) {
@@ -61,6 +63,7 @@ bool crearSemaforos(){
 
 
 bool crearBitmapBloques(){
+    //mmap()
     return true;
 }
 bool crearSuperbloque(){
@@ -76,7 +79,7 @@ bool recorrerDirectorioFcb(){
 
 
 
-bool iniciarMemoria(){
+bool iniciarFilesystem(){
     //TODO Si hiciera falta que exclusivamente tiene que generarse las conexiones antes que las estructuras, acá es donde hay que tocar.
     bool estructurasAdministrativas = crearEstructurasAdministrativas();
     if (!generar_conexiones()){

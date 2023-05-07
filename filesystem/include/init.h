@@ -21,5 +21,5 @@ bool crearBitmapBloques();
 bool crearSuperbloque();
 bool crearArchivoBloques();
 bool recorrerDirectorioFcb();
-
+bool iniciarFilesystem();
 #endif //TEMPLATE_INIT_H

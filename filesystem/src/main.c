@@ -15,9 +15,11 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
 
     }
-    if (!generar_conexiones()){
+    if (!iniciarFilesystem()){
         //cerrar_programa(logger_console,config);
         return EXIT_FAILURE;
     }
+
+
     return 0;
 }

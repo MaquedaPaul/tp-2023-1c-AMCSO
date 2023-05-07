@@ -38,4 +38,12 @@ char* obtenerKey(char* path, char* key){
 }
 
 
+void cambiarBitPor0(uint32_t bloque){
+
+}
+void cambiarBitPor1(uint32_t bloque){
+
+}
+
+
 

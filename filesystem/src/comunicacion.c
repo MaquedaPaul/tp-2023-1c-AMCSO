@@ -84,6 +84,7 @@ bool generar_conexiones(){
     pthread_create(&crear_server_filesystem,NULL, crearServidor,NULL);
     pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
     conexionesHechas = true;
+
     pthread_join(crear_server_filesystem, NULL);
     pthread_join(conexion_con_memoria, NULL);
 
@@ -109,6 +110,7 @@ void* crearServidor(){
 void* conectarConMemoria(){
     bool comprobacion = generarConexionesConMemoria();
     if(comprobacion){
+        enviarOrden(HANDSHAKE_FS, fd_memoria, info_logger);
         atenderMemoria();
     }
 
