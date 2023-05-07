@@ -1,19 +1,12 @@
-//
-// Created by utnso on 5/5/23.
-//
-
 #include <gestion_cpu.h>
 
-//Instruccion a ejecutar actual
 
+//Instruccion a ejecutar actual
+/*
 bool cicloInstruccionesDebeEjecutarse = true;
 instr_t* instruccion;
 char* nombre_instruccion_actual;
-
-//Registros temporales
-uint32_t dir_logica_actual;
-uint32_t dir_fisica_actual;
-
+*/
 
 void ejecutar_SET(char* registro, char* valor){
 
@@ -24,10 +17,7 @@ void ejecutar_SET(char* registro, char* valor){
 
 void ejecutar_MOV_IN(char* registro, int direccion_logica) {
 
-
     /*
-     *
-     *
             dir_logica_actual = obtener_direccion_logica();
             dir_fisica_actual = obtener_direccion_fisica(dir_logica_actual);
             int tamaño_a_leer = tamaño_a_escribir(instruccion->param1); //mando el tipo de registro
@@ -55,12 +45,9 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
            cambiar_valor_registro(registro,valor);
 
            pcb_actual->programCounter++;
-
     }
 
-
 }
-
 
 
 void ejecutar_MOV_OUT(int direccion_logica,char* registro ) {
@@ -138,13 +125,6 @@ void ejecutar_F_SEEK(char* nombre_archivo, int posicion) {
     eliminar_paquete(paquete, info_logger);
     cicloInstruccionesDebeEjecutarse = false;
 }
-
-
-
-
-
-
-
 
 
 void ejecutar_F_READ(char* nombre_archivo, int direccion_logica, int cantidad_bytes) {
@@ -284,4 +264,137 @@ void ejecutar_EXIT() {
     enviar_paquete(paquete, cliente_servidor);
     eliminar_paquete(paquete, info_logger);
     cicloInstruccionesDebeEjecutarse = false;
+}
+
+
+void cambiar_valor_registro(char* registro,char* valor) {
+
+    if (strcmp(registro, "AX") == 0)
+        memcpy( registroCPU_AX, valor,4);
+
+    if (strcmp(registro, "BX") == 0)
+        memcpy( registroCPU_BX, valor,4);
+
+    if (strcmp(registro, "CX") == 0)
+        memcpy( registroCPU_CX, valor,4);
+
+    if (strcmp(registro, "DX") == 0)
+        memcpy( registroCPU_DX, valor,4);
+
+    if (strcmp(registro, "EAX") == 0)
+        memcpy( registroCPU_EAX, valor,8);
+
+    if (strcmp(registro, "EBX") == 0)
+        memcpy( registroCPU_EBX, valor,8);
+
+    if (strcmp(registro, "ECX") == 0)
+        memcpy( registroCPU_ECX, valor,8);
+
+    if (strcmp(registro, "EDX") == 0)
+        memcpy( registroCPU_EDX, valor,8);
+
+    if (strcmp(registro, "RAX") == 0)
+        memcpy( registroCPU_RAX, valor,16);
+
+    if (strcmp(registro, "RBX") == 0)
+        memcpy( registroCPU_RBX, valor,16);
+
+    if (strcmp(registro, "RCX") == 0)
+        memcpy( registroCPU_RCX, valor,16);
+
+    if (strcmp(registro, "RDX") == 0)
+        memcpy( registroCPU_RDX, valor,16);
+
+}
+
+
+int buscar_registro(char* registro)  { //pondria un otro nombre a la funcion
+
+    int bytes;
+
+    if ((strcmp(registro, "AX") == 0)||(strcmp(registro, "BX") == 0)||(strcmp(registro, "CX") == 0)||(strcmp(registro, "DX") == 0))
+        bytes = 4;
+
+    if ((strcmp(registro, "EAX") == 0)||(strcmp(registro, "EBX") == 0)||(strcmp(registro, "ECX") == 0)||(strcmp(registro, "EDX") == 0))
+        bytes = 8;
+
+    if ((strcmp(registro, "RAX") == 0)||(strcmp(registro, "RBX") == 0)||(strcmp(registro, "RCX") == 0)||(strcmp(registro, "RDX") == 0))
+        bytes = 16;
+
+    return bytes;
+}
+
+
+void copiar_registros(registros_cpu* registro) {
+
+    memcpy(registro->registro_AX,registroCPU_AX,4);
+    memcpy(registro->registro_BX,registroCPU_BX,4);
+    memcpy(registro->registro_CX,registroCPU_CX,4);
+    memcpy(registro->registro_DX,registroCPU_DX,4);
+    memcpy(registro->registro_EAX,registroCPU_EAX,8);
+    memcpy(registro->registro_EBX,registroCPU_EBX,8);
+    memcpy(registro->registro_ECX,registroCPU_ECX,8);
+    memcpy(registro->registro_EDX,registroCPU_EDX,8);
+    memcpy(registro->registro_RAX,registroCPU_RAX,16);
+    memcpy(registro->registro_RBX,registroCPU_RBX,16);
+    memcpy(registro->registro_RCX,registroCPU_RCX,16);
+    memcpy(registro->registro_RDX,registroCPU_RDX,16);
+}
+
+void obtener_valor_registro(char* registro,char valor[]) {
+
+
+    if (strcmp(registro, "AX") == 0)
+        memcpy( valor, registroCPU_AX,4);
+
+    if (strcmp(registro, "BX") == 0)
+        memcpy( valor,registroCPU_BX,4);
+
+    if (strcmp(registro, "CX") == 0)
+        memcpy( valor, registroCPU_CX,4);
+
+    if (strcmp(registro, "DX") == 0)
+        memcpy( valor, registroCPU_DX,4);
+
+    if (strcmp(registro, "EAX") == 0)
+        memcpy( valor, registroCPU_EAX,8);
+
+    if (strcmp(registro, "EBX") == 0)
+        memcpy( valor, registroCPU_EBX,8);
+
+    if (strcmp(registro, "ECX") == 0)
+        memcpy( valor, registroCPU_ECX,8);
+
+    if (strcmp(registro, "EDX") == 0)
+        memcpy( valor, registroCPU_EDX,8);
+
+    if (strcmp(registro, "RAX") == 0)
+        memcpy( valor, registroCPU_RAX,16);
+
+    if (strcmp(registro, "RBX") == 0)
+        memcpy( valor, registroCPU_RBX,16);
+
+    if (strcmp(registro, "RCX") == 0)
+        memcpy( valor, registroCPU_RCX,16);
+
+    if (strcmp(registro, "RDX") == 0)
+        memcpy( valor, registroCPU_RDX,16);
+}
+
+
+char* leer_valor_de_memoria(int direccion_fisica) {
+    char* valor;
+    t_paquete* paquete = crear_paquete(LEER_EN_MEMORIA);
+    agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
+    enviar_paquete(paquete, conexion_memoria);
+
+    log_info(logger, "PID: <%d> - Acción: <LEER> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->pid, num_segmento, direccion_fisica, valor);
+
+    eliminar_paquete(paquete);
+
+    // recv(,  , MSG_WAITALL);
+
+
+
+    return valor;
 }

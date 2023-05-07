@@ -1,11 +1,6 @@
 #include <cpu.h>
 
 
-
-
-int traducir_direccion_logica_a_fisica(int logica);
-
-
 void iniciar_registros (registros_cpu* registro) {
 
 memcpy(registroCPU_AX,registro->registro_AX,4);
@@ -41,12 +36,10 @@ void ciclo_instrucciones(){
 }
 
 
-
-
-
 instr_t* fetch(){
     return list_get(pcb_actual->instr, pcb_actual->programCounter);
 }
+
 
 char* decode(){
 
@@ -179,52 +172,12 @@ void execute() {
 
         ejecutar_EXIT();
     } else {
-
         log_info(info_logger, "PID: <%d> - NO EXISTE LA INSTRUCCION", pcb_actual->id); // log_error() ?
-
 
     }
 }
 
-void cambiar_valor_registro(char* registro,char* valor) {
 
-    if (strcmp(registro, "AX") == 0)
-        memcpy( registroCPU_AX, valor,4); 
-
-    if (strcmp(registro, "BX") == 0)
-        memcpy( registroCPU_BX, valor,4); 
-
-    if (strcmp(registro, "CX") == 0)
-        memcpy( registroCPU_CX, valor,4); 
-
-    if (strcmp(registro, "DX") == 0)
-        memcpy( registroCPU_DX, valor,4); 
-
-    if (strcmp(registro, "EAX") == 0)
-        memcpy( registroCPU_EAX, valor,8); 
-
-    if (strcmp(registro, "EBX") == 0)
-        memcpy( registroCPU_EBX, valor,8); 
-
-    if (strcmp(registro, "ECX") == 0)
-        memcpy( registroCPU_ECX, valor,8); 
-
-    if (strcmp(registro, "EDX") == 0)
-        memcpy( registroCPU_EDX, valor,8); 
-
-    if (strcmp(registro, "RAX") == 0)
-        memcpy( registroCPU_RAX, valor,16); 
-
-    if (strcmp(registro, "RBX") == 0)
-        memcpy( registroCPU_RBX, valor,16); 
-
-    if (strcmp(registro, "RCX") == 0)
-        memcpy( registroCPU_RCX, valor,16); 
-
-    if (strcmp(registro, "RDX") == 0)
-        memcpy( registroCPU_RDX, valor,16); 
-
-}
 
 void escribir_en_registro(char* registro, char valor[16]){
     strcpy(registro, valor);
@@ -261,49 +214,6 @@ char* leer_valor_de_registro(char* registro){
 
     return valor_registro;
 }
-
-void obtener_valor_registro(char* registro,char valor[]) {
-
-
-    if (strcmp(registro, "AX") == 0)
-        memcpy( valor, registroCPU_AX,4); 
-
-    if (strcmp(registro, "BX") == 0)
-        memcpy( valor,registroCPU_BX,4); 
-
-    if (strcmp(registro, "CX") == 0)
-        memcpy( valor, registroCPU_CX,4); 
-
-    if (strcmp(registro, "DX") == 0)
-        memcpy( valor, registroCPU_DX,4); 
-
-    if (strcmp(registro, "EAX") == 0)
-        memcpy( valor, registroCPU_EAX,8); 
-
-    if (strcmp(registro, "EBX") == 0)
-        memcpy( valor, registroCPU_EBX,8); 
-
-    if (strcmp(registro, "ECX") == 0)
-        memcpy( valor, registroCPU_ECX,8); 
-
-    if (strcmp(registro, "EDX") == 0)
-        memcpy( valor, registroCPU_EDX,8); 
-
-    if (strcmp(registro, "RAX") == 0)
-        memcpy( valor, registroCPU_RAX,16); 
-
-    if (strcmp(registro, "RBX") == 0)
-        memcpy( valor, registroCPU_RBX,16); 
-
-    if (strcmp(registro, "RCX") == 0)
-        memcpy( valor, registroCPU_RCX,16); 
-
-    if (strcmp(registro, "RDX") == 0)
-        memcpy( valor, registroCPU_RDX,16); 
-}
-
-
-
 
 
 int tamaño_a_escribir(char* tipo_registro){
@@ -342,24 +252,6 @@ void ejecutar_escritura(){ //ver si recibe o no el valor
     //int array_datos[] = {3, pcb_actual->id, dir_fisica_actual, valor}; espera el ultima valor un tipo de dato int y quiero mandar char*
 
     //enviar_int_array(array_datos, fd_memoria, PEDIDO_ESCRITURA, info_logger);
-}
-
-
-char* leer_valor_de_memoria(int direccion_fisica) {
-    char* valor;
-    t_paquete* paquete = crear_paquete(LEER_EN_MEMORIA);  
-    agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
-    enviar_paquete(paquete, conexion_memoria);
-
-    log_info(logger, "PID: <%d> - Acción: <LEER> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->pid, num_segmento, direccion_fisica, valor);
-
-    eliminar_paquete(paquete);
-
-   // recv(,  , MSG_WAITALL);
-
-
-    
-    return valor;
 }
 
 
