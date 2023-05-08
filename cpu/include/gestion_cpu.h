@@ -57,7 +57,7 @@ void ejecutar_EXIT();
 
 void cambiar_valor_registro(char* registro,char* valor);
 int buscar_registro(char* registro);
-void copiar_registros(registros_cpu* registros_PCB);
+void copiar_registros(registros_cpu* registro);
 void obtener_valor_registro(char* registro,char valor[]);
 
 

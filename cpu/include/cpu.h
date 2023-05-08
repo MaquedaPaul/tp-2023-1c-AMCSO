@@ -42,24 +42,22 @@ extern uint32_t dir_logica_actual;
 extern uint32_t dir_fisica_actual;
 
 
-
-int traducir_direccion_logica_a_fisica(int logica);
-
 instr_t* fetch();
 char* decode();
 void execute();
 
-void escribir_en_registro(char* registro, char valor[16]);
-char* leer_valor_de_registro(char* registro);
-int tamaño_a_escribir(char* tipo_registro);
-void ejecutar_lectura();
-void ejecutar_escritura();
+
 void terminar_ejecucion_lectura(char* leido);
 void terminar_ejecucion_escritura();
 
 
-int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes);
 /*
+
+void ejecutar_lectura();
+void ejecutar_escritura();
+void escribir_en_registro(char* registro, char valor[16]);
+
+
 void ejecutar_SET(char* registro, char* valor);
 void ejecutar_MOV_IN(char* registro, int direccion_logica);
 void ejecutar_MOV_OUT(int direccion_logica, char* registro);
