@@ -70,15 +70,6 @@ void execute() {
     }
 
     else if (strcmp(nombre_instruccion_actual, "MOV_OUT") == 0) {
-        /*
-         *
-        //MOV_OUT (Dirección Lógica, Registro)
-
-        dir_logica_actual = obtener_direccion_logica();
-        dir_fisica_actual = obtener_direccion_fisica(dir_logica_actual);
-
-        ejecutar_escritura();
-         */
 
         int direccion_logica = atoi(instruccion->param1);
         char* registro = instruccion->param2;
@@ -179,79 +170,16 @@ void execute() {
 
 
 
-void escribir_en_registro(char* registro, char valor[16]){
-    strcpy(registro, valor);
-}
-
-char* leer_valor_de_registro(char* registro){
-    char* valor_registro = NULL;
-
-    if(strcmp(registro, "AX") == 0){
-        valor_registro = registroCPU_AX;
-    }else if(strcmp(registro, "BX") == 0){
-        valor_registro = registroCPU_BX;
-    }else if(strcmp(registro, "CX") == 0){
-        valor_registro = registroCPU_CX;
-    }else if(strcmp(registro, "DX") == 0){
-        valor_registro = registroCPU_DX;
-    }else if(strcmp(registro, "EAX") == 0){
-        valor_registro = registroCPU_EAX;
-    }else if(strcmp(registro, "EBX") == 0){
-        valor_registro = registroCPU_EBX;
-    }else if(strcmp(registro, "ECX") == 0){
-        valor_registro = registroCPU_ECX;
-    }else if(strcmp(registro, "EDX") == 0){
-        valor_registro = registroCPU_EDX;
-    }else if(strcmp(registro, "RAX") == 0){
-        valor_registro = registroCPU_RAX;
-    }else if(strcmp(registro, "RBX") == 0){
-        valor_registro = registroCPU_RBX;
-    }else if(strcmp(registro, "RCX") == 0){
-        valor_registro = registroCPU_RCX;
-    }else if(strcmp(registro, "RDX") == 0){
-        valor_registro = registroCPU_RDX;
-    }
-
-    return valor_registro;
-}
-
-
-int tamaño_a_escribir(char* tipo_registro){
-    if(strlen(tipo_registro) == 2){
-        return 4;
-    } else if(strcmp(tipo_registro, "EAX") || strcmp(tipo_registro, "EBX") || strcmp(tipo_registro, "ECX") || strcmp(tipo_registro, "EDX")){
-        return 8;
-    }else{
-        return 16;
-    }
-}
-
-void ejecutar_lectura(){
-    int array_datos[] = {2, pcb_actual->id, dir_fisica_actual};
-
-    //log_info(info_logger,  "Pido a Memoria el valor de la Direccion Fisica: <%d> para lectura", dir_fisica_actual);
-
-    enviar_int_array(array_datos, fd_memoria, ACCESO_PEDIDO_LECTURA, info_logger);
-}
-
 void terminar_ejecucion_lectura(char* leido){ //TERMINA EL MOV_IN ESCRIBIENDO EN EL REGISTRO ASOCIADO
     //log_info(info_logger, "Recibo de memoria el valor: <%d> y lo escribo en el registro: <%s> ", leido, instruccion->param1);
 
-    escribir_en_registro(instruccion->param1, leido);
+   // escribir_en_registro(instruccion->param1, leido);
 
-    pcb_actual->programCounter++;
+    //pcb_actual->programCounter++;
 }
 
 void terminar_ejecucion_escritura(){
 
-}
-
-void ejecutar_escritura(){ //ver si recibe o no el valor
-    char* valor = leer_valor_de_registro(instruccion->param2);
-
-    //int array_datos[] = {3, pcb_actual->id, dir_fisica_actual, valor}; espera el ultima valor un tipo de dato int y quiero mandar char*
-
-    //enviar_int_array(array_datos, fd_memoria, PEDIDO_ESCRITURA, info_logger);
 }
 
 

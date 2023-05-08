@@ -22,22 +22,6 @@ void ejecutar_SET(char* registro, char* valor){
 
 void ejecutar_MOV_IN(char* registro, int direccion_logica) {
 
-    /*
-            dir_logica_actual = obtener_direccion_logica();
-            dir_fisica_actual = obtener_direccion_fisica(dir_logica_actual);
-            int tamaño_a_leer = tamaño_a_escribir(instruccion->param1); //mando el tipo de registro
-
-        if(es_segmetation_fault(dir_fisica_actual, dir_logica_actual, tamaño_a_leer)){
-            //comunicarse con kernel para que finalice el proceso por SEG_FAULT
-            return 1;
-        }
-
-        ejecutar_lectura(); //el tamaño del valor esperado va a depender del tipo de registro
-
-        //pcb_actual->programCounter++
-
-     */
-
     int cantidad_bytes = buscar_registro(registro);
 
     //if( buscar_registro(registro) < 0 )
@@ -313,7 +297,8 @@ void cambiar_valor_registro(char* registro,char* valor) {
 }
 
 
-int buscar_registro(char* registro)  { //pondria un otro nombre a la funcion
+int buscar_registro(char* registro)  { //pondria un otro nombre a la funcion  //   int tamaño_a_escribir(char* tipo_registro)
+
 
     int bytes;
 
@@ -328,6 +313,9 @@ int buscar_registro(char* registro)  { //pondria un otro nombre a la funcion
 
     return bytes;
 }
+
+
+
 
 
 void copiar_registros(registros_cpu* registro) {

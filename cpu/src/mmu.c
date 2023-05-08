@@ -1,12 +1,10 @@
 #include <mmu.h>
 
-uint32_t tam_max_segmento;
 t_pcb *pcb_actual;
 t_segmento* segmento;
 int cliente_servidor;
 int num_segmento;
-uint32_t dir_logica_actual;
-uint32_t dir_fisica_actual;
+
 
 char registroCPU_AX[4];
 char registroCPU_BX[4];
@@ -21,36 +19,6 @@ char registroCPU_RBX[16];
 char registroCPU_RCX[16];
 char registroCPU_RDX[16];
 
-
-int obtener_direccion_logica(char* direccion_logica, char* nombre_instruccion){
-    int dl;
-
-    if(strcmp(nombre_instruccion, "MOV_IN") == 0){
-        dl = atoi(direccion_logica);
-    }else if(strcmp(nombre_instruccion, "MOV_OUT") == 0){
-        dl = atoi(direccion_logica);
-    }
-    return dl;
-}
-
-int obtener_direccion_fisica(int direccion_logica) {
-    int df;
-    int numero_segmento = floor(direccion_logica / cfg_cpu -> TAM_MAX_SEGMENTO);
-    int desplazamiento_segmento = direccion_logica %  cfg_cpu -> TAM_MAX_SEGMENTO;
-
-    return df;
-}
-
-int es_segmetation_fault(int direccion_fisica, int direccion_logica, int tamaño_a_leer_o_escribir){
-    int num_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
-    int desplazamiento_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
-
-    if(desplazamiento_segmento + tamaño_a_leer_o_escribir > cfg_cpu-> TAM_MAX_SEGMENTO) {
-        return 1;
-    }else {
-            return 0;
-        }
-}
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
 
