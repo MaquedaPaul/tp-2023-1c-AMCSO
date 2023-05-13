@@ -63,13 +63,86 @@ bool crearSemaforos(){
 
 
 bool crearBitmapBloques(){
-    //mmap()
+    bitmapDeBloques = malloc(sizeof(t_bitmapBloques));
+    char* path =cfg_filesystem->PATH_BLOQUES;
+    if((bitmapDeBloques->fd=open(path,O_RDWR,S_IRUSR|S_IWUSR))==-1){
+        char* a;
+            perror(&a);
+            log_error(error_logger,"Error al abrir el bitmap de bloques");
+            return false;
+    }
+
+    off_t file_size = lseek(bitmapDeBloques->fd, 0, SEEK_END); // Mueve el puntero al final del archivo
+    if (file_size == -1) {
+        perror("Error al obtener el tamaño del archivo");
+        close(bitmapDeBloques->fd);
+        return false;
+    }
+
+    if (lseek(bitmapDeBloques->fd, 0, SEEK_SET) == -1) { // Mueve el puntero al principio del archivo
+        perror("Error al volver al principio del archivo");
+        close(bitmapDeBloques->fd);
+        return false;
+    }
+
+    char* unBitArray = malloc(file_size); //TODO
+
+    bitarrayBitmapDeBloques = bitarray_create(unBitArray,file_size);
+    bitmapDeBloques->archivo= mmap(bitarrayBitmapDeBloques->bitarray, file_size,PROT_WRITE|PROT_READ, MAP_SHARED,bitmapDeBloques->fd,0 );
+    if(bitmapDeBloques->archivo != bitarrayBitmapDeBloques->bitarray){
+        log_warning(warning_logger, "Se ignoro la direccion sugerida para mmap");
+        return false;
+    }
+
+
+
+    if (bitmapDeBloques->archivo == MAP_FAILED) {
+        perror("Error al mapear el archivo en memoria");
+        close(bitmapDeBloques->fd);
+        return false;
+    }
+
     return true;
 }
 bool crearSuperbloque(){
+    t_config *superBloqueConfig = config_create(cfg_filesystem->PATH_SUPERBLOQUE);
+    if(superBloqueConfig == NULL){
+        log_error(error_logger,"No se pudo crear la config para el superbloque");
+        return false;
+    }
+    cfg_superbloque = malloc(sizeof(t_config_superbloque));
+    if(cfg_superbloque == NULL){
+        log_error(error_logger,"No se pudo crear la cfg para el superbloque");
+        return false;
+    }
+    cfg_superbloque->BLOCK_COUNT= config_get_int_value(superBloqueConfig,"BLOCK_COUNT");
+    cfg_superbloque->BLOCK_SIZE= config_get_int_value(superBloqueConfig,"BLOCK_SIZE");
     return true;
 }
 bool crearArchivoBloques(){
+    if((archivoBloques->fd=open(cfg_filesystem->PATH_BLOQUES,O_RDWR,S_IRUSR|S_IWUSR))==-1){
+        char* a;
+        perror(&a);
+        log_error(error_logger,"Error al abrir el archivo de bloques");
+        return false;
+    }
+
+    off_t file_size = lseek(archivoBloques->fd, 0, SEEK_END); // Mueve el puntero al final del archivo
+    if (file_size == -1) {
+        perror("Error al obtener el tamaño del archivo");
+        close(archivoBloques->fd);
+        return false;
+    }
+
+    if (lseek(archivoBloques->fd, 0, SEEK_SET) == -1) { // Mueve el puntero al principio del archivo
+        perror("Error al volver al principio del archivo");
+        close(archivoBloques->fd);
+        return false;
+    }
+    archivoBloques->archivo= mmap(NULL, file_size,PROT_WRITE|PROT_READ, MAP_SHARED,archivoBloques->fd,0 );
+
+
+
     return true;
 }
 bool recorrerDirectorioFcb(){
