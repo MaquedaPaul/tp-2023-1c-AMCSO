@@ -3,9 +3,10 @@
 //
 
 #include <gestion_filesystem.h>
-
-
-
+t_bitmapBloques* bitmapDeBloques;
+t_bloques* archivoBloques;
+t_bitarray* bitarrayBitmapDeBloques;
+t_config_superbloque* cfg_superbloque;
 bool existeFcbConNombre(char* nombreArchivo){
     return true;
 }
