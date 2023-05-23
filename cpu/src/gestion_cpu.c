@@ -386,9 +386,55 @@ char* leer_valor_de_memoria(int direccion_fisica) {
 
     eliminar_paquete(paquete, info_logger);
 
-    // recv(,  , MSG_WAITALL);
+
+    valor = recibir_valor_de_memoria(fd_memoria) ;
 
 
 
     return valor;
 }
+
+
+
+
+void escribir_valor_en_memoria(int direccion_fisica, char valor[]) {
+
+
+    log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
+
+    t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA,info_logger);
+    agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
+
+    int largo_nombre = strlen(valor) + 1;
+    agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+    agregar_a_paquete(paquete, valor, largo_nombre);
+
+    enviar_paquete(paquete, fd_memoria);
+
+    eliminar_paquete(paquete,info_logger);
+
+    char* valor = recibir_valor_de_memoria(fd_memoria) ;
+
+    if (strcmp(valor, "NO") == 0) {       // if (respuesta < 0) 
+        log_error(info_logger, "No se pudo escribir el valor en memoria.");
+
+}
+   }
+
+
+   
+char*  recibir_valor_de_memoria(int fd_memoria)  {
+
+char* valor;
+
+int cod_op = recibir_operacion(fd_memoria);
+
+		switch (cod_op) {
+		case MENSAJE:
+			valor = recibir_mensaje(fd_memoria);
+			break;
+}
+
+	return valor;
+}
+

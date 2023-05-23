@@ -26,10 +26,16 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
-            case 10:
-                //proceso_iniciado(cliente_socket);
-
+            case PCB:
+                //pcb_actual= recibir_pcb(cliente_socket);
+                iniciar_registros (pcb_actual->registrosCpu);
+                ciclo_instrucciones();
+               // eliminar_PCB(pcb_actual);
                 break;
+            
+            /* 
+ 
+
             case LECTURA_REALIZADA:
             {
                 uint32_t valorInt =recibirValor_uint32(cliente_socket, info_logger); // recibir_valor(cliente_socket, info_logger) y que sea char*
@@ -44,12 +50,12 @@ void procesar_conexion(void *void_args) {
                 log_info(info_logger, "CPU: Memoria confirma la escritura del valor");
                 terminar_ejecucion_escritura();
                 break;
-            case 20:
-                //pedido_escritura(cliente_socket);
-                break;
-            case 200:
-                //pedido_lectura(cliente_socket);
-                break;
+
+
+ 
+ */
+
+
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;

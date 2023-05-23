@@ -31,7 +31,7 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
         t_paquete* paquete = crear_paquete(SEGMENTATION_FAULT, info_logger);
         agregar_PCB_a_paquete(paquete, pcb_actual);
         enviar_paquete(paquete, cliente_servidor);
-         //    log_info(logger, "PID: <%d> - Error SEG_FAULT- Segmento: <%d> - Offset: <%d> - Tamaño: <%d>\n", pcb_actual->id, num_segmento,    ,segmento->tamanio_segmento );  
+        log_info(logger, "PID: <%d> - Error SEG_FAULT- Segmento: <%d> - Offset: <%d> - Tamaño: <%d>\n", pcb_actual->id, num_segmento, desplazamiento_segmento ,segmento->tamanio_segmento );  
 
         eliminar_paquete(paquete, info_logger);
 
