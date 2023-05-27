@@ -26,6 +26,7 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
+                /*
             case PCB:
                 //pcb_actual= recibir_pcb(cliente_socket);
                 iniciar_registros (pcb_actual->registrosCpu);

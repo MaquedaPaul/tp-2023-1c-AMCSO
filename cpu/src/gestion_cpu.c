@@ -22,14 +22,15 @@ void ejecutar_SET(char* registro, char* valor){
 
 void ejecutar_MOV_IN(char* registro, int direccion_logica) {
 
-    int cantidad_bytes = buscar_registro(registro);
+    int cantidad_bytes = calcular_bytes_segun_registro(registro);
 
-    //if( buscar_registro(registro) < 0 )
+    //if( calcular_bytes_segun_registro(registro) < 0 )
 
     int direccion_fisica = traducir_direccion_logica(direccion_logica,cantidad_bytes);
+
     if (!(direccion_fisica < 0)) {
 
-           char* valor = leer_valor_de_memoria(direccion_fisica);
+           char* valor = leer_valor_de_memoria(direccion_fisica, cantidad_bytes);
 
            cambiar_valor_registro(registro,valor);
 
@@ -39,19 +40,23 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
 }
 
 
-void ejecutar_MOV_OUT(int direccion_logica,char* registro ) {
-    int cantidad_bytes = buscar_registro(registro);
+void ejecutar_MOV_OUT(int direccion_logica, char* registro ) {
 
-    //if( buscar_registro(registro) < 0 )
+    int cantidad_bytes = calcular_bytes_segun_registro(registro);
+
+    //if( calcular_bytes_segun_registro(registro) < 0 )
 
     int direccion_fisica = traducir_direccion_logica(direccion_logica, cantidad_bytes);
+
     if (!(direccion_fisica < 0)) {
+
         char valor[17];
         obtener_valor_registro(registro, valor);
+
+        escribir_valor_en_memoria(direccion_fisica, valor);
+
         pcb_actual->programCounter++;
     }
-
-
 }
 
 
@@ -66,9 +71,6 @@ void ejecutar_IO(int tiempo) {
     eliminar_paquete(paquete,info_logger);
     cicloInstruccionesDebeEjecutarse = false;
 }
-
-
-
 
 
 void ejecutar_F_OPEN(char* nombre_archivo) {
@@ -99,6 +101,7 @@ void ejecutar_F_CLOSE(char* nombre_archivo) {
     eliminar_paquete(paquete, info_logger);
     cicloInstruccionesDebeEjecutarse = false;
 }
+
 
 void ejecutar_F_SEEK(char* nombre_archivo, int posicion) {
 
@@ -234,7 +237,6 @@ void ejecutar_DELETE_SEGMENT(int id_del_segmento) {
 }
 
 
-
 void ejecutar_YIELD() {
     copiar_registros(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
@@ -256,7 +258,7 @@ void ejecutar_EXIT() {
 }
 
 
-void cambiar_valor_registro(char* registro,char* valor) {
+void cambiar_valor_registro(char* registro, char* valor) {
 
     if (strcmp(registro, "AX") == 0)
         memcpy( registroCPU_AX, valor,4);
@@ -297,7 +299,7 @@ void cambiar_valor_registro(char* registro,char* valor) {
 }
 
 
-int buscar_registro(char* registro)  { //pondria un otro nombre a la funcion  //   int tamaño_a_escribir(char* tipo_registro)
+int calcular_bytes_segun_registro(char* registro)  { //pondria un otro nombre a la funcion  //   int tamaño_a_escribir(char* tipo_registro)
 
 
     int bytes;
@@ -313,8 +315,6 @@ int buscar_registro(char* registro)  { //pondria un otro nombre a la funcion  //
 
     return bytes;
 }
-
-
 
 
 
@@ -334,7 +334,7 @@ void copiar_registros(registros_cpu* registro) {
     memcpy(registro->registro_RDX,registroCPU_RDX,16);
 }
 
-void obtener_valor_registro(char* registro,char valor[]) {
+void obtener_valor_registro(char* registro, char valor[]) {
 
 
     if (strcmp(registro, "AX") == 0)
@@ -375,34 +375,41 @@ void obtener_valor_registro(char* registro,char valor[]) {
 }
 
 
-char* leer_valor_de_memoria(int direccion_fisica) {
+char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
+
     char* valor;
-    t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_LECTURA, info_logger);
-    agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
-    enviar_paquete(paquete, fd_memoria);
+    //t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_LECTURA, info_logger);
+    //agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
+    //enviar_paquete(paquete, fd_memoria);
+
+    t_list* listaInts = list_create();
+
+    int *dir_fisica = &direccion_fisica;
+    int *bytes = &cantidad_bytes;
+    int *pid =  &pcb_actual->id;
+
+    list_add(listaInts, dir_fisica);
+    list_add(listaInts, bytes);
+    list_add(listaInts, pid); //pcb_actual tiene q ser global
+
+    enviarListaUint32_t(listaInts, fd_memoria, info_logger, ACCESO_PEDIDO_LECTURA);
 
 
     log_info(info_logger, "PID: <%d> - Acción: <LEER> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
 
-    eliminar_paquete(paquete, info_logger);
-
+    //eliminar_paquete(paquete, info_logger);
 
     valor = recibir_valor_de_memoria(fd_memoria) ;
-
-
 
     return valor;
 }
 
 
-
-
-void escribir_valor_en_memoria(int direccion_fisica, char valor[]) {
-
+void escribir_valor_en_memoria(int direccion_fisica, char valor[]) { //antes estaba como char valor[]
 
     log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
 
-    t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA,info_logger);
+    t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA, info_logger);
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
 
     int largo_nombre = strlen(valor) + 1;
@@ -413,16 +420,15 @@ void escribir_valor_en_memoria(int direccion_fisica, char valor[]) {
 
     eliminar_paquete(paquete,info_logger);
 
-    char* valor = recibir_valor_de_memoria(fd_memoria) ;
+    char* valorRecibido = recibir_valor_de_memoria(fd_memoria);
 
     if (strcmp(valor, "NO") == 0) {       // if (respuesta < 0) 
         log_error(info_logger, "No se pudo escribir el valor en memoria.");
-
+    }
 }
-   }
 
 
-   
+
 char*  recibir_valor_de_memoria(int fd_memoria)  {
 
 char* valor;
@@ -430,8 +436,9 @@ char* valor;
 int cod_op = recibir_operacion(fd_memoria);
 
 		switch (cod_op) {
-		case MENSAJE:
-			valor = recibir_mensaje(fd_memoria);
+		case LECTURA_REALIZADA:
+            int tamanio;
+			valor = (char*) recibirDatos(fd_memoria, tamanio);
 			break;
 }
 
