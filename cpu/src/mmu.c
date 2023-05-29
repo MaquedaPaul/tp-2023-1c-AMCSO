@@ -1,6 +1,6 @@
 #include <mmu.h>
 
-t_pcb *pcb_actual;
+
 t_segmento* segmento;
 int cliente_servidor;
 int num_segmento;

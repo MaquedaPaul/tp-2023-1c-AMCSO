@@ -29,6 +29,7 @@ typedef enum {
     DESALOJAR_PROCESO,
     //----------------------------------------------------------------------------------
     /////////////////////////////////////CPU///////////////////////////////////////////
+    PCB,
     IO_BLOCK,
     F_OPEN,
     F_CLOSE,
@@ -48,7 +49,6 @@ typedef enum {
     HANDSHAKE_FS,
     HANDSHAKE_CPU,
     /////////////////////////////////MEMORIA///////////////////////////////////////////
-
     INICIALIZAR_PROCESO_MEMORIA,
     FINALIZAR_PROCESO_MEMORIA,
     ACCESO_PEDIDO_LECTURA,

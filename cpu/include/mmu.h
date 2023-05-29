@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <gestion_cpu.h> //lo agregue pq copiar_registros() lo defini en gestion_cpu
 
+extern t_pcb* pcb_actual;
 extern t_log* info_logger;
 extern bool cicloInstruccionesDebeEjecutarse; //nose si va aca
 

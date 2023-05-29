@@ -18,16 +18,15 @@ memcpy(registroCPU_RDX,registro->registro_RDX,16);
 
 }
 
+t_instr* instruccion;
+char* nombre_instruccion_actual;
 
 void ciclo_instrucciones(){
-
-// instr_t* instruccion;
-
     while(cicloInstruccionesDebeEjecutarse){      // && (pcb->programCounter < list_size(pcb->instr))
 
         instruccion = fetch();
 
-        nombre_instruccion_actual = decode(); // decode(instruccion);
+        nombre_instruccion_actual = decode();
 
         execute();
     }  // execute(instruccion);
@@ -36,20 +35,16 @@ void ciclo_instrucciones(){
 }
 
 
-instr_t* fetch(){
+t_instr* fetch(){
     return list_get(pcb_actual->instr, pcb_actual->programCounter);
 }
 
 
 char* decode(){
-
     if(strcmp(instruccion->id, "SET") == 0){
-
         usleep(cfg_cpu->RETARDO_INSTRUCCION * 1000); }
-
     return instruccion->id;
 }
-
 
 
 void execute() {
@@ -166,19 +161,5 @@ void execute() {
         log_info(info_logger, "PID: <%d> - NO EXISTE LA INSTRUCCION", pcb_actual->id); // log_error() ?
 
     }
-}
-
-
-
-void terminar_ejecucion_lectura(char* leido){ //TERMINA EL MOV_IN ESCRIBIENDO EN EL REGISTRO ASOCIADO
-    //log_info(info_logger, "Recibo de memoria el valor: <%d> y lo escribo en el registro: <%s> ", leido, instruccion->param1);
-
-   // escribir_en_registro(instruccion->param1, leido);
-
-    //pcb_actual->programCounter++;
-}
-
-void terminar_ejecucion_escritura(){
-
 }
 

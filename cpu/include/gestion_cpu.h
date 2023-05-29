@@ -9,10 +9,16 @@
 #include <comunicacion.h>
 #include <mmu.h>
 #include <string.h>
+#include <estructuras.h>
+
+extern t_pcb* pcb_actual;
+extern char* nombre_instruccion_actual;
 extern uint32_t tam_max_segmento;
-extern t_pcb *pcb_actual;
 extern t_segmento* segmento;
-extern int cliente_servidor;
+
+//extern int cliente_servidor;
+extern int fd_memoria;
+extern int fd_kernel;
 
 extern char registroCPU_AX[4];
 extern char registroCPU_BX[4];
@@ -54,6 +60,6 @@ void obtener_valor_registro(char* registro,char valor[]);
 
 char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes);
 void escribir_valor_en_memoria(int direccion_fisica, char valor[]);
-char* recibir_valor_de_memoria(int fd_memoria);
-
+char* recibir_valor_de_memoria();
+void esperar_orden();
 #endif //CPU_GESTION_CPU_H
