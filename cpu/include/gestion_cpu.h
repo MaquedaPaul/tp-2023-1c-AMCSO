@@ -13,7 +13,6 @@
 
 extern t_pcb* pcb_actual;
 extern char* nombre_instruccion_actual;
-extern uint32_t tam_max_segmento;
 extern t_segmento* segmento;
 
 //extern int cliente_servidor;
@@ -33,8 +32,7 @@ extern char registroCPU_RBX[16];
 extern char registroCPU_RCX[16];
 extern char registroCPU_RDX[16];
 extern int num_segmento;
-extern uint32_t dir_logica_actual;
-extern uint32_t dir_fisica_actual;
+
 
 void ejecutar_SET(char* registro, char* valor);
 void ejecutar_MOV_IN(char* registro, int direccion_logica);
@@ -62,4 +60,4 @@ char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes);
 void escribir_valor_en_memoria(int direccion_fisica, char valor[]);
 char* recibir_valor_de_memoria();
 void esperar_orden();
-#endif //CPU_GESTION_CPU_H
+#endif

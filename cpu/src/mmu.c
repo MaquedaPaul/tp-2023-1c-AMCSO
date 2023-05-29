@@ -21,17 +21,16 @@ char registroCPU_RDX[16];
 
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
-
     num_segmento = floor(direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO);
     int desplazamiento_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
 
     if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes)) {
-
         copiar_registros(pcb_actual->registrosCpu);
         t_paquete* paquete = crear_paquete(SEGMENTATION_FAULT, info_logger);
         agregar_PCB_a_paquete(paquete, pcb_actual);
         enviar_paquete(paquete, cliente_servidor);
 
+        //enviar_paquete_pcb(pcb_actual, fd_kernel,SEGMENTATION_FAULT, info_logger);
        // log_info(info_logger, "PID: <%d> - Error SEG_FAULT- Segmento: <%d> - Offset: <%d> - Tamaño: <%d>\n", pcb_actual->id, num_segmento, desplazamiento_segmento, segmento-> tamanio_segmento );
 
         eliminar_paquete(paquete, info_logger);

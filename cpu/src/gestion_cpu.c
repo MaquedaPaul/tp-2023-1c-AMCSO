@@ -12,7 +12,6 @@ int fd_cpu;
 bool cicloInstruccionesDebeEjecutarse = true;
 
 
-
 void ejecutar_SET(char* registro, char* valor){
     cambiar_valor_registro(registro,valor);
     pcb_actual->programCounter++;
@@ -420,6 +419,7 @@ int cod_op = recibir_operacion(fd_memoria);
 void esperar_orden(){
     int fd_memoria;
     int esperar = 1;
+
     while(esperar == 1){
         int cod_op = recibir_operacion(fd_memoria);
         switch (cod_op) {
@@ -428,7 +428,7 @@ void esperar_orden(){
             esperar = 0;
             break;
         }
-}
+    }
 
 }
 
