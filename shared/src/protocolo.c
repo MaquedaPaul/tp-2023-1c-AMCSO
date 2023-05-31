@@ -450,7 +450,7 @@ void agregarPcbAPaquete(t_paquete* paquete, pcb* pcb){
 
 	//PCB: ID, LIST_INSTRUCCIONES, REGISTROS_CPU, PROGRAM_COUNTER, TABLA_SEGMENTO
 	//ID	
-	memcpy(stream + desplazamiento, &(pcb->id), sizeof(uint32_t)); 
+	memcpy(stream + desplazamiento, &(pcb->pid), sizeof(uint32_t)); 
 	desplazamiento += sizeof(uint32_t);
 	
 	//LIST INSTRUCCIONES, primero va en el stream el TAMAÑO, luego la lista en si
@@ -513,6 +513,25 @@ void agregarPcbAPaquete(t_paquete* paquete, pcb* pcb){
 	//PROGRAM_COUNTER
 	memcpy(stream + desplazamiento, &(pcb->programCounter), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+
+
+	//estimacionRafaga
+	memcpy(stream + desplazamiento, &(pcb->estimacionRafaga), sizeof(uint32_t ));
+	desplazamiento += sizeof(uint32_t);
+
+	//rafagaAnterior
+	memcpy(stream + desplazamiento, &(pcb->rafagaAnterior), sizeof(uint32_t ));
+	desplazamiento += sizeof(uint32_t);
+
+	//tiempoLlegadaReady
+	memcpy(stream + desplazamiento, &(pcb->tiempoLlegadaReady), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	//tiempoLlegadaReady
+	memcpy(stream + desplazamiento, &(pcb->tiempoEnvioExec), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+    //TablaArchivosAbiertos
 	
 	paquete->buffer->stream= stream;
     }
@@ -534,7 +553,7 @@ pcb* recibir_pcb(int conexion){
 
     //En el buffer: ID-#LIST-(#ID1-ID1-#P11-P11-#P21-P21-INST1)-...-(#IDn-IDn-#P1n-P1n-#P2n-P2n-INSTn)-{AX-BX-CX-DX}-PC-{NS-TS-ITP}
     //ID
-	memcpy(&(unPcb->id), buffer + desplazamiento, sizeof(uint32_t));
+	memcpy(&(unPcb->pid), buffer + desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 	
     //TAMAÑO_LISTA
@@ -608,9 +627,30 @@ pcb* recibir_pcb(int conexion){
 	desplazamiento += sizeof(uint32_t);
 	
     
-
     //Agrego los registro y tabla de segmentos a la pcb
     unPcb->registrosCpu = registros;
+
+
+
+	//estimacionRafaga
+	memcpy(&(unPcb->estimacionRafaga), buffer + desplazamiento, sizeof(uint32_t ));
+	desplazamiento += sizeof(uint32_t);
+
+	//rafagaAnterior
+	memcpy(&(unPcb->rafagaAnterior), buffer + desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	//tiempoLlegadaReady
+	memcpy(&(unPcb->tiempoLlegadaReady), buffer + desplazamiento, sizeof(uint32_t ));
+	desplazamiento += sizeof(uint32_t);
+
+	//tiempoLlegadaReady
+	memcpy(&(unPcb->tiempoEnvioExec), buffer + desplazamiento, sizeof(uint32_t ));
+	desplazamiento += sizeof(uint32_t);
+
+    //TablaArchivosAbiertos
+
+
 
     //unPcb->tablaSegmento = tabla;
 	//free(buffer);

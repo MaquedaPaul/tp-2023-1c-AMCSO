@@ -29,19 +29,26 @@ extern t_list* colaBloq;
 extern t_list* estadoBlockRecursos;
 extern t_queue* colaReady_FIFO;
 extern t_list* colaReady; 
+extern t_list* listaEsperaMemoria;
+
 
 //CONTADORES Y MUTEX
 extern int procesosEnNew;
+extern int procesosTotales_MP; //contador de procesos totales en READY-EXEC-BLOQ
+extern int idProcesoGlobal; //generador de pid para pcbs
 extern pthread_mutex_t mutex_colaNew;
-extern pthread_mutex_t mutex_ColaReady; //en caso de FEEDBACK cola 1(RR)
+extern pthread_mutex_t mutex_ColaReady; 
 extern pthread_mutex_t mutex_colaExec;
 extern pthread_mutex_t mutex_colaBloq;
+extern pthread_mutex_t mutex_MP; //Des/activa el grado de Multiprogramacion
+extern pthread_mutex_t mutex_PlanLP; //Activa el PL
 
 //HILOS
 extern pthread_t conexion_con_consola;
 extern pthread_t conexion_con_cpu;
 extern pthread_t conexion_con_memoria;
 extern pthread_t conexion_con_filesystem;
+extern pthread_t hilo_planificador_LP;
 
 //Manejo de recursos
 extern t_list* listaRecursos;

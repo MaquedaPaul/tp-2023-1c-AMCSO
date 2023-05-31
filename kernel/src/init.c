@@ -13,14 +13,20 @@ t_list* colaBloq;
 t_list* estadoBlockRecursos;
 t_queue* colaReady_FIFO; //en caso de FIFO
 t_list* colaReady; //en caso de HRRN
+t_list* listaEsperaMemoria;
+
 
 
 //CONTADORES Y MUTEX
-int procesosEnNew = 0;
+int procesosEnNew;
+int procesosTotales_MP;
+int idProcesoGlobal;
 pthread_mutex_t mutex_colaNew;
 pthread_mutex_t mutex_ColaReady; 
 pthread_mutex_t mutex_colaExec;
 pthread_mutex_t mutex_colaBloq;
+pthread_mutex_t mutex_PlanLP;
+pthread_mutex_t mutex_MP;
 
 //HILOS
  pthread_t conexion_con_consola;
@@ -101,25 +107,34 @@ void inicializar_kernel(){
     colaExec = list_create();
     colaBloq = list_create();
     colaExit = queue_create();
+    listaEsperaMemoria = list_create();
 
 //CONTADORES Y MUTEX
 
+    procesosEnNew = 0;
+    procesosTotales_MP = 0;
+    idProcesoGlobal = 0;
     pthread_mutex_init(&mutex_colaNew, NULL);
     pthread_mutex_init(&mutex_ColaReady, NULL);
     pthread_mutex_init(&mutex_colaExec, NULL);
     pthread_mutex_init(&mutex_colaBloq, NULL);
+    pthread_mutex_init(&mutex_PlanLP, NULL);
+    pthread_mutex_init(&mutex_MP, NULL);
 
  //HILOS
     pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);
     pthread_create(&conexion_con_cpu, NULL, (void*)conectarConCPU, NULL);
     pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
     pthread_create(&conexion_con_filesystem, NULL, (void*)conectarConFileSystem, NULL);
+    pthread_create(&hilo_planificador_LP, NULL, (void*)planificador_largo_plazo, NULL);
 
     pthread_join(conexion_con_consola, NULL);
     pthread_join(conexion_con_cpu, NULL);
     pthread_join(conexion_con_memoria, NULL);
     pthread_join(conexion_con_filesystem, NULL);
+    pthread_join(hilo_planificador_LP, NULL);
 
+pthread_t planificador_LP;
 
 return true;
 

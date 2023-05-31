@@ -5,4 +5,8 @@
 
 void eliminarElementoLista(pcb, t_list*);
 
+pcb *crearPcb (int);
+registros_cpu *crearRegistroCPU ();
+void actualizarTiempoRafaga(pcb*);
+
 #endif

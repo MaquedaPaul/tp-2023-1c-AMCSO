@@ -49,11 +49,20 @@ typedef struct {
 
 //Registros de CPU
 typedef struct{
-    uint32_t AX;
-    uint32_t BX;
-    uint32_t CX;
-    uint32_t DX;
+    char* AX;
+    char* BX;
+    char* CX;
+    char* DX;
+    char* EAX;
+    char* EBX;
+    char* ECX;
+    char* EDX;
+    char* RAX;
+    char* RBX;
+    char* RCX;
+    char* RDX;
 }registros_cpu;
+
 
 //Tabla de Segmentos
 
@@ -81,13 +90,16 @@ typedef struct {
 
 //Estructura del pcb
 typedef struct{
-	uint32_t id;
+	uint32_t pid;
 	t_list* instr;
     registros_cpu* registrosCpu;
 	uint32_t programCounter;
+    uint32_t estimacionRafaga;
+    uint32_t rafagaAnterior;
+    uint32_t tiempoLlegadaReady;
+    uint32_t tiempoEnvioExec;
     t_list* tablaSegmentos;
     float estimacionRafaga;
-    //TODO PREGUNTAR POR QUE UNSIGNED?
     unsigned int tiempoLlegadaReady;
     t_list* tablaArchivosAbiertos;
 } pcb;

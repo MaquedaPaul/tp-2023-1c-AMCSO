@@ -93,6 +93,7 @@ typedef enum
     //------CPU - Kernel--------
     // TODO PCB este mensaje colisiona con otro que se llama PCB
     INTERRUPCION,
+    PCB_TERMINADO
 
 } op_code;
 
@@ -147,14 +148,18 @@ void enviar_mensaje(char* mensaje, int socket_cliente, op_code codigoOperacion, 
 char* recibir_mensaje(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
 
-
-
-
 bool enviarListaInstrucciones(t_list* listaInstrucciones, int socket_cliente, t_log* logger);
 bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete);
 instr_t* sumarTamaniosInstrucciones(instr_t *unaInstruccion,instr_t *otraInstruccion);
 int calcularTamanioDeInstruccion(instr_t *unaInstruccion);
 t_list* recibirListaInstrucciones(int socket_cliente);
+
+
+pcb *generar_pcb(int);
+int rellenar_lista_instrucciones(t_list*, t_list*, int);
+pcb *crear_pcb(t_list*, t_list*, int, int);
+
+
 
 /*
 

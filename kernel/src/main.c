@@ -14,11 +14,10 @@ int main(int argc, char *argv[]) {
 
     signal(SIGINT, handle_sigint); // Esto lo uso para salir de la consola con CTRL + C
 
-    if (!init(path_config) || !cargar_configuracion(path_config)) {
-        cerrar_programa();
+    if (!argumentosInvalidos(argc,argv,3) || !init_logs_configs(path_config) || !cargar_configuracion(path_config)) {
+        //cerrar_programa();
         printf("No se pudo inicializar kernel\n");
         return EXIT_FAILURE;
-
     }
 
     logger_kernel = iniciar_logger_kernel();

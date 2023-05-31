@@ -83,7 +83,7 @@ bool esInstruccionConTresParametros(instr_t* instruccion){
 void mostrarPcb(pcb* pcbProceso){
     printf("\n--------------------------------------------------");
     printf("\nLa PCB del proceso es: \n");
-    printf("La id es %d: ", pcbProceso->id);
+    printf("La id es %d: ", pcbProceso->pid);
     printf("\nLas instrucciones son: \n");
     list_iterate(pcbProceso->instr, closure_mostrarListaInstrucciones);
     printf("\nLa lista de segmentos es: \n[");

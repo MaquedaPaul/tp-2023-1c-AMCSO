@@ -35,7 +35,9 @@ void procesar_conexion(void *void_args) {
             }
             case GESTIONAR_CONSOLA_NUEVA:
             {
-                t_list* instrucciones = recibirListaInstrucciones(cliente_socket);
+                //t_list* instrucciones = recibirListaInstrucciones(cliente_socket);
+                pcb *pcbDispatch = generar_pcb(cliente_socket);
+                agregarProceso_New(pcbDispatch);
                 break;
 
             }
@@ -50,6 +52,21 @@ void procesar_conexion(void *void_args) {
             }
 
                 //--------------------------------CPU-------------------------------------------
+
+            case PCB:
+            {
+                pcb  *pcbRecibido;
+                pcbRecibido = deserializar_pcb(cliente_socket);
+                actualizarTiempoRafaga(pcbRecibido);
+                moverProceso_ExecBloq(pcbRecibido);
+                break;
+            }
+            case PCB_TERMINADO:{
+                pcb  *pcbRecibido;
+                pcbRecibido = deserializar_pcb(cliente_socket);
+                moverProceso_ExecExit(pcbRecibido);
+                break;
+            }
 
             case WAIT:
             {
@@ -99,19 +116,6 @@ void procesar_conexion(void *void_args) {
 
                 arrayParaMemoria[2] = idSegmento;
                 enviar_int_array(arrayParaMemoria,fd_memoria,DELETE_SEGMENT,logger_kernel);
-
-                break;
-            }
-            case 20000: {
-                break;
-            }
-
-            case 200000: {
-                break;
-            }
-
-            case 30:
-            {
 
                 break;
             }
