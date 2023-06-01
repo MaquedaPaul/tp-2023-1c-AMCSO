@@ -30,10 +30,16 @@ void eliminacionProceso(int pid);
 void creacionSegmento(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio);
 void eliminacionSegmento(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio);
 void inicioCompactacion();
-void resultadoCompactacion(int pid, int idSegmento, uint32_t direccionBase, uint32_t tamanio);
+void resultadoCompactacion(uint32_t pid, uint32_t idSegmento, uint32_t direccionBase, uint32_t tamanio);
 void accesoEspacioUsuarioEscrituraCPU(int pid, uint32_t direccionFisica, uint32_t tamanio);
 void accesoEspacioUsuarioLecturaCPU(int pid, uint32_t direccionFisica, uint32_t tamanio);
 void accesoEspacioUsuarioEscrituraFS(int pid, uint32_t direccionFisica, uint32_t tamanio);
 void accesoEspacioUsuarioLecturaFS(int pid, uint32_t direccionFisica, uint32_t tamanio);
+void accesoEspacioUsuarioEscrituraRetardoPrevio(uint32_t direccion, uint32_t pid);
+void accesoEspacioUsuarioEscrituraRetardoConcedido();
+void accesoEspacioUsuarioLecturaRetardoPrevio(uint32_t direccion, uint32_t tamanio, uint32_t pid);
+void accesoEspacioUsuarioLecturaRetardoConcedido();
 
+void compactacionRetardoPrevio(uint32_t tiempo);
+void compactacionRetardoTerminada();
 #endif //TPSO_LOGGERS_CONFIGS_H

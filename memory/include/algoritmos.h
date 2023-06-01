@@ -9,9 +9,12 @@
 #include <protocolo.h>
 #include <gestion_memoria.h>
 extern t_config_memory *cfg_memory;
+extern t_list* tablasSegmentos;
+extern t_list* huecosUsados;
+extern t_list* huecosLibres;
 
-t_segmento* firstFit();
-t_segmento* bestFit();
-t_segmento* worstFit();
+t_segmento* firstFit(uint32_t tamanioSegmento);
+t_segmento* bestFit(uint32_t tamanioSegmento);
+t_segmento* worstFit(uint32_t tamanioSegmento);
 t_segmento* buscarHuecoLibre(uint32_t tamanioSegmento);
 #endif //TEMPLATE_ALGORITMOS_H

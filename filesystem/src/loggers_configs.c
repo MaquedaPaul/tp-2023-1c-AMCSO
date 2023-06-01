@@ -11,10 +11,16 @@ t_log* error_logger;
 t_config* file_cfg_filesystem;
 t_config_filesystem *cfg_filesystem;
 char* path_config;
-
+bool logsCreados = false;
+bool configCreado = false;
+bool cfgCreado = false;
 
 int init_logs_configs(char *path_config) {
     cfg_filesystem = cfg_filesystem_start();
+    if(cfg_filesystem == NULL){
+        return false;
+    }
+    cfgCreado= true;
     trace_logger = log_create("trace_logger.log","Filesystem", true, LOG_LEVEL_TRACE);
     debug_logger = log_create("debug_logger.log","Filesystem", true, LOG_LEVEL_DEBUG);
     info_logger = log_create("info_logger.log","Filesystem", true, LOG_LEVEL_INFO);
@@ -25,7 +31,12 @@ int init_logs_configs(char *path_config) {
         printf("No pude crear los loggers");
         return false;
     }
+    logsCreados = true;
     file_cfg_filesystem = iniciar_config(path_config);
+    if(file_cfg_filesystem == NULL){
+        return false;
+    }
+    configCreado = true;
     return checkProperties(path_config);
 }
 
@@ -64,4 +75,33 @@ bool checkProperties(char *path) {
     config_destroy(config);
 
     return true;
+}
+
+
+
+void creacionArchivo(char* nombreArchivo){
+    log_info(info_logger,"Crear Archivo: <%s>", nombreArchivo);
+}
+void aperturaArchivo(char* nombreArchivo){
+    log_info(info_logger,"Abrir Archivo: <%s>", nombreArchivo);
+}
+
+void truncacionArchivo(char* nombreArchivo, uint32_t tamanioArchivo){
+    log_info(info_logger,"Truncar Archivo: <%s> - Tamanio: <%d>", nombreArchivo,tamanioArchivo);
+}
+
+void accesoABitmap(uint32_t numeroBloque, uint8_t estado){
+    log_info(info_logger,"Acceso a Bitmap - Bloque: <%d> - Estado: <%d>", numeroBloque,estado);
+}
+
+void lecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t direccionMemoria, uint32_t tamanioArchivo){
+    log_info(info_logger,"Leer Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamanio: <%d>", nombreArchivo,punteroArchivo, direccionMemoria,tamanioArchivo);
+}
+
+void escrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t direccionMemoria, uint32_t tamanioArchivo){
+    log_info(info_logger,"Escribir Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamanio: <%d>", nombreArchivo,punteroArchivo, direccionMemoria,tamanioArchivo);
+}
+
+void accesoABloqueArchivo(char* nombreArchivo, uint32_t numeroBloqueArchivo, uint32_t numeroBloqueFs){
+    log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Bloque Archivo: <%d> - Bloque File System <%d>", nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
 }

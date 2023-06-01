@@ -7,7 +7,8 @@ int fd_filesystem;
 char* ip_filesystem;
 char* puerto_filesystem;
 pthread_t crear_server_filesystem;
-int fd_memoria;
+
+bool conexionesHechas = false;
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -27,22 +28,27 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
-            case 10:
-                //proceso_iniciado(cliente_socket);
-
+            case APERTURA_ARCHIVO:
+                abrirArchivo(cliente_socket);
                 break;
-            case 100:
-                //proceso_terminado(cliente_socket);
+            case CREACION_ARCHIVO:
+                crearArchivo(cliente_socket);
                 break;
-            case 1000:
-                //solicitud_marco(cliente_socket);
+            case TRUNCACION_ARCHIVO:
+                truncarArchivo(cliente_socket);
                 break;
-            case 20:
-                //pedido_escritura(cliente_socket);
+            case LECTURA_ARCHIVO:
+                leerArchivo(cliente_socket);
                 break;
-            case 200:
-                //pedido_lectura(cliente_socket);
+            case LECTURA_REALIZADA:
+                finalizarEscrituraArchivo(cliente_socket);
                 break;
+            case ESCRITURA_ARCHIVO:
+                escribirArchivo(cliente_socket);
+                break;
+            case ESCRITURA_REALIZADA:
+                finalizarEscrituraArchivo(cliente_socket);
+            break;
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;
@@ -77,8 +83,11 @@ bool generar_conexiones(){
 
     pthread_create(&crear_server_filesystem,NULL, crearServidor,NULL);
     pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
+    conexionesHechas = true;
+
     pthread_join(crear_server_filesystem, NULL);
     pthread_join(conexion_con_memoria, NULL);
+
     return true; //debe tomarse lo que retorna el hilo al crear el servidor
 }
 
@@ -101,6 +110,7 @@ void* crearServidor(){
 void* conectarConMemoria(){
     bool comprobacion = generarConexionesConMemoria();
     if(comprobacion){
+        enviarOrden(HANDSHAKE_FS, fd_memoria, info_logger);
         atenderMemoria();
     }
 

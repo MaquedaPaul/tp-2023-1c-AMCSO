@@ -8,7 +8,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <commons/collections/list.h>
+#include <semaphore.h>
+#include <estructuras.h>
 #include <loggers_configs.h>
+#include <pthread.h>
+#include <clean_memory_utils.h>
+#include <protocolo.h>
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;
@@ -17,28 +22,35 @@ extern t_log* warning_logger;
 extern t_log* error_logger;
 extern t_config* file_cfg_memory;
 extern t_config_memory *cfg_memory;
-typedef struct
-{
-    int pid;
-    t_list* segmentos;
-} t_tablaSegmentos;
 
-typedef struct
-{
-    uint32_t base;
-    uint32_t limite;
-    uint8_t nro_segmento;
-} t_segmento;
 
-void escribirEnPosicion(uint32_t direccion);
-bool hayDisponibilidadDeEspacio();
+
+
+
+void escribirEnPosicion(uint32_t direccion, void* datos, uint32_t tamanio, uint32_t pid, bool esCpu);
+void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, bool esCpu);
+bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento);
 bool elEspacioSeEncuentraEnDiferentesHuecos();
 uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio);
+
+
+
+
+
+bool agregarAHuecosLibres(t_segmento* huecoLibre);
 bool removerDeHuecosLibres(t_segmento* huecoLibre);
 bool agregarAHuecosUsados(t_segmento* huecoLibre);
-t_segmento* dividirEnDos(t_segmento* huecoLibre,uint32_t tamanio);
-void realizarEliminacionSegmento(uint32_t direccion);
+bool removerDeHuecosUsados(t_segmento* huecoUsado);
+
+
+t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre,uint32_t tamanio);
+t_tablaSegmentos* crearTablaSegmentos(uint32_t pid);
+t_tablaSegmentos* buscarTablaConPid(uint32_t pid);
+t_segmento* buscarSegmentoEnBaseADireccion(uint32_t direccion);
+t_segmento* buscarSegmentoSegunId(uint32_t unId);
+void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid);
+void realizarEliminacionSegmentoSinPid(t_segmento* segmento);
 uint32_t realizarCompactacion();
-void informarTablasActualizadas(uint32_t tablasActualizadas,int cliente_socket);
+void informarTablasActualizadas(int cliente_socket);
 
 #endif //MEMORY_GESTION_MEMORIA_H

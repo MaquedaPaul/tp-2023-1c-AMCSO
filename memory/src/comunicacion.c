@@ -3,6 +3,7 @@
 //
 
 #include <comunicacion.h>
+bool conexionesHechas = false;
 int fd_memoria;
 char* ip_memory;
 char* puerto_memory;
@@ -26,9 +27,19 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
+
+            case HANDSHAKE_CPU:
+                recibirOrden(cliente_socket);
+                ipCpu = cliente_socket;
+                enviarOrden(HANDSHAKE_CPU,cliente_socket,info_logger);
+                break;
+            case HANDSHAKE_FS:
+                recibirOrden(cliente_socket);
+                ipFs = cliente_socket;
+                enviarOrden(HANDSHAKE_FS,cliente_socket,info_logger);
+                break;
             case INICIALIZAR_PROCESO_MEMORIA:
                 inicializarProceso(cliente_socket);
-
                 break;
             case FINALIZAR_PROCESO_MEMORIA:
                 finalizarProceso(cliente_socket);
@@ -46,7 +57,7 @@ void procesar_conexion(void *void_args) {
                 eliminarSegmento(cliente_socket);
                 break;
             case COMPACTACION_SEGMENTOS:
-                compactarSegmentos(cliente_socket);
+                compactacionSegmentos(cliente_socket);
                 break;
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);

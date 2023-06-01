@@ -22,15 +22,8 @@ typedef t_log Logger;
 typedef enum
 {
     //-------------MENSAJES ENTRE CONSOLA-KERNEL------------------------------------
-	GESTIONAR_CONSOLA_NUEVA = 0,
-    SOLICITAR_VALOR,
-    IMPRIMIR_VALOR,
+    GESTIONAR_CONSOLA_NUEVA = 0,
     //------------------------------------------------------------------------------
-    //-------------MENSAJES SERIALIZACION GLOBALES---------------------------------
-    PAQUETE = 3,
-    MENSAJE,
-    PCB = 30,
-    //-----------------------------------------------------------------------------
     //-----------MENSAJES CPU-KERNEL---------------------------------------------
     WAIT,
     SIGNAL,
@@ -51,7 +44,27 @@ typedef enum
     DESALOJAR_PROCESO,
     CONTINUAR_EJECUCION,
     //----------------------------------------------------------------------------------
-    ///MEMORIA
+    /////////////////////////////////////CPU///////////////////////////////////////////
+    PCB,
+    IO_BLOCK,
+    F_OPEN,
+    F_CLOSE,
+    F_SEEK,
+    SEGMENTATION_FAULT,
+    F_READ,
+    F_WRITE,
+    F_TRUNCATE,
+    WAIT,
+    SIGNAL,
+    CREATE_SEGMENT,
+    DELETE_SEGMENT,
+    YIELD,
+    EXIT,
+
+    //////HANDSHAKES
+    HANDSHAKE_FS,
+    HANDSHAKE_CPU,
+    /////////////////////////////////MEMORIA///////////////////////////////////////////
     INICIALIZAR_PROCESO_MEMORIA,
     FINALIZAR_PROCESO_MEMORIA,
     ACCESO_PEDIDO_LECTURA,
@@ -59,25 +72,23 @@ typedef enum
     CREACION_SEGMENTOS,
     ELIMINACION_SEGMENTOS,
     COMPACTACION_SEGMENTOS,
-    VALOR_SOLICITADO,
+    LECTURA_REALIZADA,
+    ESCRITURA_REALIZADA,
     FINALIZACION_PROCESO_TERMINADA,
     SIN_ESPACIO_DISPONIBLE,
     SE_NECESITA_COMPACTACION,
     CREACION_SEGMENTO_EXITOSO,
-    //////////////////
-    PROCESO_INICIADO,
-    PROCESO_BLOQUEADO,
-    PAGINAS_INICIALIZADAS,
-    PAGINAS_LIBERADAS,
-    PEDIDO_LECTURA,
-    PEDIDO_ESCRITURA,
-    LECTURA_REALIZADA,
-    ESCRITURA_REALIZADA,
-    SOLICITUD_MARCO,
-    ACCESO_RESULTO_PAGE_FAULT,
-    ENVIO_MARCO_CORRESPONDIENTE,
-    PAGE_FAULT,
-    PROCESO_CARGADO_EN_MP,
+    /////////////////////////////////FILESYSTEM///////////////////////////////////////
+    APERTURA_ARCHIVO,
+    CREACION_ARCHIVO,
+    TRUNCACION_ARCHIVO,
+    LECTURA_ARCHIVO,
+    ESCRITURA_ARCHIVO,
+    APERTURA_ARCHIVO_EXITOSA,
+    APERTURA_ARCHIVO_FALLIDA,
+    CREACION_ARCHIVO_EXITOSA,
+    TRUNCACION_ARCHIVO_EXITOSA,
+    //////////////////////////////////////
     ERROR,
     ERROR_INDICE_TP,
 
@@ -96,6 +107,9 @@ typedef enum
     PCB_TERMINADO
 
 } op_code;
+
+
+
 
 typedef struct
 {
@@ -125,24 +139,29 @@ void* serializar_paquete(t_paquete* paquete, int bytes);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
 t_proceso* recibir_paquete(int socket_cliente);
 void eliminar_paquete(t_paquete* paquete, t_log* logger);
+void agregar_a_paquete(t_paquete *paquete, void *valor, int tamanio);
 
-//Necesarias para cpu-kernel
-void enviar_paquete_pcb(pcb* pcbDelProceso, int conexion, op_code codigo, t_log* logger);
-void agregarPcbAPaquete(t_paquete* paquete, pcb* pcb);
-pcb* recibir_pcb(int conexion);
 
-void enviar_paquete_pcbPf(pcb_page_fault* pcbPfDelProceso, int conexion, op_code codigo, t_log* logger);
-void agregarPcbPfAPaquete(t_paquete* paquete, pcb_page_fault* pcbDelProceso);
-pcb_page_fault* recibir_pcbPf(int conexion);
 
-//int array
+bool enviarListaUint32_t(t_list* listaInts, int socket_cliente, t_log* logger, op_code codigo);
+bool agregarUint32_tsAPaquete(t_list* listaInts, t_paquete* paquete);
+t_list* recibirListaUint32_t(int socket_cliente);
+
+
+bool enviarDatos(void* datos, uint32_t tamanioDatos, op_code codigo, int socket_cliente, t_log* logger);
+bool agregarDatosAPaquete(void* datos, uint32_t tamanioDatos, t_paquete* paquete);
+void* recibirDatos(int socket_cliente, uint32_t tamanioDatos);
+
+
+bool enviarString(char* string, int socket_cliente, op_code codigoOperacion, t_log* logger);
+bool agregarStringAPaquete(char* string, t_paquete* paquete);
+char* recibirString(int socket_cliente);
+
 uint32_t enviar_int_array(uint32_t *array, int conexion, op_code codigo, t_log* logger);
 void agregarIntArrayAPaquete(t_paquete* paquete, uint32_t *array);
 uint32_t * recibir_int_array(int conexion);
 
-void enviar_pantalla_teclado(char* registro,int conexion, op_code codigo, t_log* logger);
-void agregarRegistroAPaquete(t_paquete* paquete, char* registro);
-char* recibir_pantalla_teclado(int conexion);
+
 
 void enviar_mensaje(char* mensaje, int socket_cliente, op_code codigoOperacion, t_log* logger);
 char* recibir_mensaje(int socket_cliente);
@@ -163,17 +182,25 @@ pcb *crear_pcb(t_list*, t_list*, int, int);
 
 /*
 
-void *recibir_stream(int *size, int socket_cliente);
-void recibir_mensaje(t_log *logger, int socket_cliente);
-t_list *recibir_paquete(int socket_cliente);
+bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger);
+bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete);
+t_list* recibirTablasSegmentosInstrucciones(int socket_cliente);
 
 
-bool send_aprobar_operativos(int fd, uint8_t nota1, uint8_t nota2);
-bool recv_aprobar_operativos(int fd, uint8_t *nota1, uint8_t *nota2);
 
-bool send_mirar_netflix(int fd, char *peli, uint8_t cant_pochoclos);
-bool recv_mirar_netflix(int fd, char **peli, uint8_t *cant_pochoclos);
+bool enviarListaIntsYDatos(t_list* listaInts,t_datos* datos, int socket_cliente, t_log* logger, op_code codigo);
+bool agregarIntsYDatosAPaquete(t_list* listaInts, t_datos* datos, t_paquete* paquete);
+t_list* recibirListaIntsYDatos(int cliente_socket,t_datos* datos);
 
-bool send_debug(int fd);
-*/
+
+
+void agregar_instrucciones_a_paquete(t_paquete *paquete, t_list *instrucciones);
+void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos);
+void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro);
+void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb);
+
+
+
+
+
 #endif

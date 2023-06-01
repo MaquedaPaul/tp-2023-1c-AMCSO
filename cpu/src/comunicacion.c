@@ -4,10 +4,9 @@
 
 #include <comunicacion.h>
 
-int fd_cpu;
-char* ip_cpu;
-char* puerto_cpu;
-int fd_memoria;
+
+bool conexionesHechas = false;
+t_pcb* pcb_actual;
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -27,22 +26,15 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
-            case 10:
-                //proceso_iniciado(cliente_socket);
 
+            case PCB:
+                //pcb_actual= recibir_pcb(cliente_socket);
+                iniciar_registros (pcb_actual->registrosCpu);
+                cicloInstruccionesDebeEjecutarse = true;
+                ciclo_instrucciones();
+               // eliminar_PCB(pcb_actual);
                 break;
-            case 100:
-                //proceso_terminado(cliente_socket);
-                break;
-            case 1000:
-                //solicitud_marco(cliente_socket);
-                break;
-            case 20:
-                //pedido_escritura(cliente_socket);
-                break;
-            case 200:
-                //pedido_lectura(cliente_socket);
-                break;
+
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;
@@ -79,13 +71,13 @@ bool generar_conexiones(){
     pthread_create(&conexion_con_memoria,NULL, (void*)conectarConMemoria,NULL);
     pthread_join(crear_server_cpu, NULL);
     pthread_join(conexion_con_memoria, NULL);
-
+    conexionesHechas = true;
     return true; //debe tomarse lo que retorna el hilo al crear el servidor
 }
 
 
 void* crearServidor(){
-    puerto_cpu=cfg_cpu->PUERTO_ESCUCHA;
+    puerto_cpu = cfg_cpu->PUERTO_ESCUCHA;
     fd_cpu = iniciar_servidor(info_logger, "SERVER CPU", ip_cpu,puerto_cpu);
 
     if (fd_cpu == 0) {
@@ -97,15 +89,14 @@ void* crearServidor(){
 }
 
 
-
-
-
 void* conectarConMemoria(){
     bool comprobacion = generarConexionesConMemoria();
-    atenderMemoria();
+    if(comprobacion){
+        enviarOrden(HANDSHAKE_FS, fd_memoria, info_logger);
+        atenderMemoria();
+    }
 
 }
-
 
 bool generarConexionesConMemoria(){
     char* ip;

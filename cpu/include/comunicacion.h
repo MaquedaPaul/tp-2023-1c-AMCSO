@@ -9,6 +9,9 @@
 #include <protocolo.h>
 #include <loggers_configs.h>
 #include <pthread.h>
+#include <cpu.h>
+#include <commons/string.h>
+
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
@@ -17,6 +20,11 @@ extern t_log* error_logger;
 extern t_config* file_cfg_cpu;
 extern t_config_cpu *cfg_cpu;
 extern char* path_config;
+
+extern int fd_cpu;
+extern char* ip_cpu;
+extern char* puerto_cpu;
+extern int fd_memoria;
 
 void procesar_conexion(void *void_args);
 int server_escuchar(t_log *logger, char *server_name, int server_socket);

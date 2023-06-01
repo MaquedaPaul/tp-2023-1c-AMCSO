@@ -12,6 +12,7 @@
 #include <config_utils.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 
 typedef struct
 {
@@ -47,30 +48,56 @@ typedef struct {
     char* param3;
 } instr_t;
 
+typedef struct {
+    uint8_t idLength;
+    char* id; // el id seria el nombre de la instruccion
+    uint8_t param1Length;
+    uint8_t cantidad_parametros;
+    char* param1;
+    uint8_t param2Length;
+    char* param2;
+    uint8_t param3Length;
+    char* param3;
+} t_instr;
+
+
 //Registros de CPU
 typedef struct{
-    char* AX;
-    char* BX;
-    char* CX;
-    char* DX;
-    char* EAX;
-    char* EBX;
-    char* ECX;
-    char* EDX;
-    char* RAX;
-    char* RBX;
-    char* RCX;
-    char* RDX;
+
+    char registro_AX[5];
+    char registro_BX[5];
+    char registro_CX[5];
+    char registro_DX[5];
+    char registro_EAX[9];
+    char registro_EBX[9];
+    char registro_ECX[9];
+    char registro_EDX[9];
+    char registro_RAX[17];
+    char registro_RCX[17];
+    char registro_RBX[17];
+    char registro_RDX[17];
 }registros_cpu;
-
-
 //Tabla de Segmentos
 
+typedef struct
+{
+    uint32_t pid;
+    t_list* segmentos;
+} t_tablaSegmentos;
 
-typedef struct{
-    uint16_t tamanioSegmento;
-    uint32_t indiceTablaPaginas;
-}segmento;
+typedef struct
+{
+    uint32_t base;
+    uint32_t limite;
+    uint32_t id;
+} t_segmento;
+
+typedef struct
+{
+    uint32_t tamanio;
+    void* datos;
+} t_datos;
+
 
 
 typedef struct {
@@ -103,11 +130,14 @@ typedef struct{
     unsigned int tiempoLlegadaReady;
     t_list* tablaArchivosAbiertos;
 } pcb;
+// TODO PONER T_PCB EN DONDE CORRESPONDA } t_pcb;
+
+
 
 typedef struct{ //Usada cuando hay PF
     uint32_t segmento;
     uint32_t pagina;
-    pcb* pcb;
+    t_pcb* pcb;
 }pcb_page_fault;
 
 typedef struct {
@@ -122,19 +152,17 @@ typedef struct {
 
 t_proceso *crearNuevoProceso();
 void closure_mostrarListaInstrucciones(instr_t* element);
-
+void liberarInstruccion(instr_t* instruccion);
 
 bool esInstruccionSinParametros(instr_t* instruccion);
 bool esInstruccionConUnParametro(instr_t* instruccion);
 bool esInstruccionConDosParametros(instr_t* instruccion);
 bool esInstruccionConTresParametros(instr_t* instruccion);
 
-void mostrarPcb(pcb* pcbProceso);
 void mostrarIntArray(uint32_t *array, char*message, t_log* logger);
-int retornarEnSegundos(int milisegundos);
+
+void simularRetardoSinMensaje(int retardo);
 void simularRetardo(char* message,char* messageFinal, t_log* logger, int retardo);
-void mostrarSegmentos(pcb* pcbProceso);
-void liberarPcb(pcb* pcbALiberar);
 t_list * convertirIntArrayALista(uint32_t * array);
 uint32_t* convertirIntListaToArray(t_list* lista);
 

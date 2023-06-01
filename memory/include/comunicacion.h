@@ -18,6 +18,8 @@ extern t_log* error_logger;
 extern t_config* file_cfg_memory;
 extern t_config_memory *cfg_memory;
 extern char* path_config;
+extern uint32_t ipCpu;
+extern uint32_t ipFs;
 bool generar_conexiones();
 void* crearServidor();
 void* conectarConCPU();
