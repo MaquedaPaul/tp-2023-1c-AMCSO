@@ -16,20 +16,6 @@
 
 typedef struct
 {
-    uint32_t pid;
-    t_list* segmentos;
-} t_tablaSegmentos;
-
-typedef struct
-{
-    uint32_t base;
-    uint32_t limite;
-    uint32_t id;
-} t_segmento;
-
-
-typedef struct
-{
     uint32_t PID; // 4 bytes
     uint8_t cantidad_instrucciones;
     t_list* instrucciones; //12 bytes
@@ -106,36 +92,28 @@ typedef struct {
 } t_procesar_conexion_args;
 
 typedef struct {
-    t_queue* cola;
-    char* nombreRecurso;
+    t_queue cola;
+    char* nombre;
     int indiceSemaforo;
-    int instanciasRecurso;
-} t_recurso;
+    int tiempoRetardo;
+} t_atenderColaDispositivo_args;
 
 
 
 
 //Estructura del pcb
 typedef struct{
-	uint32_t pid;
+	uint32_t id;
 	t_list* instr;
     registros_cpu* registrosCpu;
 	uint32_t programCounter;
-    uint32_t estimacionRafaga;
-    uint32_t rafagaAnterior;
-    uint32_t tiempoLlegadaReady;
-    uint32_t tiempoEnvioExec;
     t_list* tablaSegmentos;
-    float estimacionRafaga;
-    unsigned int tiempoLlegadaReady;
-    t_list* tablaArchivosAbiertos;
-} pcb;
-// TODO PONER T_PCB EN DONDE CORRESPONDA } t_pcb;
+} t_pcb;
 
 
 
 typedef struct{ //Usada cuando hay PF
-    uint32_t segmento;
+    uint32_t  segmento;
     uint32_t pagina;
     t_pcb* pcb;
 }pcb_page_fault;

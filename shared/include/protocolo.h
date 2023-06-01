@@ -17,32 +17,16 @@
 #include <commons/collections/list.h>
 #include <estructuras.h>
 
-typedef t_config Config;
-typedef t_log Logger;
-typedef enum
-{
+typedef enum {
     //-------------MENSAJES ENTRE CONSOLA-KERNEL------------------------------------
     GESTIONAR_CONSOLA_NUEVA = 0,
     //------------------------------------------------------------------------------
     //-----------MENSAJES CPU-KERNEL---------------------------------------------
-    WAIT,
-    SIGNAL,
-    CREATE_SEGMENT,
-    DELETE_SEGMENT,
-    PROCESO_TERMINADO,
-    BLOCKED_IO,
+    PROCESO_TERMINADO = 2,
     PROCESO_DESALOJADO,
-    PROCESO_DESALOJADO_CON_PAGEFAULT,
-    HANDSHAKE_CPU,
-    BLOCKED_PF,
-    BLOCKED_TECLADO,
-    BLOCKED_PANTALLA,
-    CPU_VACIA,
-    ERROR_SIGSEGV,
     //---------------------------------------------------------------------------------
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
-    CONTINUAR_EJECUCION,
     //----------------------------------------------------------------------------------
     /////////////////////////////////////CPU///////////////////////////////////////////
     PCB,
@@ -91,20 +75,6 @@ typedef enum
     //////////////////////////////////////
     ERROR,
     ERROR_INDICE_TP,
-
-
-
-    //-----------NUEVOS COD OPS--------------
-    //------Memoria - Kernel--------
-    INICIAR_ESTRUCTURA_PCB_NUEVO, //De Kernel a Memoria
-    CREADA_ESTRUCTURA_PCB_NUEVO,
-    OUT_OF_MEMORY,
-    NECESITO_COMPACTAR,
-    CONFIRMAR_COMPACTACION,
-    //------CPU - Kernel--------
-    // TODO PCB este mensaje colisiona con otro que se llama PCB
-    INTERRUPCION,
-    PCB_TERMINADO
 
 } op_code;
 
@@ -167,20 +137,30 @@ void enviar_mensaje(char* mensaje, int socket_cliente, op_code codigoOperacion, 
 char* recibir_mensaje(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
 
+
+
+
+
+bool enviarParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, op_code codigoOperacion, t_log* logger, int socket_cliente);
+bool agregarParamsParaLecturaEscrituraArchivoAPaquete(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, t_paquete* paquete);
+void recibirParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, int socket_cliente);
+
+
+
+
+
+
+
+
+
+
+
 bool enviarListaInstrucciones(t_list* listaInstrucciones, int socket_cliente, t_log* logger);
 bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete);
 instr_t* sumarTamaniosInstrucciones(instr_t *unaInstruccion,instr_t *otraInstruccion);
 int calcularTamanioDeInstruccion(instr_t *unaInstruccion);
 t_list* recibirListaInstrucciones(int socket_cliente);
 
-
-pcb *generar_pcb(int);
-int rellenar_lista_instrucciones(t_list*, t_list*, int);
-pcb *crear_pcb(t_list*, t_list*, int, int);
-
-
-
-/*
 
 bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger);
 bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete);

@@ -65,7 +65,7 @@ bool esInstruccionConTresParametros(instr_t* instruccion){
     return (strcmp(instruccion->id, "F_WRITE") == 0) || (strcmp(instruccion->id, "F_READ") == 0);
 }
 
-//TODO AGREGAR MOSTRAR_PCB
+
 
 
 void mostrarIntArray(uint32_t *array, char*message, t_log* logger){
