@@ -3,9 +3,9 @@
 
 #include <planificacion.h>
 
-void eliminarElementoLista(t_pcb, t_list*);
+void eliminarElementoLista(t_pcb* , t_list*);
 
-t_pcb *crearPcb (int);
+t_pcb *crearPcb (t_list* listaInstrucciones);
 registros_cpu *crearRegistroCPU ();
 void actualizarTiempoRafaga(t_pcb*);
 

@@ -1,52 +1,45 @@
 #include <plan_aux.h>
-//TODO PLAN_AUX TODO COMENTADO. Hay que arreglar la pcb y se puede descomentar
-/*
 
-void eliminarElementoLista(pcb *pcbBuscado, t_list *listaX){
 
-  pcb *pcbAux;
-  int aux;
-  for (size_t i = 0; i < list_size(listaX); i++)
+void eliminarElementoLista(t_pcb* pcbBuscado, t_list *listaX){
+
+  t_pcb *pcbAux;
+  for (int i = 0; i < list_size(listaX); i++)
   {
-    pcbAux = list_get(listaX, i);
-    if(pcbBuscado->pid == pcbAux->pid){
-      aux=i;
-      i=(list_size(listaX)+1);
+     pcbAux = list_get(listaX, i);
+    if(pcbBuscado->id == pcbAux->id){
       list_remove(listaX, i);
     }
-
   }
 }
 
 // ::::::::::::::::::::PCB:::::::::::::::::::::
 
 
-pcb *crear_pcb(int socketCliente)
+t_pcb* crearPcb(t_list* listaInstrucciones)
 {
-  pcb *pcb = malloc(sizeof(pcb));
-  pcb->pid = idProcesoGlobal++;
-  pcb->instr = recibirListaInstrucciones( socketCliente);
+  t_pcb *pcb = malloc(sizeof(t_pcb));
+  pcb->id = idProcesoGlobal++;
   pcb->programCounter = 0;
   pcb->rafagaAnterior = 0;
   pcb->estimacionRafaga = cfg_kernel->ESTIMACION_INICIAL;
   pcb->tiempoLlegadaReady = 0;
   pcb->tiempoEnvioExec = 0;
   pcb->registrosCpu = crearRegistroCPU();
-  //pcb->socketConsola = socketCliente;
+  pcb->instr = listaInstrucciones;
   pcb->tablaSegmentos = list_create();
-  pcb->tablaArchivosAbiertos = list_create();
+  //pcb->tablaArchivosAbiertos = list_create();
 
-  list_destroy(listaInstrucciones);
-  list_destroy(listaSegmentos);
 
   return pcb;
 }
 
-
+//TODO Revisar esta funcion
 registros_cpu *crearRegistroCPU (){
 
     registros_cpu *reg = malloc(sizeof(registros_cpu));
-    reg->AX = 0;
+    /*
+    reg->registro_AX = "0000";
     reg->BX = 0;
     reg->CX = 0;
     reg->DX = 0;
@@ -58,15 +51,14 @@ registros_cpu *crearRegistroCPU (){
     reg->RBX = 0;
     reg->RCX = 0;
     reg->RDX = 0;
-
+*/
     return reg;
 }
 
 
 //Actualizar pcb
 
-void actualizarTiempoUltimaRafaga(pcb* pcbEjecutado){
-    int pid = pcbEjecutado->pid;
+void actualizarTiempoRafaga(t_pcb* pcbEjecutado){
 
     time_t t_actual = time(NULL) ;
     double t_envioExec = pcbEjecutado->tiempoEnvioExec;
@@ -74,4 +66,3 @@ void actualizarTiempoUltimaRafaga(pcb* pcbEjecutado){
     pcbEjecutado->rafagaAnterior = t_actual - t_envioExec;
     
 }
- */

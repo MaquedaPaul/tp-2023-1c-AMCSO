@@ -10,6 +10,7 @@
 #include <loggers_configs.h>
 #include <pthread.h>
 #include <init.h>
+#include <plan_aux.h>
 
 extern t_log* logger_kernel;
 extern t_log* trace_logger;

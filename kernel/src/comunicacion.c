@@ -35,8 +35,9 @@ void procesar_conexion(void *void_args) {
             }
             case GESTIONAR_CONSOLA_NUEVA:
             {
-               //TODO DESCOMENTAR t_pcb *pcbDispatch = generar_pcb(cliente_socket);
-                //agregarProceso_New(pcbDispatch);
+                t_list* listaInstrucciones = recibirListaInstrucciones(cliente_socket);
+                t_pcb *pcbDispatch = crearPcb(listaInstrucciones);
+                agregarProceso_New(pcbDispatch);
                 break;
 
             }
@@ -56,7 +57,7 @@ void procesar_conexion(void *void_args) {
             {
                 t_pcb  *pcbRecibido;
                  pcbRecibido = recibir_pcb(cliente_socket);
-                //TODO DESCOMENTAR actualizarTiempoRafaga(pcbRecibido);
+                 actualizarTiempoRafaga(pcbRecibido);
                 moverProceso_ExecBloq(pcbRecibido);
                 break;
             }
@@ -355,9 +356,9 @@ void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
     recurso->instanciasRecurso++;
     if(!queue_is_empty(recurso->cola)){
         t_pcb* pcbLiberada = queue_pop(recurso->cola);
-        // TODO DESCOMENTAR moverProceso_BloqReady(pcbLiberada);
+        moverProceso_BloqReady(pcbLiberada);
     }
-    //TODO DESCOMENTAR enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,logger_kernel);
+     enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,logger_kernel);
 }
 
 void manejoDeRecursos(t_pcb* unaPcb,char* orden){
@@ -394,7 +395,8 @@ void creacionSegmentoExitoso(t_pcb* unaPcb, uint32_t* array){
             segmento->limite = limSeg;
         }
     }
-    //TODO FUNCION SHARED/ENVIAR_PAQUETE_PCB
-      //enviar_paquete_pcb(unaPcb,fd_cpu,CONTINUAR_EJECUCION,logger_kernel);
+    //TODO mirar mensajes de opcode
+
+      enviar_paquete_pcb(unaPcb,fd_cpu,PCB,logger_kernel);
 }
 

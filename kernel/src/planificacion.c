@@ -12,7 +12,7 @@ void planificador_largo_plazo(){
     pthread_mutex_lock(&mutex_PlanLP);
     procesosEnNew--;
 
-    //TODO FALTA IMPLEMENTAR moverProceso_NewReady();
+    moverProceso_NewPreReady();
     pthread_mutex_unlock(&mutex_PlanLP);
     }
   }
@@ -60,7 +60,7 @@ void moverProceso_NewPreReady(){ //TENER ENC CUENTA MP
         3. Enviar el mensaje y esperar el mensaje al hilo de memoria. enviar PCB (abstrae contruccion del paquete y modificaion) RECOMENDADA
     */
 
-    //TODO DESCOMENTAR enviar_paquete_pcb(pcbNew, fd_memoria,INICIAR_ESTRUCTURA_PCB_NUEVO, logger_kernel);
+   enviar_paquete_pcb(pcbNew, fd_memoria,INICIALIZAR_PROCESO_MEMORIA, logger_kernel);
 
     list_add(listaEsperaMemoria,pcbNew);
 
@@ -85,13 +85,13 @@ void moverProceso_readyExec(){
             //TODO DESCOMENTAR int posicion = seleccionar_segunHRRN();
             int posicion = 0; //transitorio hasta que se descomente la linea de arriba
             t_pcb *pcbReady = list_get(colaReady,posicion);
-            //TODO ARREGLAR PCB pcbReady->tiempoEnvioExec = time(NULL) ;
+            pcbReady->tiempoEnvioExec = time(NULL) ;
             list_add(colaExec, (void *) pcbReady);
             list_remove(colaReady,posicion);
             pthread_mutex_unlock(&mutex_ColaReady);
             pthread_mutex_unlock(&mutex_colaExec);
        
-            //TODO DESCOMENTAR enviar_paquete_pcb(pcbReady, fd_cpu,PCB, logger_kernel);
+            enviar_paquete_pcb(pcbReady, fd_cpu,PCB, logger_kernel);
             log_info(logger_kernel, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
 
         }
@@ -103,7 +103,7 @@ void moverProceso_readyExec(){
             pthread_mutex_unlock(&mutex_ColaReady);
             pthread_mutex_unlock(&mutex_colaExec);
        
-            //TODO DESCOMENTAR enviar_paquete_pcb(pcbReady, fd_cpu,PCB, logger_kernel);
+            enviar_paquete_pcb(pcbReady, fd_cpu,PCB, logger_kernel);
             log_info(logger_kernel, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
 
         }
@@ -113,7 +113,7 @@ void moverProceso_readyExec(){
 void moverProceso_ExecBloq(t_pcb *pcbBuscado){
 
     pthread_mutex_lock(&mutex_colaExec);
-    //TODO eliminarElementoLista(pcbBuscado, colaExec);
+    eliminarElementoLista(pcbBuscado, colaExec);
     pthread_mutex_lock(&mutex_colaBloq);
     list_add(colaBloq, (void *) pcbBuscado);
 
@@ -143,10 +143,10 @@ void moverProceso_ExecReady(pcb *pcbBuscado){
 }
 */
 
-void moverProceso_BloqReady(t_pcb *pcbBuscado){
+void moverProceso_BloqReady(t_pcb* pcbBuscado){
 
     pthread_mutex_lock(&mutex_colaBloq);
-    //TODO DESCOMENTAR eliminarElementoLista(pcbBuscado, colaBloq);
+    eliminarElementoLista(pcbBuscado, colaBloq);
     pthread_mutex_lock(&mutex_ColaReady);
 
     //HHRN
@@ -163,7 +163,7 @@ void moverProceso_BloqReady(t_pcb *pcbBuscado){
 void moverProceso_ExecExit(t_pcb *pcbBuscado){
 
     pthread_mutex_lock(&mutex_colaExec);
-    //TODO DESCOMENTAR eliminarElementoLista(pcbBuscado, colaExec);
+    eliminarElementoLista(pcbBuscado, colaExec);
 
     log_info(logger_kernel, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: EXIT", pcbBuscado->id);
 
@@ -172,7 +172,7 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
     queue_push(colaExit,(void *) pcbBuscado);
 
 }
-/*
+
 int seleccionar_segunHRRN(){ 
     
     /* ::REQUIERE::: 
@@ -180,6 +180,8 @@ int seleccionar_segunHRRN(){
                     -setear rafagaAnterior cuando vuelve de exec
                     -actualizar rafagaEstProx en pcb.rafagaEstimada cuando se selecciona para HRRN
 
+
+    */
 
     int mejorOpcion = 0; // index mejor posicion en lista
 
@@ -231,4 +233,3 @@ int seleccionar_segunHRRN(){
 }
 
 
-*/
