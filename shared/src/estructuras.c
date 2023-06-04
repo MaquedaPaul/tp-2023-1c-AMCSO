@@ -15,15 +15,16 @@ t_proceso *crearNuevoProceso()
 
     return nuevoProceso;
 }
-void liberarInstruccion(instr_t* instruccion){
+void liberarInstruccion(t_instr * instruccion){
     free(instruccion->id);
     free(instruccion->param1);
     free(instruccion->param2);
+    free(instruccion->param3);
     free(instruccion);
 }
 
 
-void closure_mostrarListaInstrucciones(instr_t* element) //Es compartido con consola
+void closure_mostrarListaInstrucciones(t_instr * element) //Es compartido con consola
 {
     printf("%s",element->id);
     printf(" %s",(char*) element->param1);
@@ -34,11 +35,11 @@ void closure_mostrarListaInstrucciones(instr_t* element) //Es compartido con con
 
 
 
-bool esInstruccionSinParametros(instr_t* instruccion){
+bool esInstruccionSinParametros(t_instr * instruccion){
     return (strcmp(instruccion->id, "EXIT") == 0) || (strcmp(instruccion->id, "YIELD") == 0);
 }
 
-bool esInstruccionConUnParametro(instr_t* instruccion){
+bool esInstruccionConUnParametro(t_instr * instruccion){
     bool io = (strcmp(instruccion->id, "I/O") == 0);
     bool delete_segment = (strcmp(instruccion->id, "DELETE_SEGMENT") == 0);
     bool f_open = (strcmp(instruccion->id, "F_OPEN") == 0);
@@ -50,7 +51,7 @@ bool esInstruccionConUnParametro(instr_t* instruccion){
 }
 
 
-bool esInstruccionConDosParametros(instr_t* instruccion){
+bool esInstruccionConDosParametros(t_instr * instruccion){
 
     bool set = (strcmp(instruccion->id, "SET") == 0);
     bool mov_out = (strcmp(instruccion->id, "MOV_OUT") == 0);
@@ -61,7 +62,7 @@ bool esInstruccionConDosParametros(instr_t* instruccion){
     return set || mov_out || mov_in || f_truncate || f_seek || create_segment;
 }
 
-bool esInstruccionConTresParametros(instr_t* instruccion){
+bool esInstruccionConTresParametros(t_instr * instruccion){
     return (strcmp(instruccion->id, "F_WRITE") == 0) || (strcmp(instruccion->id, "F_READ") == 0);
 }
 

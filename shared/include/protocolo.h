@@ -28,6 +28,8 @@ typedef enum {
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
     //----------------------------------------------------------------------------------
+    //------------MENSAJES DE MEMORIA-KERNEL---------------------------
+    OUT_OF_MEMORY,
     /////////////////////////////////////CPU///////////////////////////////////////////
     PCB,
     IO_BLOCK,
@@ -112,7 +114,6 @@ void eliminar_paquete(t_paquete* paquete, t_log* logger);
 void agregar_a_paquete(t_paquete *paquete, void *valor, int tamanio);
 
 
-
 bool enviarListaUint32_t(t_list* listaInts, int socket_cliente, t_log* logger, op_code codigo);
 bool agregarUint32_tsAPaquete(t_list* listaInts, t_paquete* paquete);
 t_list* recibirListaUint32_t(int socket_cliente);
@@ -157,8 +158,8 @@ void recibirParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t punt
 
 bool enviarListaInstrucciones(t_list* listaInstrucciones, int socket_cliente, t_log* logger);
 bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete);
-instr_t* sumarTamaniosInstrucciones(instr_t *unaInstruccion,instr_t *otraInstruccion);
-int calcularTamanioDeInstruccion(instr_t *unaInstruccion);
+t_instr * sumarTamaniosInstrucciones(t_instr* unaInstruccion,t_instr *otraInstruccion);
+int calcularTamanioDeInstruccion(t_instr* unaInstruccion);
 t_list* recibirListaInstrucciones(int socket_cliente);
 
 
@@ -179,6 +180,9 @@ void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos);
 void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro);
 void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb);
 
+//Necesarias para cpu-kernel
+void enviar_paquete_pcb(t_pcb* pcbDelProceso, int conexion, op_code codigo, t_log* logger);
+t_pcb* recibir_pcb(int conexion);
 
 
 

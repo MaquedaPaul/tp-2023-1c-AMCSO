@@ -9,6 +9,10 @@ int fd_kernel;
 int fd_memoria;
 int fd_cpu;
 int fd_filesystem;
+
+t_log* logger_kernel;
+
+
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
     int cliente_socket = args->fd;
@@ -31,7 +35,8 @@ void procesar_conexion(void *void_args) {
             }
             case GESTIONAR_CONSOLA_NUEVA:
             {
-                t_list* instrucciones = recibirListaInstrucciones(cliente_socket);
+               //TODO DESCOMENTAR t_pcb *pcbDispatch = generar_pcb(cliente_socket);
+                //agregarProceso_New(pcbDispatch);
                 break;
 
             }
@@ -47,56 +52,94 @@ void procesar_conexion(void *void_args) {
 
                 //--------------------------------CPU-------------------------------------------
 
-            case 10000:
+            case PCB:
             {
-
+                t_pcb  *pcbRecibido;
+                 pcbRecibido = recibir_pcb(cliente_socket);
+                //TODO DESCOMENTAR actualizarTiempoRafaga(pcbRecibido);
+                moverProceso_ExecBloq(pcbRecibido);
                 break;
             }
-            case 20:{
+            case PROCESO_TERMINADO:{
+                t_pcb  *pcbRecibido;
+                pcbRecibido = recibir_pcb(cliente_socket);
+                moverProceso_ExecExit(pcbRecibido);
                 break;
             }
 
-            case 200:
+            case WAIT:
             {
+                t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                manejoDeRecursos(pcbRecibida,"WAIT");
                 break;
             }
-            case 2000: {
-                break;
-            }
-            case 20000: {
-                break;
-            }
-
-            case 200000: {
+            case SIGNAL:{
+                t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                manejoDeRecursos(pcbRecibida,"SIGNAL");
                 break;
             }
 
-            case 30:
+            case CREATE_SEGMENT:
             {
+                t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+
+                //Usamos enviar int array para no tener que hacer funciones de serializacion
+                //la estructura es la siguiente [dimVector,Id segmento,Tam segmento]
+                //el pid del proceso no lo necesito pq lo saco de la cola de execute
+                uint32_t* arrayParaMemoria;
+                uint32_t arraySize = 2;
+                arrayParaMemoria = calloc(arraySize+1,sizeof (uint32_t));
+                arrayParaMemoria[0] = arraySize;
+
+                t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter);
+                uint32_t idSegmento = atoi(instruccion->param2);
+                uint32_t tamSegmento = atoi(instruccion->param3);
+                arrayParaMemoria[1] = idSegmento;
+                arrayParaMemoria[2] = tamSegmento;
+
+                enviar_int_array(arrayParaMemoria,fd_memoria,CREACION_SEGMENTOS,logger_kernel);
+
+                break;
+            }
+            case DELETE_SEGMENT: {
+                t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+
+                uint32_t* arrayParaMemoria;
+                uint32_t arraySize = 2;
+                arrayParaMemoria = calloc(arraySize+1,sizeof (uint32_t));
+                arrayParaMemoria[0] = arraySize;
+                arrayParaMemoria[1] = pcbRecibida->id;
+
+                t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter);
+                uint32_t idSegmento = atoi(instruccion->param2);
+
+                arrayParaMemoria[2] = idSegmento;
+                enviar_int_array(arrayParaMemoria,fd_memoria,DELETE_SEGMENT,logger_kernel);
 
                 break;
             }
 
                 //----------------------------------MEMORIA----------------------------------------
-            case 300:
+            //case CREADA_ESTRUCTURA_PCB_NUEVO:
             {
+                //FALTA ACLARAR COMO LLEGA EL DATO
+               // log_info(logger_kernel, "PID: [%d] - Estado Anterior: NEW - Estado Actual: READY.", pcbReady->pid);
                 break;
             }
 
-            case 3000:
+            case CREACION_SEGMENTO_EXITOSO:
             {
+                uint32_t *array= recibir_int_array(cliente_socket);
+                t_pcb* pcbRecibida = list_remove(colaExec,0);
+                creacionSegmentoExitoso(pcbRecibida,array);
                 break;
             }
-            case 30000:
+            case OUT_OF_MEMORY:
             {
-                break;
-            }
-            case 300000:
-            {
-                break;
-            }
-            case 40:
-            {
+                recibirOrden(cliente_socket);
+                t_pcb* pcbRecibida = list_remove(colaExec,0);
+                //moverProceso_ExecExit(pcbRecibida);
+                log_info(logger_kernel,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbRecibida->id);
                 break;
             }
 
@@ -136,24 +179,6 @@ int server_escuchar(t_log *logger, char *server_name, int server_socket) {
         return 1;
     }
     return 0;
-}
-
-
-bool generar_conexiones(){
-    pthread_t conexion_con_consola;
-    pthread_t conexion_con_cpu;
-    pthread_t conexion_con_memoria;
-    pthread_t conexion_con_filesystem;
-    pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);
-    pthread_create(&conexion_con_cpu, NULL, (void*)conectarConCPU, NULL);
-    pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
-    pthread_create(&conexion_con_filesystem, NULL, (void*)conectarConFileSystem, NULL);
-
-    pthread_join(conexion_con_consola, NULL);
-    pthread_join(conexion_con_cpu, NULL);
-    pthread_join(conexion_con_memoria, NULL);
-    pthread_join(conexion_con_filesystem, NULL);
-    return true;
 }
 
 
@@ -305,6 +330,71 @@ bool atenderFilesystem(){
 }
 
 
+void cortar_conexiones(){
+    liberar_conexion(&fd_kernel);
+    liberar_conexion(&fd_cpu);
+    liberar_conexion(&fd_memoria);
+    liberar_conexion(&fd_filesystem);
+    log_info(logger_kernel,"CONEXIONES LIBERADAS");
+}
+
+void cerrar_servers(){
+    close(fd_kernel);
+    log_info(logger_kernel,"SERVIDORES CERRADOS");
+}
+
+void waitRecursoPcb(t_recurso * recurso, t_pcb* unaPcb) {
+    recurso->instanciasRecurso--;
+    if (recurso->instanciasRecurso < 0) {
+        queue_push(recurso->cola, unaPcb);
+    }
+}
 
 
+void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
+    recurso->instanciasRecurso++;
+    if(!queue_is_empty(recurso->cola)){
+        t_pcb* pcbLiberada = queue_pop(recurso->cola);
+        // TODO DESCOMENTAR moverProceso_BloqReady(pcbLiberada);
+    }
+    //TODO DESCOMENTAR enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,logger_kernel);
+}
+
+void manejoDeRecursos(t_pcb* unaPcb,char* orden){
+    int apunteProgramCounter = unaPcb->programCounter;
+    t_instr * instruccion = list_get(unaPcb->instr,apunteProgramCounter);
+    char* recursoSolicitado = instruccion->param2;
+    //TODO hay que agregarle semaforo mutex a la cola bloqueado
+
+    for(int i = 0 ; i < list_size(estadoBlockRecursos); i++){
+        t_recurso* recurso = list_get(estadoBlockRecursos,i);
+        if((strcmp(recurso->nombreRecurso,recursoSolicitado)) == 0){
+            if((strcmp(orden,"WAIT")) == 0){
+                waitRecursoPcb(recurso,unaPcb);
+            }else{
+                signalRecursoPcb(recurso,unaPcb);
+            }
+        }else{
+            //moverProceso_ExecExit(unaPcb);
+        }
+        }
+}
+
+void creacionSegmentoExitoso(t_pcb* unaPcb, uint32_t* array){
+    t_list* tablaSeg = unaPcb->tablaSegmentos;
+    uint32_t idSeg = array[1];
+    uint32_t baseSeg = array[2];
+    uint32_t limSeg = array[3];
+
+
+    for(int i = 0; i < list_size(tablaSeg) ; i++) {
+        t_segmento *segmento = list_get(tablaSeg, i);
+        if (segmento->id == idSeg) {
+            segmento->base = baseSeg;
+            segmento->limite = limSeg;
+        }
+    }
+    //TODO FUNCION SHARED/ENVIAR_PAQUETE_PCB
+      //enviar_paquete_pcb(unaPcb,fd_cpu,CONTINUAR_EJECUCION,logger_kernel);
+}
 
