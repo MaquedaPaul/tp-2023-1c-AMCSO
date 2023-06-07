@@ -23,6 +23,7 @@ void moverProceso_readyExec();
 void moverProceso_ExecBloq(t_pcb*);
 void moverProceso_BloqReady(t_pcb*);
 void moverProceso_ExecExit(t_pcb*);
+void moverProceso_ExecReady(t_pcb*);
 
 void aumentarGradoMP();
 void decrementarGradoMP();

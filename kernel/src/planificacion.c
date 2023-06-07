@@ -172,6 +172,20 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
 
 }
 
+void moverProceso_ExecReady(t_pcb* pcbBuscado){
+    pthread_mutex_lock(&mutex_colaExec);
+    eliminarElementoLista(pcbBuscado, colaExec);
+
+    log_info(logger_kernel, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
+    pthread_mutex_unlock(&mutex_colaExec);
+
+    pthread_mutex_lock(&mutex_ColaReady);
+    list_add(colaReady,pcbBuscado);
+    pthread_mutex_unlock(&mutex_ColaReady);
+
+
+}
+
 int seleccionar_segunHRRN(){ 
     
     /* ::REQUIERE::: 
