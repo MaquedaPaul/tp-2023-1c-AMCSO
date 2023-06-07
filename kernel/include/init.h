@@ -27,7 +27,6 @@ extern t_list* colaExec;
 extern t_queue* colaExit;
 extern t_list* colaBloq;
 extern t_list* estadoBlockRecursos;
-extern t_queue* colaReady_FIFO;
 extern t_list* colaReady; 
 extern t_list* listaEsperaMemoria;
 

@@ -68,7 +68,7 @@ void procesar_conexion(void *void_args) {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarTiempoRafaga(pcbRecibida);
                 moverProceso_ExecBloq(pcbRecibida);
-                log_info(logger_kernel,"PID: <%d> - Bloqueado por <IO>", pcbRecibida->id);
+                log_info(info_logger,"PID: <%d> - Bloqueado por <IO>", pcbRecibida->id);
                 pthread_t atenderIO;
                 pthread_create(&atenderIO,NULL,esperaIo,(void*)pcbRecibida);
                 pthread_detach(atenderIO);
@@ -82,15 +82,15 @@ void procesar_conexion(void *void_args) {
             }
             case SEGMENTATION_FAULT:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
-                log_info(logger_kernel,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbRecibida->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
+                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbRecibida->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
                 moverProceso_ExecExit(pcbRecibida);
             }
             case EXIT:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
-                log_info(logger_kernel,"Finaliza el proceso <%d> - Motivo: <SUCCESS>",pcbRecibida->id);
+                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SUCCESS>",pcbRecibida->id);
                 moverProceso_ExecExit(pcbRecibida);
             }
-            
+
             case CREATE_SEGMENT:
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
@@ -109,7 +109,7 @@ void procesar_conexion(void *void_args) {
                 arrayParaMemoria[1] = idSegmento;
                 arrayParaMemoria[2] = tamSegmento;
 
-                enviar_int_array(arrayParaMemoria,fd_memoria,CREACION_SEGMENTOS,logger_kernel);
+                enviar_int_array(arrayParaMemoria,fd_memoria,CREACION_SEGMENTOS,info_logger);
 
                 break;
             }
@@ -126,7 +126,7 @@ void procesar_conexion(void *void_args) {
                 uint32_t idSegmento = atoi(instruccion->param2);
 
                 arrayParaMemoria[2] = idSegmento;
-                enviar_int_array(arrayParaMemoria,fd_memoria,DELETE_SEGMENT,logger_kernel);
+                enviar_int_array(arrayParaMemoria,fd_memoria,DELETE_SEGMENT,info_logger);
 
                 break;
             }
@@ -150,7 +150,7 @@ void procesar_conexion(void *void_args) {
             {
                 recibirOrden(cliente_socket);
                 t_pcb* pcbRecibida = list_remove(colaExec,0);
-                log_info(logger_kernel,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbRecibida->id);
+                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbRecibida->id);
                 moverProceso_ExecExit(pcbRecibida);
                 break;
             }
@@ -347,17 +347,17 @@ void cortar_conexiones(){
     liberar_conexion(&fd_cpu);
     liberar_conexion(&fd_memoria);
     liberar_conexion(&fd_filesystem);
-    log_info(logger_kernel,"CONEXIONES LIBERADAS");
+    log_info(info_logger,"CONEXIONES LIBERADAS");
 }
 
 void cerrar_servers(){
     close(fd_kernel);
-    log_info(logger_kernel,"SERVIDORES CERRADOS");
+    log_info(info_logger,"SERVIDORES CERRADOS");
 }
 
 void waitRecursoPcb(t_recurso * recurso, t_pcb* unaPcb) {
     recurso->instanciasRecurso--;
-    log_info(logger_kernel,"PID: <%d> - Wait: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
+    log_info(info_logger,"PID: <%d> - Wait: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if (recurso->instanciasRecurso < 0) {
         queue_push(recurso->cola, unaPcb);
     }
@@ -366,12 +366,12 @@ void waitRecursoPcb(t_recurso * recurso, t_pcb* unaPcb) {
 
 void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
     recurso->instanciasRecurso++;
-    log_info(logger_kernel,"PID: <%d> - Signal: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
+    log_info(info_logger,"PID: <%d> - Signal: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if(!queue_is_empty(recurso->cola)){
         t_pcb* pcbLiberada = queue_pop(recurso->cola);
         moverProceso_BloqReady(pcbLiberada);
     }
-     enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,logger_kernel);
+     enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,info_logger);
 }
 
 void manejoDeRecursos(t_pcb* unaPcb,char* orden){
@@ -410,7 +410,7 @@ void creacionSegmentoExitoso(t_pcb* unaPcb, uint32_t* array){
     }
     //TODO mirar mensajes de opcode
 
-      enviar_paquete_pcb(unaPcb,fd_cpu,PCB,logger_kernel);
+      enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
 }
 
 void* esperaIo(void* void_pcb){
@@ -419,7 +419,7 @@ void* esperaIo(void* void_pcb){
 
     //EJEMPLO DE INSTRUCCION IO 10
     int tiempoEspera = atoi(instruccion->param1);
-    log_info(logger_kernel, "PID: <%d> - Ejecuta IO: <%d>", pcb->id,tiempoEspera);
+    log_info(info_logger, "PID: <%d> - Ejecuta IO: <%d>", pcb->id,tiempoEspera);
     usleep(tiempoEspera);
     moverProceso_BloqReady(pcb);
 

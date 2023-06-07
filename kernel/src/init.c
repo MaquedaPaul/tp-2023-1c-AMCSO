@@ -175,8 +175,8 @@ void cerrar_programa() {
     cortar_conexiones();
     cerrar_servers();
     config_destroy(file_cfg_kernel);
-    log_info(logger_kernel,"TERMINADA_LA_CONFIG");
-    log_info(logger_kernel,"TERMINANDO_EL_LOG");
-    log_destroy(logger_kernel);
+    log_info(info_logger,"TERMINADA_LA_CONFIG");
+    log_info(info_logger,"TERMINANDO_EL_LOG");
+    log_destroy(info_logger);
 }
 

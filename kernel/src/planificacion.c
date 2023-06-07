@@ -3,7 +3,7 @@
 
 void planificador_largo_plazo(){
 
-  log_info(logger_kernel, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");
+  log_info(info_logger, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");
 
   while (1)
   {
@@ -26,25 +26,25 @@ void decrementarGradoMP(){
     pthread_mutex_unlock(&mutex_PlanLP);
     pthread_mutex_unlock(&mutex_MP);
 
-    log_info(logger_kernel, "Kernel - GRADO DE MULTIPROGRAMACION: %d.\n", procesosTotales_MP);
+    log_info(info_logger, "Kernel - GRADO DE MULTIPROGRAMACION: %d.\n", procesosTotales_MP);
 }
 
 void aumentarGradoMP(){
-    if(procesosTotales_MP >= atoi(cfg_kernel->GRADO_MAX_MULTIPROGRAMACION)){
+    if(procesosTotales_MP >= ((cfg_kernel->GRADO_MAX_MULTIPROGRAMACION))){
         pthread_mutex_lock(&mutex_PlanLP);
     }
     pthread_mutex_lock(&mutex_MP);
     procesosTotales_MP++;
     pthread_mutex_unlock(&mutex_MP);
 
-    log_info(logger_kernel, "Kernel - GRADO DE MULTIPROGRAMACION: %d.\n", procesosTotales_MP);
+    log_info(info_logger, "Kernel - GRADO DE MULTIPROGRAMACION: %d.\n", procesosTotales_MP);
 }
 
 
 void agregarProceso_New(t_pcb *pcbNew){
 
     queue_push(colaNew, (void *) pcbNew);
-    log_info(logger_kernel, "Se crea el proceso [%d] en NEW.", pcbNew->id);
+    log_info(info_logger, "Se crea el proceso [%d] en NEW.", pcbNew->id);
     procesosEnNew++;
 
 }
@@ -60,11 +60,11 @@ void moverProceso_NewPreReady(){ //TENER ENC CUENTA MP
         3. Enviar el mensaje y esperar el mensaje al hilo de memoria. enviar PCB (abstrae contruccion del paquete y modificaion) RECOMENDADA
     */
 
-   enviar_paquete_pcb(pcbNew, fd_memoria,INICIALIZAR_PROCESO_MEMORIA, logger_kernel);
+   enviar_paquete_pcb(pcbNew, fd_memoria,INICIALIZAR_PROCESO_MEMORIA, info_logger);
 
     list_add(listaEsperaMemoria,pcbNew);
 
-    log_info(logger_kernel, "Mensaje enviado a %d (MEMORIA) con motivo proceso INICIAR_ESTRUCTURA_PCB_NUEVO", fd_memoria);
+    log_info(info_logger, "Mensaje enviado a %d (MEMORIA) con motivo proceso INICIAR_ESTRUCTURA_PCB_NUEVO", fd_memoria);
 
     //liberar_pcb(pcbNew);
 }
@@ -90,8 +90,8 @@ void moverProceso_readyExec(){
             pthread_mutex_unlock(&mutex_ColaReady);
             pthread_mutex_unlock(&mutex_colaExec);
        
-            enviar_paquete_pcb(pcbReady, fd_cpu,PCB, logger_kernel);
-            log_info(logger_kernel, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
+            enviar_paquete_pcb(pcbReady, fd_cpu,PCB, info_logger);
+            log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
 
         }
         else{
@@ -102,8 +102,8 @@ void moverProceso_readyExec(){
             pthread_mutex_unlock(&mutex_ColaReady);
             pthread_mutex_unlock(&mutex_colaExec);
        
-            enviar_paquete_pcb(pcbReady, fd_cpu,PCB, logger_kernel);
-            log_info(logger_kernel, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
+            enviar_paquete_pcb(pcbReady, fd_cpu,PCB, info_logger);
+            log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
 
         }
 
@@ -119,7 +119,7 @@ void moverProceso_ExecBloq(t_pcb *pcbBuscado){
     pthread_mutex_unlock(&mutex_colaExec);
     pthread_mutex_unlock(&mutex_colaBloq);
 
-    log_info(logger_kernel, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: BLOQ.", pcbBuscado->id);
+    log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: BLOQ.", pcbBuscado->id);
 
 }
 
@@ -152,7 +152,7 @@ void moverProceso_BloqReady(t_pcb* pcbBuscado){
     //pcbBuscado->tiempoLlegadaReady = time(NULL);
 
     list_add(colaReady, (void *) pcbBuscado);
-    log_info(logger_kernel, "PID: [%d] - Estado Anterior: BLOQ - Estado Actual: READY.", pcbBuscado->id);
+    log_info(info_logger, "PID: [%d] - Estado Anterior: BLOQ - Estado Actual: READY.", pcbBuscado->id);
 
     pthread_mutex_unlock(&mutex_ColaReady);
     pthread_mutex_unlock(&mutex_colaBloq);
@@ -164,7 +164,7 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
     pthread_mutex_lock(&mutex_colaExec);
     eliminarElementoLista(pcbBuscado, colaExec);
 
-    log_info(logger_kernel, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: EXIT", pcbBuscado->id);
+    log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: EXIT", pcbBuscado->id);
 
     pthread_mutex_unlock(&mutex_colaExec);
     decrementarGradoMP();
@@ -176,7 +176,7 @@ void moverProceso_ExecReady(t_pcb* pcbBuscado){
     pthread_mutex_lock(&mutex_colaExec);
     eliminarElementoLista(pcbBuscado, colaExec);
 
-    log_info(logger_kernel, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
+    log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
     pthread_mutex_unlock(&mutex_colaExec);
 
     pthread_mutex_lock(&mutex_ColaReady);
