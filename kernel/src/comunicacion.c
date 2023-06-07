@@ -83,11 +83,9 @@ void procesar_conexion(void *void_args) {
             case IO_BLOCK: {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 pthread_t atenderIO;
-
                 pthread_create(&atenderIO,NULL,esperaIo,(void*)pcbRecibida);
                 pthread_detach(atenderIO);
                 moverProceso_ExecBloq(pcbRecibida);
-
                 break;
             }
 
