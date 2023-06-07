@@ -80,6 +80,17 @@ void procesar_conexion(void *void_args) {
                 break;
             }
 
+            case IO_BLOCK: {
+                t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                pthread_t atenderIO;
+
+                pthread_create(&atenderIO,NULL,esperaIo,(void*)pcbRecibida);
+                pthread_detach(atenderIO);
+                moverProceso_ExecBloq(pcbRecibida);
+
+                break;
+            }
+
             case CREATE_SEGMENT:
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
@@ -139,8 +150,8 @@ void procesar_conexion(void *void_args) {
             {
                 recibirOrden(cliente_socket);
                 t_pcb* pcbRecibida = list_remove(colaExec,0);
-                //moverProceso_ExecExit(pcbRecibida);
                 log_info(logger_kernel,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbRecibida->id);
+                moverProceso_ExecExit(pcbRecibida);
                 break;
             }
 
@@ -400,3 +411,14 @@ void creacionSegmentoExitoso(t_pcb* unaPcb, uint32_t* array){
       enviar_paquete_pcb(unaPcb,fd_cpu,PCB,logger_kernel);
 }
 
+void* esperaIo(void* void_pcb){
+    t_pcb* pcb = (t_pcb*) void_pcb;
+    t_instr* instruccion = list_get(pcb->instr,pcb->programCounter-1);
+
+    //EJEMPLO DE INSTRUCCION IO 10
+    int tiempoEspera = atoi(instruccion->param1);
+    log_info(logger_kernel, "PID: <%d> - Ejecuta IO: <%d>", pcb->id,tiempoEspera);
+    usleep(tiempoEspera);
+    moverProceso_BloqReady(pcb);
+
+}

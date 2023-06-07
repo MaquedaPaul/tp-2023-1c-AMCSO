@@ -48,5 +48,6 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden);
 t_list* recibirListaInstrucciones(int socket_cliente);
 void creacionSegmentoExitoso(t_pcb* unaPcb, uint32_t* array);
 
+void* esperaIo(void* void_pcb);
 
 #endif //TEMPLATE_COMUNICACION_H

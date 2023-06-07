@@ -82,8 +82,7 @@ void moverProceso_readyExec(){
         pthread_mutex_lock(&mutex_colaExec);
 
         if(strcmp(cfg_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
-            //TODO DESCOMENTAR int posicion = seleccionar_segunHRRN();
-            int posicion = 0; //transitorio hasta que se descomente la linea de arriba
+            int posicion = seleccionar_segunHRRN();
             t_pcb *pcbReady = list_get(colaReady,posicion);
             pcbReady->tiempoEnvioExec = time(NULL) ;
             list_add(colaExec, (void *) pcbReady);
