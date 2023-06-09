@@ -24,19 +24,11 @@ void planificador_largo_plazo(){
     log_info(info_logger, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");
     while(1){
         sem_wait(&sem_procesosEnNew);
-        pthread_mutex_lock(&mutex_ColaReady);
-        pthread_mutex_lock(&mutex_colaExec);
-        pthread_mutex_lock(&mutex_colaBloq);
-        int gradoMPActual = list_size(colaReady) + list_size(colaExec) + list_size(colaBloq); //TODO MIRAR DISPOSITOVOS
-        pthread_mutex_unlock(&mutex_ColaReady);
-        pthread_mutex_unlock(&mutex_colaExec);
-        pthread_mutex_unlock(&mutex_colaBloq);
-
-        if(gradoMPActual < cfg_kernel->GRADO_MAX_MULTIPROGRAMACION && queue_size(colaNew) > 0) {
+        if(procesosTotales_MP < cfg_kernel->GRADO_MAX_MULTIPROGRAMACION && queue_size(colaNew) > 0) {
             pthread_mutex_lock(&mutex_colaNew);
             t_pcb* pcbAReady = queue_peek(colaNew);
             pthread_mutex_unlock(&mutex_colaNew);
-
+            aumentarGradoMP();
             //Enviamos el proceso a memoria para que lo cargue(pero hasta que memoria no nos confirma NO LO SACAMOS DE LA COLA NEW)
             enviarValor_uint32(pcbAReady->id,fd_memoria,INICIALIZAR_PROCESO_MEMORIA,info_logger);
             log_info(info_logger,"PID <%d> Enviado a memoria para ser cargado", pcbAReady->id);
@@ -53,6 +45,17 @@ void planificador_corto_plazo(){
     }
 }
 
+void liberar_procesos(){
+    while (1){
+        sem_wait(&sem_procesosExit);
+        t_pcb* pcbALiberar = queue_pop(colaExit);
+        enviarValor_uint32(pcbALiberar->id,fd_memoria,FINALIZAR_PROCESO_MEMORIA,info_logger);
+        liberarPcb(pcbALiberar);
+        //TODO PONER CUANDO ME CONTESTA MEMORIA
+        //decrementarGradoMP();
+    }
+}
+
 void moverProceso_NewReady(t_list* tablaDeSegmentosMemoria){
     pthread_mutex_lock(&mutex_colaNew);
     t_pcb* pcbAReady = queue_pop(colaNew);
@@ -66,24 +69,28 @@ void moverProceso_NewReady(t_list* tablaDeSegmentosMemoria){
     sem_post(&sem_procesosReady);
 }
 
+void moverProceso_BloqrecursoReady(t_recurso* recurso){
+    pthread_mutex_lock(&semaforos_io[recurso->indiceSemaforo]);
+    t_pcb* pcbLiberada = queue_pop(recurso->cola);
+    pthread_mutex_unlock(&semaforos_io[recurso->indiceSemaforo]);
+    pthread_mutex_lock(&mutex_ColaReady);
+    list_add(colaReady,pcbLiberada);
+    pthread_mutex_unlock(&mutex_ColaReady);
+    log_info(info_logger,"PID: <%d> - Estado Anterior: <BLOCKED_RECURSO[%s]> - Estado Actual: <READY>",pcbLiberada->id,recurso->nombreRecurso);
+}
+
 
 void decrementarGradoMP(){
     pthread_mutex_lock(&mutex_MP);
     procesosTotales_MP--;
-    pthread_mutex_unlock(&mutex_PlanLP);
     pthread_mutex_unlock(&mutex_MP);
-
     log_info(info_logger, "Kernel - GRADO DE MULTIPROGRAMACION: %d.\n", procesosTotales_MP);
 }
 
 void aumentarGradoMP(){
-    if(procesosTotales_MP >= ((cfg_kernel->GRADO_MAX_MULTIPROGRAMACION))){
-        pthread_mutex_lock(&mutex_PlanLP);
-    }
     pthread_mutex_lock(&mutex_MP);
     procesosTotales_MP++;
     pthread_mutex_unlock(&mutex_MP);
-
     log_info(info_logger, "Kernel - GRADO DE MULTIPROGRAMACION: %d.\n", procesosTotales_MP);
 }
 
@@ -133,7 +140,7 @@ void moverProceso_ExecBloq(t_pcb *pcbBuscado){
     pthread_mutex_lock(&mutex_colaExec);
     eliminarElementoLista(pcbBuscado, colaExec);
     pthread_mutex_lock(&mutex_colaBloq);
-    list_add(colaBloq, (void *) pcbBuscado);
+    list_add(colaBloq,pcbBuscado);
 
     pthread_mutex_unlock(&mutex_colaExec);
     pthread_mutex_unlock(&mutex_colaBloq);
@@ -141,6 +148,8 @@ void moverProceso_ExecBloq(t_pcb *pcbBuscado){
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: BLOQ.", pcbBuscado->id);
 
 }
+
+
 
 /*
 void moverProceso_ExecReady(pcb *pcbBuscado){ 
@@ -182,12 +191,15 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
 
     pthread_mutex_lock(&mutex_colaExec);
     eliminarElementoLista(pcbBuscado, colaExec);
+    pthread_mutex_unlock(&mutex_colaExec);
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: EXIT", pcbBuscado->id);
 
-    pthread_mutex_unlock(&mutex_colaExec);
-    decrementarGradoMP();
-    queue_push(colaExit,(void *) pcbBuscado);
+    pthread_mutex_lock(&mutex_colaExit);
+    queue_push(colaExit,pcbBuscado);
+    pthread_mutex_unlock(&mutex_colaExit);
+
+    sem_post(&sem_procesosExit);
 
 }
 

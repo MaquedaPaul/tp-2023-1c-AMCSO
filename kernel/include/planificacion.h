@@ -15,15 +15,18 @@ extern int fd_memoria;
 
 void planificador_largo_plazo();
 void planificador_corto_plazo();
+void liberar_procesos();
 
 //Funciones cambio de estado
 void agregarProceso_New(t_pcb*);
 void moverProceso_NewReady(t_list* tablaDeSegmentosMemoria);
+void moverProceso_BloqrecursoReady(t_recurso* recurso);
+void moverProceso_ExecReady(t_pcb*);
 void moverProceso_readyExec(); 
 void moverProceso_ExecBloq(t_pcb*);
 void moverProceso_BloqReady(t_pcb*);
 void moverProceso_ExecExit(t_pcb*);
-void moverProceso_ExecReady(t_pcb*);
+
 
 void aumentarGradoMP();
 void decrementarGradoMP();

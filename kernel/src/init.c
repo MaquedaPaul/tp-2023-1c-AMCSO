@@ -25,12 +25,14 @@ pthread_mutex_t mutex_colaNew;
 pthread_mutex_t mutex_ColaReady; 
 pthread_mutex_t mutex_colaExec;
 pthread_mutex_t mutex_colaBloq;
+pthread_mutex_t mutex_colaExit;
 pthread_mutex_t mutex_PlanLP;
 pthread_mutex_t mutex_MP;
 
 //SEMAFOROS
 sem_t sem_procesosEnNew;
 sem_t sem_procesosReady;
+sem_t sem_procesosExit;
 
 
 //HILOS
@@ -40,10 +42,11 @@ sem_t sem_procesosReady;
  pthread_t conexion_con_filesystem;
  pthread_t hilo_planificador_LP;
  pthread_t hilo_planificador_corto;
+ pthread_t hilo_liberador_procesos;
 
 //Manejo de recursos
 t_list* listaRecursos;
-sem_t* semaforos_io;
+pthread_mutex_t* semaforos_io;
 
 int cargar_configuracion(char *path) {
 
@@ -99,7 +102,7 @@ int cargar_configuracion(char *path) {
     config_destroy(file_cfg_kernel);
 
     int dim = tamanioArray(cfg_kernel->RECURSOS);
-    semaforos_io = calloc(dim,sizeof(sem_t));
+    semaforos_io = calloc(dim,sizeof(pthread_mutex_t));
     iniciarSemaforoDinamico(semaforos_io, dim);
     cargarRecursos();
 
@@ -125,11 +128,13 @@ void inicializar_kernel(){
     pthread_mutex_init(&mutex_ColaReady, NULL);
     pthread_mutex_init(&mutex_colaExec, NULL);
     pthread_mutex_init(&mutex_colaBloq, NULL);
+    pthread_mutex_init(&mutex_colaExit, NULL);
     pthread_mutex_init(&mutex_PlanLP, NULL);
     pthread_mutex_init(&mutex_MP, NULL);
 
     //SEMAFOROS
     sem_init(&sem_procesosEnNew,0,0);
+    sem_init(&sem_procesosExit,0,0);
 
  //HILOS
     pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);
@@ -138,6 +143,7 @@ void inicializar_kernel(){
     pthread_create(&conexion_con_filesystem, NULL, (void*)conectarConFileSystem, NULL);
     pthread_create(&hilo_planificador_LP, NULL, (void*)planificador_largo_plazo, NULL);
     pthread_create(&hilo_planificador_corto, NULL, (void*)planificador_corto_plazo, NULL);
+    pthread_create(&hilo_liberador_procesos, NULL, (void*)liberar_procesos, NULL);
 
     pthread_join(conexion_con_consola, NULL);
     pthread_join(conexion_con_cpu, NULL);
@@ -145,20 +151,21 @@ void inicializar_kernel(){
     pthread_join(conexion_con_filesystem, NULL);
     pthread_join(hilo_planificador_LP, NULL);
     pthread_join(hilo_planificador_corto,NULL);
+    pthread_join(hilo_liberador_procesos,NULL);
 
-//TODO ANALIZAR ESTO ??? pthread_t planificador_LP;
 
 }
-int tamanioArray(char ** array){
+int tamanioArray(char** array){
     int n=0;
     for(int i=0 ;*(array+i)!= NULL; i++)
         n++;
     return n;
 }
 
-void iniciarSemaforoDinamico(sem_t* semaforo, int dim){
+void iniciarSemaforoDinamico(pthread_mutex_t* semaforo, int dim){
     for (int i = 0; i <dim ; ++i) {
-        sem_init(&semaforo[i],0,0);
+       // sem_init(&semaforo[i],0,0);
+        pthread_mutex_init(&semaforos_io[i],NULL);
     }
 }
 

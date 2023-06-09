@@ -39,12 +39,14 @@ extern pthread_mutex_t mutex_colaNew;
 extern pthread_mutex_t mutex_ColaReady; 
 extern pthread_mutex_t mutex_colaExec;
 extern pthread_mutex_t mutex_colaBloq;
+extern pthread_mutex_t mutex_colaExit;
 extern pthread_mutex_t mutex_MP; //Des/activa el grado de Multiprogramacion
 extern pthread_mutex_t mutex_PlanLP; //Activa el PL
 
 //SEMAFOROS
 extern sem_t sem_procesosEnNew;
 extern sem_t sem_procesosReady;
+extern sem_t sem_procesosExit;
 
 //HILOS
 extern pthread_t conexion_con_consola;
@@ -53,16 +55,17 @@ extern pthread_t conexion_con_memoria;
 extern pthread_t conexion_con_filesystem;
 extern pthread_t hilo_planificador_LP;
 extern pthread_t hilo_planificador_corto;
+extern pthread_t hilo_liberador_procesos;
 
 //Manejo de recursos
 extern t_list* listaRecursos;
-extern sem_t* semaforos_io;
+extern pthread_mutex_t* semaforos_io;
 
 int cargar_configuracion(char *path);
 void inicializar_kernel();
 //Logger *iniciar_logger_kernel();
 int tamanioArray(char** array);
-void iniciarSemaforoDinamico(sem_t* semaforo, int dim);
+void iniciarSemaforoDinamico(pthread_mutex_t* semaforo, int dim);
 int cargarRecursos();
 void cerrar_programa();
 

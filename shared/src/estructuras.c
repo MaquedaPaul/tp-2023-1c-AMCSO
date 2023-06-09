@@ -23,6 +23,17 @@ void liberarInstruccion(t_instr * instruccion){
     free(instruccion);
 }
 
+void liberarSegmento(t_segmento* segmento){
+    free(segmento);
+}
+
+void liberarPcb(t_pcb* pcb) {
+    free(pcb->registrosCpu);
+    // Liberar memoria de instr y tablaSegmentos si es necesario
+    list_destroy_and_destroy_elements(pcb->instr,liberarInstruccion);
+    list_destroy_and_destroy_elements(pcb->tablaSegmentos,liberarSegmento);
+    free(pcb);
+}
 
 void closure_mostrarListaInstrucciones(t_instr * element) //Es compartido con consola
 {
@@ -75,6 +86,8 @@ void mostrarIntArray(uint32_t *array, char*message, t_log* logger){
         log_info(logger,message,array[i+1]);
     }
 }
+
+
 
 
 

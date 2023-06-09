@@ -149,9 +149,16 @@ void procesar_conexion(void *void_args) {
             case OUT_OF_MEMORY:
             {
                 recibirOrden(cliente_socket);
-                t_pcb* pcbRecibida = list_remove(colaExec,0);
+                t_pcb* pcbRecibida = list_get(colaExec,0); //Ya que se elimina en moverProceso
                 log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbRecibida->id);
                 moverProceso_ExecExit(pcbRecibida);
+                break;
+            }
+            case FINALIZACION_PROCESO_TERMINADA:
+            {
+                recibirOrden(cliente_socket);
+                log_info(info_logger,"Recibo Confimarcion de FINALIZACION DE PROCESO TERMINADA");
+                decrementarGradoMP();
                 break;
             }
 
@@ -355,11 +362,12 @@ void cerrar_servers(){
     log_info(info_logger,"SERVIDORES CERRADOS");
 }
 
-void waitRecursoPcb(t_recurso * recurso, t_pcb* unaPcb) {
+void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {
     recurso->instanciasRecurso--;
     log_info(info_logger,"PID: <%d> - Wait: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if (recurso->instanciasRecurso < 0) {
         queue_push(recurso->cola, unaPcb);
+        log_info(info_logger,"PID: <%d> - Bloqueado por: <%s>",unaPcb->id,recurso->nombreRecurso);
     }
 }
 
@@ -368,19 +376,15 @@ void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
     recurso->instanciasRecurso++;
     log_info(info_logger,"PID: <%d> - Signal: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if(!queue_is_empty(recurso->cola)){
-        t_pcb* pcbLiberada = queue_pop(recurso->cola);
-        //TODO VERIFICAR SI ES CORRECTO debido a que esta en otra lista moverProceso_BloqReady(pcbLiberada);
+        moverProceso_BloqrecursoReady(recurso);
     }
      enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,info_logger);
 }
 
 void manejoDeRecursos(t_pcb* unaPcb,char* orden){
     int apunteProgramCounter = unaPcb->programCounter;
-    t_instr * instruccion = list_get(unaPcb->instr,apunteProgramCounter);
+    t_instr * instruccion = list_get(unaPcb->instr,apunteProgramCounter-1);
     char* recursoSolicitado = instruccion->param2;
-    //TODO hay que agregarle semaforo mutex a la cola bloqueado
-
-
     for(int i = 0 ; i < list_size(estadoBlockRecursos); i++){
         t_recurso* recurso = list_get(estadoBlockRecursos,i);
         if((strcmp(recurso->nombreRecurso,recursoSolicitado)) == 0){
@@ -390,7 +394,8 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden){
                 signalRecursoPcb(recurso,unaPcb);
             }
         }else{
-            //moverProceso_ExecExit(unaPcb);
+            log_info(info_logger,"Recurso <%s> solicitado INEXISTENTE", recursoSolicitado);
+            moverProceso_ExecExit(unaPcb);
         }
         }
 }
