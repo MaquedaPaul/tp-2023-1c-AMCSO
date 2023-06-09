@@ -28,11 +28,13 @@ void procesar_conexion(void *void_args) {
                 break;
 
             case PCB:
-                //pcb_actual= recibir_pcb(cliente_socket);
+                pcb_actual = recibir_pcb(cliente_socket);
+                log_info(info_logger,"Falla iniciar regisitros o algo de aca abajo");
+                //TODO CHEQUEAR ACA
                 iniciar_registros (pcb_actual->registrosCpu);
                 cicloInstruccionesDebeEjecutarse = true;
                 ciclo_instrucciones();
-               // eliminar_PCB(pcb_actual);
+               //eliminar_PCB(pcb_actual);
                 break;
 
             case -1:

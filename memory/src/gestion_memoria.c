@@ -166,6 +166,7 @@ t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre, uint32_t taman
 t_tablaSegmentos* crearTablaSegmentos(uint32_t pid){
     t_tablaSegmentos* nuevaTabla = malloc(sizeof (t_tablaSegmentos));
     nuevaTabla->pid = pid;
+    //TODO ROMPE ACA PORQUE EL SEGMENTO NO ESTA INICIALIZADO
     list_add(nuevaTabla->segmentos,segmento0);
     creacionProceso(pid);
     return nuevaTabla;

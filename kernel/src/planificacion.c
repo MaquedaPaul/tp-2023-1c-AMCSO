@@ -23,16 +23,14 @@ void planificador_largo_plazo(){
 void planificador_largo_plazo(){
     log_info(info_logger, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");
     while(1){
-
         sem_wait(&sem_procesosEnNew);
-
         pthread_mutex_lock(&mutex_ColaReady);
         pthread_mutex_lock(&mutex_colaExec);
         pthread_mutex_lock(&mutex_colaBloq);
         int gradoMPActual = list_size(colaReady) + list_size(colaExec) + list_size(colaBloq); //TODO MIRAR DISPOSITOVOS
-        pthread_mutex_lock(&mutex_ColaReady);
-        pthread_mutex_lock(&mutex_colaExec);
-        pthread_mutex_lock(&mutex_colaBloq);
+        pthread_mutex_unlock(&mutex_ColaReady);
+        pthread_mutex_unlock(&mutex_colaExec);
+        pthread_mutex_unlock(&mutex_colaBloq);
 
         if(gradoMPActual < cfg_kernel->GRADO_MAX_MULTIPROGRAMACION && queue_size(colaNew) > 0) {
             pthread_mutex_lock(&mutex_colaNew);
@@ -41,8 +39,17 @@ void planificador_largo_plazo(){
 
             //Enviamos el proceso a memoria para que lo cargue(pero hasta que memoria no nos confirma NO LO SACAMOS DE LA COLA NEW)
             enviarValor_uint32(pcbAReady->id,fd_memoria,INICIALIZAR_PROCESO_MEMORIA,info_logger);
+            log_info(info_logger,"PID <%d> Enviado a memoria para ser cargado", pcbAReady->id);
         }
 
+    }
+}
+
+void planificador_corto_plazo(){
+    log_info(info_logger, "Kernel - PLANIFICADOR CORTO PLAZO INICIADO.");
+    while(1){
+        sem_wait(&sem_procesosReady);
+        moverProceso_readyExec();
     }
 }
 
@@ -56,7 +63,7 @@ void moverProceso_NewReady(t_list* tablaDeSegmentosMemoria){
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady,pcbAReady);
     pthread_mutex_unlock(&mutex_ColaReady);
-    //TODO posible signal al PLanificador de corto plazo
+    sem_post(&sem_procesosReady);
 }
 
 
@@ -82,43 +89,14 @@ void aumentarGradoMP(){
 
 
 void agregarProceso_New(t_pcb *pcbNew){
-
-    queue_push(colaNew, (void *) pcbNew);
-    log_info(info_logger, "Se crea el proceso [%d] en NEW.", pcbNew->id);
-    procesosEnNew++;
-
+    pthread_mutex_lock(&mutex_colaNew);
+    queue_push(colaNew, pcbNew);
+    pthread_mutex_unlock(&mutex_colaNew);
+    log_info(info_logger, "Se crea el proceso <%d> en NEW.", pcbNew->id);
+    sem_post(&sem_procesosEnNew);
 }
-
-
-void moverProceso_NewPreReady(){ //TENER ENC CUENTA MP
-
-    procesosEnNew--;
-    t_pcb *pcbNew = queue_pop(colaNew);
-    /*FALTA TERMINAR (COORDINAR) se envia mensaje a memoria, hilo memoria cuando obtenga rta continua el flujo asignando a ready
-        1. Hilo dedicado para atender el envio y rta a memoria
-        2. Enviar el mensaje y esperar el mensaje al hilo de memoria. COORDINAR pcb.campo e id a enviar
-        3. Enviar el mensaje y esperar el mensaje al hilo de memoria. enviar PCB (abstrae contruccion del paquete y modificaion) RECOMENDADA
-    */
-
-
-    //TODO MAL revisar enviar_paquete_pcb(pcbNew, fd_memoria,INICIALIZAR_PROCESO_MEMORIA, info_logger);
-
-    list_add(listaEsperaMemoria,pcbNew);
-
-    log_info(info_logger, "Mensaje enviado a %d (MEMORIA) con motivo proceso INICIAR_ESTRUCTURA_PCB_NUEVO", fd_memoria);
-
-    //liberar_pcb(pcbNew);
-}
-
-
-void moverProceso_MemoriaReady(){
-    
-}
-
 
 void moverProceso_readyExec(){
-
-
         pthread_mutex_lock(&mutex_ColaReady);
         pthread_mutex_lock(&mutex_colaExec);
 
@@ -126,7 +104,7 @@ void moverProceso_readyExec(){
             int posicion = seleccionar_segunHRRN();
             t_pcb *pcbReady = list_get(colaReady,posicion);
             pcbReady->tiempoEnvioExec = time(NULL) ;
-            list_add(colaExec, (void *) pcbReady);
+            list_add(colaExec, pcbReady);
             list_remove(colaReady,posicion);
             pthread_mutex_unlock(&mutex_ColaReady);
             pthread_mutex_unlock(&mutex_colaExec);
@@ -138,7 +116,7 @@ void moverProceso_readyExec(){
         else{
             //ALGORITMO FIFO
             t_pcb *pcbReady = list_get(colaReady,0);
-            list_add(colaExec, (void *) pcbReady);
+            list_add(colaExec,pcbReady);
             list_remove(colaReady,0);
             pthread_mutex_unlock(&mutex_ColaReady);
             pthread_mutex_unlock(&mutex_colaExec);

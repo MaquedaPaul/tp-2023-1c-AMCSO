@@ -30,6 +30,7 @@ pthread_mutex_t mutex_MP;
 
 //SEMAFOROS
 sem_t sem_procesosEnNew;
+sem_t sem_procesosReady;
 
 
 //HILOS
@@ -38,6 +39,7 @@ sem_t sem_procesosEnNew;
  pthread_t conexion_con_memoria;
  pthread_t conexion_con_filesystem;
  pthread_t hilo_planificador_LP;
+ pthread_t hilo_planificador_corto;
 
 //Manejo de recursos
 t_list* listaRecursos;
@@ -135,16 +137,16 @@ void inicializar_kernel(){
     pthread_create(&conexion_con_memoria, NULL, (void*)conectarConMemoria, NULL);
     pthread_create(&conexion_con_filesystem, NULL, (void*)conectarConFileSystem, NULL);
     pthread_create(&hilo_planificador_LP, NULL, (void*)planificador_largo_plazo, NULL);
+    pthread_create(&hilo_planificador_corto, NULL, (void*)planificador_corto_plazo, NULL);
 
     pthread_join(conexion_con_consola, NULL);
     pthread_join(conexion_con_cpu, NULL);
     pthread_join(conexion_con_memoria, NULL);
     pthread_join(conexion_con_filesystem, NULL);
     pthread_join(hilo_planificador_LP, NULL);
+    pthread_join(hilo_planificador_corto,NULL);
 
 //TODO ANALIZAR ESTO ??? pthread_t planificador_LP;
-
-return true;
 
 }
 int tamanioArray(char ** array){

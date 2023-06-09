@@ -27,7 +27,7 @@ t_pcb* crearPcb(t_list* listaInstrucciones)
   pcb->tiempoEnvioExec = 0;
   pcb->registrosCpu = crearRegistroCPU();
   pcb->instr = listaInstrucciones;
-  pcb->tablaSegmentos = list_create();
+  pcb->tablaSegmentos = NULL;
   //pcb->tablaArchivosAbiertos = list_create();
 
 

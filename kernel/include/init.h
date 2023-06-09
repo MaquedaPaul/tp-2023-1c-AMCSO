@@ -44,6 +44,7 @@ extern pthread_mutex_t mutex_PlanLP; //Activa el PL
 
 //SEMAFOROS
 extern sem_t sem_procesosEnNew;
+extern sem_t sem_procesosReady;
 
 //HILOS
 extern pthread_t conexion_con_consola;
@@ -51,6 +52,7 @@ extern pthread_t conexion_con_cpu;
 extern pthread_t conexion_con_memoria;
 extern pthread_t conexion_con_filesystem;
 extern pthread_t hilo_planificador_LP;
+extern pthread_t hilo_planificador_corto;
 
 //Manejo de recursos
 extern t_list* listaRecursos;
