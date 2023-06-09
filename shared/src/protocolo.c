@@ -577,7 +577,7 @@ void* recibir_buffer(int* size, int socket_cliente)
 bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger)
 
 {
-    t_paquete* paquete = crear_paquete(GESTIONAR_CONSOLA_NUEVA, logger);
+    t_paquete* paquete = crear_paquete(ESTRUCTURAS_INICALIZADAS, logger);
     if(!agregarTablasAPaquete(tablasSegmentos, paquete)){
         log_error(logger, "Hubo un error cuando se intento agregar las tablas de segmentos al paquete");
         return false;

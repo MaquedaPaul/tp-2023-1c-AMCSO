@@ -1,6 +1,6 @@
 #include <planificacion.h>
 
-
+/*
 void planificador_largo_plazo(){
 
   log_info(info_logger, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");
@@ -17,6 +17,46 @@ void planificador_largo_plazo(){
     }
   }
   
+}
+ */
+
+void planificador_largo_plazo(){
+    log_info(info_logger, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");
+    while(1){
+
+        sem_wait(&sem_procesosEnNew);
+
+        pthread_mutex_lock(&mutex_ColaReady);
+        pthread_mutex_lock(&mutex_colaExec);
+        pthread_mutex_lock(&mutex_colaBloq);
+        int gradoMPActual = list_size(colaReady) + list_size(colaExec) + list_size(colaBloq); //TODO MIRAR DISPOSITOVOS
+        pthread_mutex_lock(&mutex_ColaReady);
+        pthread_mutex_lock(&mutex_colaExec);
+        pthread_mutex_lock(&mutex_colaBloq);
+
+        if(gradoMPActual < cfg_kernel->GRADO_MAX_MULTIPROGRAMACION && queue_size(colaNew) > 0) {
+            pthread_mutex_lock(&mutex_colaNew);
+            t_pcb* pcbAReady = queue_peek(colaNew);
+            pthread_mutex_unlock(&mutex_colaNew);
+
+            //Enviamos el proceso a memoria para que lo cargue(pero hasta que memoria no nos confirma NO LO SACAMOS DE LA COLA NEW)
+            enviarValor_uint32(pcbAReady->id,fd_memoria,INICIALIZAR_PROCESO_MEMORIA,info_logger);
+        }
+
+    }
+}
+
+void moverProceso_NewReady(t_list* tablaDeSegmentosMemoria){
+    pthread_mutex_lock(&mutex_colaNew);
+    t_pcb* pcbAReady = queue_pop(colaNew);
+    pthread_mutex_unlock(&mutex_colaNew);
+
+    pcbAReady->tablaSegmentos = tablaDeSegmentosMemoria;
+
+    pthread_mutex_lock(&mutex_ColaReady);
+    list_add(colaReady,pcbAReady);
+    pthread_mutex_unlock(&mutex_ColaReady);
+    //TODO posible signal al PLanificador de corto plazo
 }
 
 
@@ -60,7 +100,8 @@ void moverProceso_NewPreReady(){ //TENER ENC CUENTA MP
         3. Enviar el mensaje y esperar el mensaje al hilo de memoria. enviar PCB (abstrae contruccion del paquete y modificaion) RECOMENDADA
     */
 
-   enviar_paquete_pcb(pcbNew, fd_memoria,INICIALIZAR_PROCESO_MEMORIA, info_logger);
+
+    //TODO MAL revisar enviar_paquete_pcb(pcbNew, fd_memoria,INICIALIZAR_PROCESO_MEMORIA, info_logger);
 
     list_add(listaEsperaMemoria,pcbNew);
 

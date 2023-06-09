@@ -34,26 +34,26 @@ t_pcb* crearPcb(t_list* listaInstrucciones)
   return pcb;
 }
 
-//TODO Revisar esta funcion
-registros_cpu *crearRegistroCPU (){
+registros_cpu* crearRegistroCPU() {
+    registros_cpu* puntero_registros = malloc(sizeof(registros_cpu)); // Asignar memoria para la estructura
 
-    registros_cpu *reg = malloc(sizeof(registros_cpu));
-    /*
-    reg->registro_AX = "0000";
-    reg->BX = 0;
-    reg->CX = 0;
-    reg->DX = 0;
-    reg->EAX = 0;
-    reg->EBX = 0;
-    reg->ECX = 0;
-    reg->EDX = 0;
-    reg->RAX = 0;
-    reg->RBX = 0;
-    reg->RCX = 0;
-    reg->RDX = 0;
-*/
-    return reg;
+    // Inicializar los registros con valores predeterminados
+    strcpy(puntero_registros->registro_AX, "0000");
+    strcpy(puntero_registros->registro_BX, "0000");
+    strcpy(puntero_registros->registro_CX, "0000");
+    strcpy(puntero_registros->registro_DX, "0000");
+    strcpy(puntero_registros->registro_EAX, "00000000");
+    strcpy(puntero_registros->registro_EBX, "00000000");
+    strcpy(puntero_registros->registro_ECX, "00000000");
+    strcpy(puntero_registros->registro_EDX, "00000000");
+    strcpy(puntero_registros->registro_RAX, "0000000000000000");
+    strcpy(puntero_registros->registro_RCX, "0000000000000000");
+    strcpy(puntero_registros->registro_RBX, "0000000000000000");
+    strcpy(puntero_registros->registro_RDX, "0000000000000000");
+
+    return puntero_registros;
 }
+
 
 
 //Actualizar pcb

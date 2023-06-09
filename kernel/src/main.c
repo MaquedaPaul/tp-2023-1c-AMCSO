@@ -21,11 +21,7 @@ int main(int argc, char *argv[]) {
 
     }
 
-    //TODO DESCOMENTAR logger_kernel = iniciar_logger_kernel();
-
     inicializar_kernel();
-
-
     cerrar_programa();
 
     return EXIT_SUCCESS;

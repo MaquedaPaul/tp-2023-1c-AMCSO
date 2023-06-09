@@ -17,6 +17,7 @@ void planificador_largo_plazo();
 
 //Funciones cambio de estado
 void agregarProceso_New(t_pcb*);
+void moverProceso_NewReady(t_list* tablaDeSegmentosMemoria);
 void moverProceso_NewPreReady(); //Saca de la lista NEW, la envia a Memoria y la deja en una lista intermedia
 void moverProceso_MemoriaReady(); //Saca el pcb de la lista intermedia, y la pasa a la cola ready
 void moverProceso_readyExec(); 

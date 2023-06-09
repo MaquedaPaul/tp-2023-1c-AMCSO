@@ -28,6 +28,10 @@ pthread_mutex_t mutex_colaBloq;
 pthread_mutex_t mutex_PlanLP;
 pthread_mutex_t mutex_MP;
 
+//SEMAFOROS
+sem_t sem_procesosEnNew;
+
+
 //HILOS
  pthread_t conexion_con_consola;
  pthread_t conexion_con_cpu;
@@ -121,6 +125,9 @@ void inicializar_kernel(){
     pthread_mutex_init(&mutex_colaBloq, NULL);
     pthread_mutex_init(&mutex_PlanLP, NULL);
     pthread_mutex_init(&mutex_MP, NULL);
+
+    //SEMAFOROS
+    sem_init(&sem_procesosEnNew,0,0);
 
  //HILOS
     pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);

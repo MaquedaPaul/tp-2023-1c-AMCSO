@@ -42,6 +42,9 @@ extern pthread_mutex_t mutex_colaBloq;
 extern pthread_mutex_t mutex_MP; //Des/activa el grado de Multiprogramacion
 extern pthread_mutex_t mutex_PlanLP; //Activa el PL
 
+//SEMAFOROS
+extern sem_t sem_procesosEnNew;
+
 //HILOS
 extern pthread_t conexion_con_consola;
 extern pthread_t conexion_con_cpu;

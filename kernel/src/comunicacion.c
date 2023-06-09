@@ -132,10 +132,10 @@ void procesar_conexion(void *void_args) {
             }
 
                 //----------------------------------MEMORIA----------------------------------------
-            //case CREADA_ESTRUCTURA_PCB_NUEVO:
+            case ESTRUCTURAS_INICALIZADAS:
             {
-                //FALTA ACLARAR COMO LLEGA EL DATO
-               // log_info(logger_kernel, "PID: [%d] - Estado Anterior: NEW - Estado Actual: READY.", pcbReady->pid);
+                t_list * tablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
+                moverProceso_NewReady(tablaSegmentosRecibida);
                 break;
             }
 
@@ -369,7 +369,7 @@ void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
     log_info(info_logger,"PID: <%d> - Signal: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if(!queue_is_empty(recurso->cola)){
         t_pcb* pcbLiberada = queue_pop(recurso->cola);
-        moverProceso_BloqReady(pcbLiberada);
+        //TODO VERIFICAR SI ES CORRECTO debido a que esta en otra lista moverProceso_BloqReady(pcbLiberada);
     }
      enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,info_logger);
 }
@@ -379,6 +379,7 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden){
     t_instr * instruccion = list_get(unaPcb->instr,apunteProgramCounter);
     char* recursoSolicitado = instruccion->param2;
     //TODO hay que agregarle semaforo mutex a la cola bloqueado
+
 
     for(int i = 0 ; i < list_size(estadoBlockRecursos); i++){
         t_recurso* recurso = list_get(estadoBlockRecursos,i);
@@ -408,7 +409,6 @@ void creacionSegmentoExitoso(t_pcb* unaPcb, uint32_t* array){
             segmento->limite = limSeg;
         }
     }
-    //TODO mirar mensajes de opcode
 
       enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
 }

@@ -64,6 +64,7 @@ typedef enum {
     SIN_ESPACIO_DISPONIBLE,
     SE_NECESITA_COMPACTACION,
     CREACION_SEGMENTO_EXITOSO,
+    ESTRUCTURAS_INICALIZADAS,
     /////////////////////////////////FILESYSTEM///////////////////////////////////////
     APERTURA_ARCHIVO,
     CREACION_ARCHIVO,
@@ -138,22 +139,9 @@ void enviar_mensaje(char* mensaje, int socket_cliente, op_code codigoOperacion, 
 char* recibir_mensaje(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
 
-
-
-
-
 bool enviarParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, op_code codigoOperacion, t_log* logger, int socket_cliente);
 bool agregarParamsParaLecturaEscrituraArchivoAPaquete(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, t_paquete* paquete);
 void recibirParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, int socket_cliente);
-
-
-
-
-
-
-
-
-
 
 
 bool enviarListaInstrucciones(t_list* listaInstrucciones, int socket_cliente, t_log* logger);
