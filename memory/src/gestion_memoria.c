@@ -418,7 +418,7 @@ uint32_t realizarCompactacion(){
 
 void informarTablasActualizadas(int cliente_socket)
 {
-    enviarTablasSegmentos(tablasSegmentos,cliente_socket, info_logger);
+    enviarTablasSegmentos(tablasSegmentos,cliente_socket, info_logger,COMPACTACION_FINALIZADA);
 }
 /*
 

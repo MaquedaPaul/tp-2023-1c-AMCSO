@@ -29,10 +29,6 @@ void procesar_conexion(void *void_args) {
 
         switch (cop) {
             //----------------------------------------CONSOLA-----------------------
-            case DEBUG:
-            {
-                break;
-            }
             case GESTIONAR_CONSOLA_NUEVA:
             {
                 t_list* listaInstrucciones = recibirListaInstrucciones(cliente_socket);
@@ -41,16 +37,6 @@ void procesar_conexion(void *void_args) {
                 break;
 
             }
-            case 100:
-            {
-
-                break;
-            }
-            case 1000:
-            {
-                break;
-            }
-
                 //--------------------------------CPU-------------------------------------------
             case WAIT:
             {
@@ -95,39 +81,34 @@ void procesar_conexion(void *void_args) {
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
 
-                //Usamos enviar int array para no tener que hacer funciones de serializacion
-                //la estructura es la siguiente [dimVector,Id segmento,Tam segmento]
-                //el pid del proceso no lo necesito pq lo saco de la cola de execute
-                uint32_t* arrayParaMemoria;
-                uint32_t arraySize = 2;
-                arrayParaMemoria = calloc(arraySize+1,sizeof (uint32_t));
-                arrayParaMemoria[0] = arraySize;
+                //Memoria necesita: PID, tamaño segmento
+                t_list* listaIntsMemoria = list_create();
+                list_add(listaIntsMemoria,&pcbRecibida->id);
 
-                t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter);
-                uint32_t idSegmento = atoi(instruccion->param2);
-                uint32_t tamSegmento = atoi(instruccion->param3);
-                arrayParaMemoria[1] = idSegmento;
-                arrayParaMemoria[2] = tamSegmento;
+                t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter-1);
+                uint32_t tamSegmento = atoi(instruccion->param2);
+                list_add(listaIntsMemoria,&tamSegmento);
 
-                enviar_int_array(arrayParaMemoria,fd_memoria,CREACION_SEGMENTOS,info_logger);
-
+                uint32_t idSegmento = atoi(instruccion->param1); //Lo usamos solo para el logger
+                log_info(info_logger,"PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcbRecibida->id,idSegmento,tamSegmento);
+                enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,CREACION_SEGMENTOS);
+                list_destroy_and_destroy_elements(listaIntsMemoria,free);
                 break;
             }
             case DELETE_SEGMENT: {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
 
-                uint32_t* arrayParaMemoria;
-                uint32_t arraySize = 2;
-                arrayParaMemoria = calloc(arraySize+1,sizeof (uint32_t));
-                arrayParaMemoria[0] = arraySize;
-                arrayParaMemoria[1] = pcbRecibida->id;
+                //Memoria necesita: PID, idSegmento
+                t_list* listaIntsMemoria = list_create();
+                list_add(listaIntsMemoria,&pcbRecibida->id);
 
-                t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter);
-                uint32_t idSegmento = atoi(instruccion->param2);
+                t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter-1);
+                uint32_t idSegmento = atoi(instruccion->param1);
+                list_add(listaIntsMemoria,&idSegmento);
 
-                arrayParaMemoria[2] = idSegmento;
-                enviar_int_array(arrayParaMemoria,fd_memoria,DELETE_SEGMENT,info_logger);
-
+                log_info(info_logger,"PID: <%d> - Eliminar Segmento - Id Segmento: <%d>", pcbRecibida->id, idSegmento);
+                enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,ELIMINACION_SEGMENTOS);
+                list_destroy_and_destroy_elements(listaIntsMemoria,free);
                 break;
             }
 
@@ -138,12 +119,10 @@ void procesar_conexion(void *void_args) {
                 moverProceso_NewReady(tablaSegmentosRecibida);
                 break;
             }
-
             case CREACION_SEGMENTO_EXITOSO:
             {
-                uint32_t *array= recibir_int_array(cliente_socket);
-                t_pcb* pcbRecibida = list_remove(colaExec,0);
-                creacionSegmentoExitoso(pcbRecibida,array);
+                uint32_t baseSegmento = recibirValor_uint32(cliente_socket,info_logger);
+                creacionSegmentoExitoso(baseSegmento);
                 break;
             }
             case OUT_OF_MEMORY:
@@ -161,7 +140,37 @@ void procesar_conexion(void *void_args) {
                 decrementarGradoMP();
                 break;
             }
+            case SE_NECESITA_COMPACTACION: {
+                recibirOrden(cliente_socket);
+                enviarOrden(SE_NECESITA_COMPACTACION,fd_filesystem,info_logger);
+                break;
+            }
+            case COMPACTACION_FINALIZADA: {
+                //TODO FALTA actualizar las tablas de segmentos de todos los procesos en Memoria
+                log_info(info_logger,"Se finalizó el proceso de compactación");
+                break;
+            }
+            case SEGMENTO_ELIMINADO:{
+                t_list* tablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
+                eliminacionSegmento(tablaSegmentosRecibida);
+                break;
+            }
 
+            //-------------------------FILE SYSTEM-----------------------------------------------------------
+
+            case PUEDO_COMPACTAR: {
+                recibirOrden(cliente_socket);
+                log_info(info_logger,"Compactación: <Se solicitó compactación>");
+                enviarOrden(COMPACTACION_SEGMENTOS,fd_memoria,info_logger);
+                break;
+            }
+
+            case ESPERAR_PARA_COMPACTACION: {
+                recibirOrden(cliente_socket);
+                log_info(info_logger,"Compactación: <Esperando Fin de Operaciones de FS>");
+                //Cuando file system termine me tiene que enviar una orden PUEDO_COMPACTAR.
+                break;
+            }
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;
@@ -400,22 +409,23 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden){
         }
 }
 
-void creacionSegmentoExitoso(t_pcb* unaPcb, uint32_t* array){
-    t_list* tablaSeg = unaPcb->tablaSegmentos;
-    uint32_t idSeg = array[1];
-    uint32_t baseSeg = array[2];
-    uint32_t limSeg = array[3];
+void creacionSegmentoExitoso(uint32_t baseSegmento){
+    pthread_mutex_lock(&mutex_colaExec);
+    t_pcb* pcbExec = list_get(colaExec,0);
+    pthread_mutex_unlock(&mutex_colaExec);
 
+    t_instr* instruccion = list_get(pcbExec->instr,pcbExec->programCounter-1);
+    uint32_t idSegmento = atoi(instruccion->param1);
+    uint32_t tamSegmento = atoi(instruccion->param2);
 
-    for(int i = 0; i < list_size(tablaSeg) ; i++) {
-        t_segmento *segmento = list_get(tablaSeg, i);
-        if (segmento->id == idSeg) {
-            segmento->base = baseSeg;
-            segmento->limite = limSeg;
-        }
-    }
+    t_segmento* segmento = malloc(sizeof (t_segmento));
+    segmento->id = idSegmento;
+    segmento->base = baseSegmento;
+    segmento->limite = baseSegmento + tamSegmento;
 
-      enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
+    list_add(pcbExec->tablaSegmentos,segmento);
+
+    enviar_paquete_pcb(pcbExec,fd_cpu,PCB,info_logger);
 }
 
 void* esperaIo(void* void_pcb){
@@ -427,5 +437,13 @@ void* esperaIo(void* void_pcb){
     log_info(info_logger, "PID: <%d> - Ejecuta IO: <%d>", pcb->id,tiempoEspera);
     usleep(tiempoEspera);
     moverProceso_BloqReady(pcb);
+}
 
+void eliminacionSegmento(t_list* tablaSegmentosActualizada){
+    pthread_mutex_lock(&mutex_colaExec);
+    t_pcb* pcbExec = list_get(colaExec,0);
+    pthread_mutex_unlock(&mutex_colaExec);
+
+    pcbExec->tablaSegmentos = tablaSegmentosActualizada;
+    enviar_paquete_pcb(pcbExec,fd_cpu,PCB,info_logger);
 }

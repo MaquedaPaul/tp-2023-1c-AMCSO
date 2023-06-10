@@ -46,7 +46,8 @@ void signalRecursoPcb(t_recurso* recurso,t_pcb* unaPcb);
 void manejoDeRecursos(t_pcb* unaPcb,char* orden);
 
 t_list* recibirListaInstrucciones(int socket_cliente);
-void creacionSegmentoExitoso(t_pcb* unaPcb, uint32_t* array);
+void creacionSegmentoExitoso(uint32_t baseSegmento);
+void eliminacionSegmento(t_list* tablaSegmentosActualizada);
 
 void* esperaIo(void* void_pcb);
 

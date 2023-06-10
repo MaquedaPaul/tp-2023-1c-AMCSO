@@ -48,11 +48,14 @@ void planificador_corto_plazo(){
 void liberar_procesos(){
     while (1){
         sem_wait(&sem_procesosExit);
+        pthread_mutex_lock(&mutex_colaExit);
         t_pcb* pcbALiberar = queue_pop(colaExit);
+        pthread_mutex_unlock(&mutex_colaExit);
+
         enviarValor_uint32(pcbALiberar->id,fd_memoria,FINALIZAR_PROCESO_MEMORIA,info_logger);
         liberarPcb(pcbALiberar);
-        //TODO PONER CUANDO ME CONTESTA MEMORIA
-        //decrementarGradoMP();
+        //TODO FALTA NOTIFICAR A LA CONSOLA EL FIN DEL PROCESO
+        //El decremento del grado de MP se hace cuando recibo la confimacion de memoria de la finalizacion
     }
 }
 
@@ -179,7 +182,7 @@ void moverProceso_BloqReady(t_pcb* pcbBuscado){
     //HHRN
     //pcbBuscado->tiempoLlegadaReady = time(NULL);
 
-    list_add(colaReady, (void *) pcbBuscado);
+    list_add(colaReady, pcbBuscado);
     log_info(info_logger, "PID: [%d] - Estado Anterior: BLOQ - Estado Actual: READY.", pcbBuscado->id);
 
     pthread_mutex_unlock(&mutex_ColaReady);

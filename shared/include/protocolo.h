@@ -30,6 +30,11 @@ typedef enum {
     //----------------------------------------------------------------------------------
     //------------MENSAJES DE MEMORIA-KERNEL---------------------------
     OUT_OF_MEMORY,
+    COMPACTACION_FINALIZADA,
+    SEGMENTO_ELIMINADO,
+    //-----------MENSAJES DE FILE SYSTEM-KERNEL--------------------------------------
+    PUEDO_COMPACTAR,
+    ESPERAR_PARA_COMPACTACION,
     /////////////////////////////////////CPU///////////////////////////////////////////
     PCB,
     IO_BLOCK,
@@ -151,7 +156,7 @@ int calcularTamanioDeInstruccion(t_instr* unaInstruccion);
 t_list* recibirListaInstrucciones(int socket_cliente);
 
 
-bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger);
+bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger,op_code codigo);
 bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete);
 t_list* recibirTablasSegmentosInstrucciones(int socket_cliente);
 
