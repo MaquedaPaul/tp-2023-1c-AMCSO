@@ -102,9 +102,22 @@ typedef struct{
     registros_cpu* registrosCpu;
     t_list* instr;
     t_list* tablaSegmentos;
-    //t_list* tablaArchivosAbiertos; TODO AGREGAR A LA PCB CUANDO LO USEMOS
+    t_list* tablaArchivosAbiertos; //TODO AGREGAR A LA PCB CUANDO LO USEMOS
 } t_pcb;
 
+
+typedef struct {
+    char* nombreArchivo;
+    bool enUso;
+    int id_pcb_en_uso;
+    int ptro;
+    t_list* lista_espera_pcbs;
+} t_TablaArchivos;
+
+typedef struct {
+    char* nombreArchivo;
+    t_pcb* pcb;
+} t_peticionesFS;
 
 t_proceso *crearNuevoProceso();
 void closure_mostrarListaInstrucciones(t_instr * element);

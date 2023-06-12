@@ -30,6 +30,12 @@ extern t_list* estadoBlockRecursos;
 extern t_list* colaReady; 
 extern t_list* listaEsperaMemoria;
 
+//TABLA GLOBAL ARCHIVOS ABIERTOS
+extern t_list* tablaGlobal_ArchivosAbiertos;
+extern pthread_mutex_t mutex_TGAA; //Mutex de la tabla global de archivos abiertos
+//TABLA PETICIONES A FS
+extern t_list* tabla_PeticionesFS;
+
 
 //CONTADORES Y MUTEX
 extern int procesosEnNew;

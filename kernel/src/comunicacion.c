@@ -112,6 +112,84 @@ void procesar_conexion(void *void_args) {
                 break;
             }
 
+            case F_OPEN: {
+                //recibir pcb y nomrbre archivo --> averiguar
+                //Verificar como se reciben los paquetes --> Agregar campo a pcb o crear nuevo recibir (300lineas)
+                //ejecutar_FOPEN(pcbBuscado, nombreArchivo);
+                break;
+            }
+
+            case F_CLOSE: {
+                //FCLOSE solo debe rerecibir el nombrearch
+                //pcb si es necesario se envia x separado
+                //ejecutar_FCLOSE(nombreArchivo);
+
+                break;
+            }
+
+            case F_SEEK: {
+                //FCLOSE solo debe rerecibir el nombrearch y puntero
+                //pcb si es necesario se envia x separado
+                //ejecutar_FSEEK(nombreArchivo, puntero);
+                break;
+            }
+
+            case F_TRUNCATE: {
+                //FTRUNCATE solo debe rerecibir el nombrearch y tamaño
+                //pcb si es necesario se envia x separado
+                //ejecutar_FTRUNCATE(nombreArchivo, tamArch);
+                break;
+            }
+
+            case F_READ: {
+                //FREAD solo debe rerecibir el nombrearch largo y DL 
+                //pcb si es necesario se envia x separado
+                //ejecutar_FREAD(nombreArchivo, largo, dl);
+                break;
+            }
+
+            case F_WRITE: {
+                //FWRITE solo debe rerecibir el nombrearch largo y DF
+                //pcb si es necesario se envia x separado
+                //ejecutar_FWRITE(nombreArchivo, largo, df);
+                break;
+            }
+
+            //----------------------------------FILESYSTEM--------------------------------------
+
+            case APERTURA_ARCHIVO_EXITOSA: {
+                char* nombreArchivo = recibirString(cliente_socket);
+                agregarEntrada_TablaGlobalArchivosAbiertos(nombreArchivo);
+                break;
+            }
+
+            case APERTURA_ARCHIVO_FALLIDA: {
+                char* nombreArchivo = recibirString(cliente_socket);
+                enviarString(nombreArchivo, fd_filesystem, CREACION_ARCHIVO, info_logger);
+                break;
+            }
+
+            case CREACION_ARCHIVO_EXITOSA: {
+                char* nombreArchivo = recibirString(cliente_socket);
+                agregarEntrada_TablaGlobalArchivosAbiertos(nombreArchivo);
+                break;
+            }
+            
+            case TRUNCACION_ARCHIVO_EXITOSA: {
+                char* nombreArchivo = recibirString(cliente_socket);
+                break;
+            }
+
+            case LECTURA_ARCHIVO_EXITOSA: {
+                char* nombreArchivo = recibirString(cliente_socket);
+                break;
+            }
+
+            case ESCRITURA_ARCHIVO_EXITOSA: {
+                char* nombreArchivo = recibirString(cliente_socket);
+                break;
+            }
+
                 //----------------------------------MEMORIA----------------------------------------
             case ESTRUCTURAS_INICALIZADAS:
             {

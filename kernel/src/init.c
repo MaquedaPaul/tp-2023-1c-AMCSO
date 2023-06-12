@@ -5,6 +5,8 @@
 #include <init.h>
 
 
+
+
 //COLAS
 t_queue* colaNew;
 t_list* colaExec;
@@ -16,6 +18,11 @@ t_list* colaReady; //en caso de HRRN
 t_list* listaEsperaMemoria;
 
 
+//TABLA GLOBAL ARCHIVOS ABIERTOS
+t_list* tablaGlobal_ArchivosAbiertos;
+pthread_mutex_t mutex_TGAA;
+//TABLA PETICIONES A FS
+t_list* tabla_PeticionesFS;
 
 //CONTADORES Y MUTEX
 int procesosEnNew;
@@ -118,6 +125,13 @@ void inicializar_kernel(){
     colaBloq = list_create();
     colaExit = queue_create();
     listaEsperaMemoria = list_create();
+
+
+//TABLA GLOBAL ARCHIVOS ABIERTOS
+    tablaGlobal_ArchivosAbiertos = list_create();
+    tabla_PeticionesFS = list_create();
+    pthread_mutex_init(&mutex_TGAA, NULL);//Mutex de la tabla global de archivos abiertos
+
 
 //CONTADORES Y MUTEX
 
