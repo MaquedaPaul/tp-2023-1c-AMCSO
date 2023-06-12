@@ -18,6 +18,11 @@ extern int fd_kernel;
 extern t_instr* instruccion;
 extern t_pcb* pcb_actual;
 
+
+t_instr* instruccion;
+char* nombre_instruccion_actual;
+
+
 extern uint32_t tam_max_segmento;
 extern char registroCPU_AX[4];
 extern char registroCPU_BX[4];
@@ -33,9 +38,9 @@ extern char registroCPU_RCX[16];
 extern char registroCPU_RDX[16];
 
 
-void iniciar_registros (registros_cpu* registro);
+void copiar_registroPCB_a_los_registrosCPU  (registros_cpu* registro);
 
-void ciclo_instrucciones();
+void ciclo_de_instruccion();
 t_instr* fetch();
 char* decode();
 void execute();

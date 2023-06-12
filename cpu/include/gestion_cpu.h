@@ -33,6 +33,15 @@ extern char registroCPU_RCX[16];
 extern char registroCPU_RDX[16];
 extern int num_segmento;
 
+char* ip_cpu;
+char* puerto_cpu;
+int fd_memoria;
+int fd_kernel;
+int fd_cpu;
+
+//Instruccion a ejecutar actual
+
+bool cicloInstruccionesDebeEjecutarse = true;
 
 void ejecutar_SET(char* registro, char* valor);
 void ejecutar_MOV_IN(char* registro, int direccion_logica);
@@ -51,13 +60,13 @@ void ejecutar_DELETE_SEGMENT(int id_del_segmento);
 void ejecutar_YIELD();
 void ejecutar_EXIT();
 
-void cambiar_valor_registro(char* registro, char* valor);
+void cambiar_valor_del_registroCPU(char* registro, char* valor);
 int calcular_bytes_segun_registro(char* registro);
-void copiar_registros(registros_cpu* registro);
-void obtener_valor_registro(char* registro,char valor[]);
+void copiar_registrosCPU_a_los_registroPCB(registros_cpu* registro);
+void obtener_valor_registroCPU(char* registro,char valor[]);
 
 char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes);
-void escribir_valor_en_memoria(int direccion_fisica, char valor[]);
+void escribir_valor_en_memoria(int , int, char*);
 char* recibir_valor_de_memoria();
 void esperar_orden();
 #endif

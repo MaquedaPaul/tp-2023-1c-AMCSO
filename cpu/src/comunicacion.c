@@ -28,14 +28,17 @@ void procesar_conexion(void *void_args) {
                 break;
 
             case PCB:
-                pcb_actual = recibir_pcb(cliente_socket);
-                log_info(info_logger,"Falla iniciar regisitros o algo de aca abajo");
-                //TODO CHEQUEAR ACA
-                iniciar_registros (pcb_actual->registrosCpu);
-                cicloInstruccionesDebeEjecutarse = true;
-                ciclo_instrucciones();
-               //eliminar_PCB(pcb_actual);
-                break;
+                 pcb_actual = recibir_pcb(cliente_socket);
+                 pid = 2000000000;
+                 if(nuevo_pcb->id == pid ) {
+	                    ciclo_instrucciones();
+                         //eliminar_PCB(pcb_actual);
+                 }else {
+                         pid = pcb_actual->id ;
+                         copiar_registroPCB_a_los_registrosCPU (pcb_actual->registrosCpu);
+                         ciclo_de_instruccion();
+                          //eliminar_PCB(pcb_actual);
+                  break;
 
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);

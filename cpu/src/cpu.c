@@ -1,7 +1,7 @@
 #include <cpu.h>
 
 
-void iniciar_registros (registros_cpu* registro) {
+void copiar_registroPCB_a_los_registrosCPU (registros_cpu* registro) {
 
 memcpy(registroCPU_AX,registro->registro_AX,4);
 memcpy(registroCPU_BX,registro->registro_BX,4);
@@ -15,13 +15,13 @@ memcpy(registroCPU_RAX,registro->registro_RAX,16);
 memcpy(registroCPU_RBX,registro->registro_RBX,16);
 memcpy(registroCPU_RCX,registro->registro_RCX,16);
 memcpy(registroCPU_RDX,registro->registro_RDX,16);
-
 }
 
-t_instr* instruccion;
-char* nombre_instruccion_actual;
 
-void ciclo_instrucciones(){
+void ciclo_de_instruccion(){
+
+    cicloInstruccionesDebeEjecutarse = true;
+    
     while(cicloInstruccionesDebeEjecutarse){      // && (pcb->programCounter < list_size(pcb->instr))
 
         instruccion = fetch();
@@ -29,9 +29,9 @@ void ciclo_instrucciones(){
         nombre_instruccion_actual = decode();
 
         execute();
-    }  // execute(instruccion);
+    }  
 
-    cicloInstruccionesDebeEjecutarse = true;
+    
 }
 
 
