@@ -94,9 +94,7 @@ FALTA
 
     1. VERIFICAR como se reciben los paquetes --> Agregar campo a pcb o crear nuevo 
         recibir (300lineas) [depende el caso]
-    2. importar .c .h
-    3. Aplicar mutex sobre tablaGlobal
-    4. verificar bloq de pcb x filesystem o devolver a exec --> AVERIGUAR que hacer con la pcb
+    2. verificar bloq de pcb x filesystem o devolver a exec --> AVERIGUAR que hacer con la pcb
     5. FSEEK: que tiene que avisar a FS o CPU?
     7. FTRUNCATE FREAD FWRITE no bloquea el proceso en si,ya que actualemente todos los procesos se bloquean
     8. COORDINAR CON COMPACTACION
@@ -111,7 +109,7 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
     int pos = buscarArch_TablaGlobalArchivo(nomArch);
     t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
 
-    if(pos == -1){
+    if(pos == -1){ // En caso de que no este en la TGAA
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
         t_peticionesFS* peticion;
         peticion->pcb=pcbRecibido;
@@ -119,11 +117,11 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
         list_add(tabla_PeticionesFS,peticion);
 
     }
-    else{
-        if(archivo->enUso){
+    else{//Si esta en la TGAA
+        if(archivo->enUso){ //Si esta en uso x otro pcb
             list_add(archivo->lista_espera_pcbs,pcbRecibido);
         }
-        else{
+        else{//Si no esta en uso, se pasa al siguiente pcb
             archivo->enUso = true;
             archivo->id_pcb_en_uso = pcbRecibido->id;
             archivo->ptro=0;
@@ -146,6 +144,7 @@ void ejecutar_FCLOSE(char* nombreArchivo){
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nombreArchivo);
     t_TablaArchivos* archivo =  list_get(tablaGlobal_ArchivosAbiertos,pos);
+    archivo->enUso = false;
 
     log_info(info_logger, "PID: <%d> - Cerrar Archivo: <%s>", 
                 archivo->id_pcb_en_uso, nombreArchivo);
@@ -210,10 +209,15 @@ void ejecutar_FREAD(char* nomArchivo, int largArch, int dlArch){
     free(datos);
 
     pthread_mutex_lock(&mutex_TGAA);
-    t_TablaArchivos* archivo = buscarEntrada_TablaGlobalArchivo(nomArchivo);
-    pthread_mutex_unlock(&mutex_TGAA);
+    int pos = buscarArch_TablaGlobalArchivo(nomArchivo);
+    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
     log_info(info_logger, "PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Direccion Memoria <%d> - Tamaño <%d>", 
                 archivo->id_pcb_en_uso, nomArchivo, archivo->ptro,dlArch,largArch);
+    
+    //Se actualiza posicion del puntero
+    archivo->ptro += largArch;
+    list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
+    pthread_mutex_unlock(&mutex_TGAA);
   
 }
 
@@ -228,12 +232,23 @@ void ejecutar_FWRITE(char* nomArchivo, int largArch, int dfArch){
     free(datos);
 
     pthread_mutex_lock(&mutex_TGAA);
-    t_TablaArchivos* archivo = buscarEntrada_TablaGlobalArchivo(nomArchivo);
-    pthread_mutex_unlock(&mutex_TGAA);
+    int pos = buscarArch_TablaGlobalArchivo(nomArchivo);
+    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
     log_info(info_logger, "PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Direccion Memoria <%d> - Tamaño <%d>", 
                 archivo->id_pcb_en_uso, nomArchivo, archivo->ptro,dfArch,largArch);
   
+    //Se actualiza posicion del puntero
+    archivo->ptro += largArch;
+    list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
+    pthread_mutex_unlock(&mutex_TGAA);
 }
+/*
+Filesystem debe recibir de la siguiente manera:
+
+
+*/
+
+
 
 
 int buscarArch_TablaGlobalArchivo(char* nomArch){
@@ -300,6 +315,6 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
     archivo->lista_espera_pcbs = list_create();
     
     list_add(tablaGlobal_ArchivosAbiertos, archivo);
-    list_add_in_index(pcbBuscado->tablaArchivosAbiertos,0,nomArch); //VERIFICAR
+    list_add(pcbBuscado->tablaArchivosAbiertos,nomArch); //VERIFICAR
     enviar_paquete_pcb(pcbBuscado,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
 }
