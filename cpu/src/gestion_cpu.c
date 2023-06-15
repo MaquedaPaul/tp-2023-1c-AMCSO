@@ -392,11 +392,11 @@ char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
 
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_LECTURA, info_logger);
     
-    uint8_t catidad_enteros = 2;
+    uint8_t catidad_enteros = 3;
     agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
-    agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));
     agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
+    agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));
 
     enviar_paquete(paquete, conexion);
     eliminar_paquete(paquete, info_logger);
@@ -592,7 +592,6 @@ char* recibir_paquete_con_cadena(int socket_cliente) {
 		    strcpy (valor,"0000000000000000");
 
 		memcpy(valor, buffer+desplazamiento, tamanio); 
-		desplazamiento+=tamanio;
         
         free(buffer);
 
