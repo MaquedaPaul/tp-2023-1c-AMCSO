@@ -392,11 +392,11 @@ char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
 
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_LECTURA, info_logger);
     
-    int catidad_enteros = 2;
-    agregar_a_paquete(paquete, &catidad_enteros, sizeof(int));
-    agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
-    agregar_a_paquete(paquete, &cantidad_bytes, sizeof(int));
-    agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(int));
+    uint32_t catidad_enteros = 2;
+    agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
+    agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
+    agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));
+    agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
 
     enviar_paquete(paquete, conexion);
     eliminar_paquete(paquete, logger);
@@ -498,12 +498,11 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* r
 
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA, info_logger);
     
-    uint32_t catidad_enteros = 3;
+    uint32_t catidad_enteros = 2;
     agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
-    agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));
-
+    agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
     agregar_registroCPU_a_paquete(registro , paquete );
 
     enviar_paquete(paquete, fd_memoria);
