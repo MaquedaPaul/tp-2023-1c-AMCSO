@@ -84,7 +84,7 @@ void realizarPedidoEscritura(int cliente_socket){
     t_list* listaInts = recibirListaIntsYDatos(cliente_socket, unosDatos);
     uint32_t* posicion = list_get(listaInts,0);
     bool esCpu= cliente_socket == ipCpu;
-    uint32_t* pid = list_get(listaInts,2);
+    uint32_t* pid = list_get(listaInts,1);
     pthread_mutex_lock(&mutex_espacioContiguo);
     accesoEspacioUsuarioEscrituraRetardoPrevio(*posicion, *pid);
     simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
