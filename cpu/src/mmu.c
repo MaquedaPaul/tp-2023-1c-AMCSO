@@ -1,7 +1,7 @@
 #include <mmu.h>
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
-    num_segmento = floor(direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO);            // DUDA       no me anda el floor con una variable int
+    num_segmento = floor(direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO);            
     int desplazamiento_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
 
     if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes)) {
@@ -12,7 +12,7 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
         enviar_paquete(paquete, fd_kernel);
         eliminar_paquete(paquete, info_logger);
 */
-        enviar_paquete_pcb(pcb_actual, fd_kernel,SEGMENTATION_FAULT, info_logger);
+        enviar_paquete_pcb2(pcb_actual, fd_kernel,SEGMENTATION_FAULT, info_logger);
 
         cicloInstruccionesDebeEjecutarse = false;
 

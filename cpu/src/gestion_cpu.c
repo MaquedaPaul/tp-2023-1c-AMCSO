@@ -38,8 +38,8 @@ void ejecutar_IO(int tiempo) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(IO_BLOCK,info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    agregar_a_paquete(paquete, &tiempo, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    agregar_a_paquete(paquete, &tiempo, sizeof(uint32_t));
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete,info_logger);
     cicloInstruccionesDebeEjecutarse = false;
@@ -50,9 +50,9 @@ void ejecutar_F_OPEN(char* nombre_archivo) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(F_OPEN, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    int largo_nombre = strlen(nombre_archivo) + 1;
-    agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    uint32_t largo_nombre = strlen(nombre_archivo) + 1;
+    agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_archivo, largo_nombre);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
@@ -65,9 +65,9 @@ void ejecutar_F_CLOSE(char* nombre_archivo) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(F_CLOSE,info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    int largo_nombre = strlen(nombre_archivo) + 1;
-    agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    uint32_t largo_nombre = strlen(nombre_archivo) + 1;
+    agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_archivo, largo_nombre);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
@@ -80,11 +80,11 @@ void ejecutar_F_SEEK(char* nombre_archivo, int posicion) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(F_SEEK, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    int largo_nombre = strlen(nombre_archivo) + 1;
-    agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    uint32_t largo_nombre = strlen(nombre_archivo) + 1;
+    agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_archivo, largo_nombre);
-    agregar_a_paquete(paquete, &posicion, sizeof(int));
+    agregar_a_paquete(paquete, &posicion, sizeof(uint32_t));
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
 
@@ -100,12 +100,12 @@ void ejecutar_F_READ(char* nombre_archivo, int direccion_logica, int cantidad_by
         copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
         pcb_actual->programCounter++;
         t_paquete* paquete = crear_paquete(F_READ, info_logger);
-        agregar_PCB_a_paquete(paquete, pcb_actual);
-        int largo_nombre = strlen(nombre_archivo) + 1;
-        agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+        agregar_PCB_a_paquete2(paquete, pcb_actual);
+        uint32_t largo_nombre = strlen(nombre_archivo) + 1;
+        agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
         agregar_a_paquete(paquete, nombre_archivo, largo_nombre);
-        agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
-        agregar_a_paquete(paquete, &cantidad_bytes, sizeof(int));
+        agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
+        agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
         enviar_paquete(paquete, fd_kernel);
         eliminar_paquete(paquete, info_logger);
     }
@@ -121,12 +121,12 @@ void ejecutar_F_WRITE(char* nombre_archivo, int direccion_logica, int cantidad_b
         copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
         pcb_actual->programCounter++;
         t_paquete* paquete = crear_paquete(F_WRITE, info_logger);
-        agregar_PCB_a_paquete(paquete, pcb_actual);
-        int largo_nombre = strlen(nombre_archivo) + 1;
-        agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+        agregar_PCB_a_paquete2(paquete, pcb_actual);
+        uint32_t largo_nombre = strlen(nombre_archivo) + 1;
+        agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
         agregar_a_paquete(paquete, nombre_archivo, largo_nombre);
-        agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
-        agregar_a_paquete(paquete, &cantidad_bytes, sizeof(int));
+        agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
+        agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
         enviar_paquete(paquete, fd_kernel);
         eliminar_paquete(paquete, info_logger);
     }
@@ -138,11 +138,11 @@ void ejecutar_F_TRUNCATE(char* nombre_archivo, int tamanio) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(F_TRUNCATE, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    int largo_nombre = strlen(nombre_archivo) + 1;
-    agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    uint32_t largo_nombre = strlen(nombre_archivo) + 1;
+    agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_archivo, largo_nombre);
-    agregar_a_paquete(paquete, &tamanio, sizeof(int));
+    agregar_a_paquete(paquete, &tamanio, sizeof(uint32_t));
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     cicloInstruccionesDebeEjecutarse = false;
@@ -154,9 +154,9 @@ void ejecutar_WAIT(char* nombre_recurso) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(WAIT, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    int largo_nombre = strlen(nombre_recurso) + 1;
-    agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    uint32_t largo_nombre = strlen(nombre_recurso) + 1;
+    agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_recurso, largo_nombre);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
@@ -168,9 +168,9 @@ void ejecutar_SIGNAL(char* nombre_recurso) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(SIGNAL, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    int largo_nombre = strlen(nombre_recurso) + 1;
-    agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    uint32_t largo_nombre = strlen(nombre_recurso) + 1;
+    agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_recurso, largo_nombre);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
@@ -182,9 +182,9 @@ void ejecutar_CREATE_SEGMENT(int id_del_segmento, int tamanio) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(CREATE_SEGMENT, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    agregar_a_paquete(paquete, &id_del_segmento, sizeof(int));
-    agregar_a_paquete(paquete, &tamanio, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    agregar_a_paquete(paquete, &id_del_segmento, sizeof(uint32_t));
+    agregar_a_paquete(paquete, &tamanio, sizeof(uint32_t));
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     //eliminar_PCB(pcb_actual);
@@ -196,8 +196,8 @@ void ejecutar_DELETE_SEGMENT(int id_del_segmento) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(DELETE_SEGMENT, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
-    agregar_a_paquete(paquete, &id_del_segmento, sizeof(int));
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    agregar_a_paquete(paquete, &id_del_segmento, sizeof(uint32_t));
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     //eliminar_PCB(pcb_actual);
@@ -209,7 +209,7 @@ void ejecutar_YIELD() {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(YIELD, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     cicloInstruccionesDebeEjecutarse = false;
@@ -219,7 +219,7 @@ void ejecutar_YIELD() {
 void ejecutar_EXIT() {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     t_paquete* paquete = crear_paquete(EXIT, info_logger);
-    agregar_PCB_a_paquete(paquete, pcb_actual);
+    agregar_PCB_a_paquete2(paquete, pcb_actual);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     cicloInstruccionesDebeEjecutarse = false;
@@ -392,14 +392,14 @@ char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
 
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_LECTURA, info_logger);
     
-    uint32_t catidad_enteros = 2;
+    uint8_t catidad_enteros = 2;
     agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));
     agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
 
     enviar_paquete(paquete, conexion);
-    eliminar_paquete(paquete, logger);
+    eliminar_paquete(paquete, info_logger);
 
     char* valor = recibir_valor_de_memoria(cantidad_bytes);
 
@@ -498,7 +498,7 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* r
 
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA, info_logger);
     
-    uint32_t catidad_enteros = 2;
+    uint8_t catidad_enteros = 2;
     agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));

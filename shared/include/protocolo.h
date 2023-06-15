@@ -192,7 +192,7 @@ void agregar_instrucciones_a_paquete2(t_paquete*,t_list* );
 void agregar_registros_a_paquete2(t_paquete*,registros_cpu* );
 void agregar_PCB_a_paquete2(t_paquete *,t_pcb* ) ;
 void agregar_registroPCB(char*,t_paquete* );
-
+void enviar_paquete_pcb2(t_pcb* pcb, int conexion, op_code codigo, t_log* info_logger);
 
 
 #endif
