@@ -9,7 +9,6 @@ bool semaforosCreados = false;
 
 int cargar_configuracion(char *path) {
 
-
     file_cfg_filesystem = config_create(path);
     cfg_filesystem->IP_MEMORIA = strdup(config_get_string_value(file_cfg_filesystem, "IP_MEMORIA"));
     log_trace(trace_logger, "IP_MEMORIA Cargada Correctamente: %s", cfg_filesystem->IP_MEMORIA);
@@ -37,14 +36,11 @@ int cargar_configuracion(char *path) {
              cfg_filesystem->RETARDO_ACCESO_BLOQUE);
 
 
-
-
     log_trace(trace_logger, "Archivo de configuracion cargado correctamente");
 
     config_destroy(file_cfg_filesystem);
     return true;
 }
-
 
 
 bool crearEstructurasAdministrativas(){
@@ -64,8 +60,8 @@ bool crearSemaforos(){
 
 bool crearBitmapBloques(){
     bitmapDeBloques = malloc(sizeof(t_bitmapBloques));
-    char* path =cfg_filesystem->PATH_BLOQUES;
-    if((bitmapDeBloques->fd=open(path,O_RDWR,S_IRUSR|S_IWUSR))==-1){
+    char* path =cfg_filesystem->PATH_BITMAP;
+    if((bitmapDeBloques->fd = open(path,O_RDWR,S_IRUSR|S_IWUSR))==-1){ //O_RDWR crea o abre el archivo en modo lectura y escritura, S_IRUSR
         char* a;
             perror(&a);
             log_error(error_logger,"Error al abrir el bitmap de bloques");
@@ -93,7 +89,6 @@ bool crearBitmapBloques(){
         log_warning(warning_logger, "Se ignoro la direccion sugerida para mmap");
         return false;
     }
-
 
 
     if (bitmapDeBloques->archivo == MAP_FAILED) {

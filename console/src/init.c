@@ -51,13 +51,14 @@ t_list * crear_lista_de_instrucciones(char *path) {
 
 void closure_instrucciones(char *line) {
     char** inst_and_param = string_split(line, " ");    //divido la linea por " " y me crea un vector y me lo mete segun las divisiones
-    instr_t *single_inst = malloc(sizeof(instr_t));     //reservo memoria para estructura instr_t
+    t_instr *single_inst = malloc(sizeof(t_instr));     //reservo memoria para estructura instr_t
     single_inst->idLength= strlen(inst_and_param[0]);
     single_inst->id= malloc(single_inst->idLength + 1);
     memcpy(&single_inst->id,&inst_and_param[0],single_inst->idLength +1);        //copio el id de la instruccion
     //single_inst->nroDeParam= tamanioArray(inst_and_param)-1;     //guardo la cantidad de parametros
 
     if(esInstruccionSinParametros(single_inst)){
+        single_inst->cantidad_parametros = 0;
         single_inst->param1Length = 0;
         single_inst->param1 = NULL;
         single_inst->param2Length = 0;
@@ -67,6 +68,7 @@ void closure_instrucciones(char *line) {
         list_add(inst_list, single_inst); //agrego la instruccion a la lista
     }
     else if (esInstruccionConUnParametro(single_inst)){
+        single_inst->cantidad_parametros = 1;
         single_inst->param1Length = strlen(inst_and_param[1]);
         single_inst->param1 = malloc(single_inst->param1Length + 1);
         memcpy(&single_inst->param1,&inst_and_param[1],single_inst->param1Length +1);
@@ -77,6 +79,7 @@ void closure_instrucciones(char *line) {
         list_add(inst_list, single_inst); //agrego la instruccion a la lista
     }
     else if(esInstruccionConDosParametros(single_inst)){
+        single_inst->cantidad_parametros = 2;
         single_inst->param1Length = strlen(inst_and_param[1]);
         single_inst->param1 = malloc(single_inst->param1Length + 1);
         memcpy(&single_inst->param1,&inst_and_param[1],single_inst->param1Length +1);
@@ -90,6 +93,7 @@ void closure_instrucciones(char *line) {
         list_add(inst_list, single_inst); //agrego la instruccion a la lista
     }
     else if (esInstruccionConTresParametros(single_inst)){
+        single_inst->cantidad_parametros = 3;
         single_inst->param1Length = strlen(inst_and_param[1]);
         single_inst->param1 = malloc(single_inst->param1Length + 1);
         memcpy(&single_inst->param1,&inst_and_param[1],single_inst->param1Length +1);

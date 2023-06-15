@@ -9,6 +9,10 @@
 #include <estructuras.h>
 #include <loggers_configs.h>
 #include <pthread.h>
+#include <init.h>
+#include <plan_aux.h>
+
+extern t_log* logger_kernel;
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
@@ -21,7 +25,6 @@ extern char* path_config;
 static void procesar_conexion(void *void_args);
 void* crearServidor();
 int server_escuchar(t_log *logger, char *server_name, int server_socket);
-bool generar_conexiones();
 
 void* conectarConCPU();
 bool generarConexionesConCPU();
@@ -35,5 +38,17 @@ void* conectarConFileSystem();
 bool generarConexionesConFilesystem();
 bool atenderFilesystem();
 
+void cerrar_servers();
+void cortar_conexiones();
+
+void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb);
+void signalRecursoPcb(t_recurso* recurso,t_pcb* unaPcb);
+void manejoDeRecursos(t_pcb* unaPcb,char* orden);
+
+t_list* recibirListaInstrucciones(int socket_cliente);
+void creacionSegmentoExitoso(uint32_t baseSegmento);
+void eliminacionSegmento(t_list* tablaSegmentosActualizada);
+
+void* esperaIo(void* void_pcb);
 
 #endif //TEMPLATE_COMUNICACION_H

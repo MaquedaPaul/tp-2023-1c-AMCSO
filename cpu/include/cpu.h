@@ -9,16 +9,20 @@
 #include <init.h>
 #include <gestion_cpu.h>
 
+//extern t_segmento* segmento; nose si va aca
 
 extern int fd_memoria;
 extern int fd_kernel;
 
-//Instruccion a ejecutar actual
-extern instr_t* instruccion;
+//definido en comunicacion.h
+extern t_instr* instruccion;
+extern t_pcb* pcb_actual;
 
-extern bool cicloInstruccionesDebeEjecutarse;
-extern char* nombre_instruccion_actual;
-extern t_pcb *pcb_actual;
+
+t_instr* instruccion;
+char* nombre_instruccion_actual;
+
+
 extern uint32_t tam_max_segmento;
 extern char registroCPU_AX[4];
 extern char registroCPU_BX[4];
@@ -33,45 +37,10 @@ extern char registroCPU_RBX[16];
 extern char registroCPU_RCX[16];
 extern char registroCPU_RDX[16];
 
-extern int cliente_servidor;
 
-extern t_segmento* segmento;
+void copiar_registroPCB_a_los_registrosCPU  (registros_cpu* registro);
 
-//Registros temporales
-extern uint32_t dir_logica_actual;
-extern uint32_t dir_fisica_actual;
-
-
-instr_t* fetch();
+void ciclo_de_instruccion();
+t_instr* fetch();
 char* decode();
 void execute();
-
-
-void terminar_ejecucion_lectura(char* leido);
-void terminar_ejecucion_escritura();
-
-
-/*
-
-void ejecutar_lectura();
-void ejecutar_escritura();
-void escribir_en_registro(char* registro, char valor[16]);
-
-
-void ejecutar_SET(char* registro, char* valor);
-void ejecutar_MOV_IN(char* registro, int direccion_logica);
-void ejecutar_MOV_OUT(int direccion_logica, char* registro);
-void ejecutar_IO(int tiempo);
-void ejecutar_F_OPEN(char* nombre_archivo);
-void ejecutar_F_CLOSE(char* nombre_archivo);
-void ejecutar_F_SEEK(char* nombre_archivo, int posicion);
-void ejecutar_F_READ(char* nombre_archivo, int direccion_logica, int cantidad_bytes);
-void ejecutar_F_WRITE(char* nombre_archivo, int direccion_logica, int cantidad_bytes);
-void ejecutar_F_TRUNCATE(char* nombre_archivo, int tamanio);
-void ejecutar_WAIT(char* nombre_recurso);
-void ejecutar_SIGNAL(char* nombre_recurso);
-void ejecutar_CREATE_SEGMENT(int id_del_segmento, int tamanio);
-void ejecutar_DELETE_SEGMENT(int id_del_segmento);
-void ejecutar_YIELD();
-void ejecutar_EXIT();
- */

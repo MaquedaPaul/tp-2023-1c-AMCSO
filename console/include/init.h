@@ -24,10 +24,5 @@ bool cargar_configuracion(char *path);
 t_list * crear_lista_de_instrucciones(char *path);
 void closure_instrucciones(char *line);
 
-bool esInstruccionSinParametros(instr_t* instruccion);
-bool esInstruccionConUnParametro(instr_t* instruccion);
-bool esInstruccionConDosParametros(instr_t* instruccion);
-bool esInstruccionConTresParametros(instr_t* instruccion);
-
 
 #endif //TEMPLATE_INIT_H

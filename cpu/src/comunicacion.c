@@ -6,7 +6,7 @@
 
 
 bool conexionesHechas = false;
-
+t_pcb* pcb_actual;
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -26,30 +26,20 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
-            case 10:
-                //proceso_iniciado(cliente_socket);
 
-                break;
-            case LECTURA_REALIZADA:
-            {
-                uint32_t valorInt =recibirValor_uint32(cliente_socket, info_logger); // recibir_valor(cliente_socket, info_logger) y que sea char*
-                //log_info(info_logger, "CPU: Memoria confirma la lectura del valor");
-                char* valor = string_itoa(valorInt);
-                terminar_ejecucion_lectura(valor);
-                break;
-            }
-                break;
-            case ESCRITURA_REALIZADA:
-                recibirOrden(cliente_socket);
-                log_info(info_logger, "CPU: Memoria confirma la escritura del valor");
-                terminar_ejecucion_escritura();
-                break;
-            case 20:
-                //pedido_escritura(cliente_socket);
-                break;
-            case 200:
-                //pedido_lectura(cliente_socket);
-                break;
+            case PCB:
+                 pcb_actual = recibir_pcb(cliente_socket);
+                 pid = 2000000000;
+                 if(nuevo_pcb->id == pid ) {
+	                    ciclo_instrucciones();
+                         //eliminar_PCB(pcb_actual);
+                 }else {
+                         pid = pcb_actual->id ;
+                         copiar_registroPCB_a_los_registrosCPU (pcb_actual->registrosCpu);
+                         ciclo_de_instruccion();
+                          //eliminar_PCB(pcb_actual);
+                  break;
+
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;
@@ -104,13 +94,14 @@ void* crearServidor(){
 }
 
 
-
 void* conectarConMemoria(){
     bool comprobacion = generarConexionesConMemoria();
-    atenderMemoria();
+    if(comprobacion){
+        enviarOrden(HANDSHAKE_FS, fd_memoria, info_logger);
+        atenderMemoria();
+    }
 
 }
-
 
 bool generarConexionesConMemoria(){
     char* ip;

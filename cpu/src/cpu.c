@@ -1,7 +1,7 @@
 #include <cpu.h>
 
 
-void iniciar_registros (registros_cpu* registro) {
+void copiar_registroPCB_a_los_registrosCPU (registros_cpu* registro) {
 
 memcpy(registroCPU_AX,registro->registro_AX,4);
 memcpy(registroCPU_BX,registro->registro_BX,4);
@@ -15,41 +15,36 @@ memcpy(registroCPU_RAX,registro->registro_RAX,16);
 memcpy(registroCPU_RBX,registro->registro_RBX,16);
 memcpy(registroCPU_RCX,registro->registro_RCX,16);
 memcpy(registroCPU_RDX,registro->registro_RDX,16);
-
 }
 
 
-void ciclo_instrucciones(){
+void ciclo_de_instruccion(){
 
-// instr_t* instruccion;
-
+    cicloInstruccionesDebeEjecutarse = true;
+    
     while(cicloInstruccionesDebeEjecutarse){      // && (pcb->programCounter < list_size(pcb->instr))
 
         instruccion = fetch();
 
-        nombre_instruccion_actual = decode(); // decode(instruccion);
+        nombre_instruccion_actual = decode();
 
         execute();
-    }  // execute(instruccion);
+    }  
 
-    cicloInstruccionesDebeEjecutarse = true;
+    
 }
 
 
-instr_t* fetch(){
+t_instr* fetch(){
     return list_get(pcb_actual->instr, pcb_actual->programCounter);
 }
 
 
 char* decode(){
-
     if(strcmp(instruccion->id, "SET") == 0){
-
         usleep(cfg_cpu->RETARDO_INSTRUCCION * 1000); }
-
     return instruccion->id;
 }
-
 
 
 void execute() {
@@ -168,41 +163,3 @@ void execute() {
     }
 }
 
-
-
-void terminar_ejecucion_lectura(char* leido){ //TERMINA EL MOV_IN ESCRIBIENDO EN EL REGISTRO ASOCIADO
-    //log_info(info_logger, "Recibo de memoria el valor: <%d> y lo escribo en el registro: <%s> ", leido, instruccion->param1);
-
-   // escribir_en_registro(instruccion->param1, leido);
-
-    //pcb_actual->programCounter++;
-}
-
-void terminar_ejecucion_escritura(){
-
-}
-
-
-void escribir_valor_en_memoria(int direccion_fisica, char valor[]) {
-
-
-    log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
-
-    t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA,info_logger);
-    agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
-
-    int largo_nombre = strlen(valor) + 1;
-    agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
-    agregar_a_paquete(paquete, valor, largo_nombre);
-
-    enviar_paquete(paquete, fd_memoria);
-
-    eliminar_paquete(paquete,info_logger);
-
-    // recv(, ,    , MSG_WAITALL);
-
-
-   // if (respuesta < 0) {  log_info(logger, "No se pudo escribir el valor en memoria");} // log_error 
-
-
-}

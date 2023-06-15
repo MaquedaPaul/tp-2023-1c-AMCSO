@@ -1,14 +1,17 @@
-//
-// Created by utnso on 4/7/23.
-//
+#ifndef TPSO_LOGGERS_MAIN_H
+#define TPSO_LOGGERS_MAIN_H
 
-#ifndef TPSO_MAIN_H
-#define TPSO_MAIN_H
-#include <init.h>
-#include <stdlib.h>
 #include <stdio.h>
-extern char* path_config;
-extern char* ip_kernel;
-extern char* path_config;
+#include <stdlib.h>
+#include <signal.h>
 
-#endif //TEMPLATE_MAIN_H
+#include <commons/log.h>
+
+#include <init.h>
+#include <comunicacion.h>
+
+#include <string.h>
+extern char* ip_kernel;
+void kernel_activar();
+
+#endif

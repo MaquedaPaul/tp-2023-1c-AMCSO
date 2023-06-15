@@ -28,7 +28,15 @@ typedef enum {
     //----------------MENSAJES DE KERNEL-CPU--------------------------------------------
     DESALOJAR_PROCESO,
     //----------------------------------------------------------------------------------
+    //------------MENSAJES DE MEMORIA-KERNEL---------------------------
+    OUT_OF_MEMORY,
+    COMPACTACION_FINALIZADA,
+    SEGMENTO_ELIMINADO,
+    //-----------MENSAJES DE FILE SYSTEM-KERNEL--------------------------------------
+    PUEDO_COMPACTAR,
+    ESPERAR_PARA_COMPACTACION,
     /////////////////////////////////////CPU///////////////////////////////////////////
+    PCB,
     IO_BLOCK,
     F_OPEN,
     F_CLOSE,
@@ -48,7 +56,6 @@ typedef enum {
     HANDSHAKE_FS,
     HANDSHAKE_CPU,
     /////////////////////////////////MEMORIA///////////////////////////////////////////
-
     INICIALIZAR_PROCESO_MEMORIA,
     FINALIZAR_PROCESO_MEMORIA,
     ACCESO_PEDIDO_LECTURA,
@@ -62,6 +69,7 @@ typedef enum {
     SIN_ESPACIO_DISPONIBLE,
     SE_NECESITA_COMPACTACION,
     CREACION_SEGMENTO_EXITOSO,
+    ESTRUCTURAS_INICALIZADAS,
     /////////////////////////////////FILESYSTEM///////////////////////////////////////
     APERTURA_ARCHIVO,
     CREACION_ARCHIVO,
@@ -72,6 +80,8 @@ typedef enum {
     APERTURA_ARCHIVO_FALLIDA,
     CREACION_ARCHIVO_EXITOSA,
     TRUNCACION_ARCHIVO_EXITOSA,
+    LECTURA_ARCHIVO_EXITOSA,
+    ESCRITURA_ARCHIVO_EXITOSA,
     //////////////////////////////////////
     ERROR,
     ERROR_INDICE_TP,
@@ -112,7 +122,6 @@ void eliminar_paquete(t_paquete* paquete, t_log* logger);
 void agregar_a_paquete(t_paquete *paquete, void *valor, int tamanio);
 
 
-
 bool enviarListaUint32_t(t_list* listaInts, int socket_cliente, t_log* logger, op_code codigo);
 bool agregarUint32_tsAPaquete(t_list* listaInts, t_paquete* paquete);
 t_list* recibirListaUint32_t(int socket_cliente);
@@ -137,32 +146,19 @@ void enviar_mensaje(char* mensaje, int socket_cliente, op_code codigoOperacion, 
 char* recibir_mensaje(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
 
-
-
-
-
 bool enviarParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, op_code codigoOperacion, t_log* logger, int socket_cliente);
 bool agregarParamsParaLecturaEscrituraArchivoAPaquete(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, t_paquete* paquete);
 void recibirParamsParaLecturaEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, uint32_t pid, int socket_cliente);
 
 
-
-
-
-
-
-
-
-
-
 bool enviarListaInstrucciones(t_list* listaInstrucciones, int socket_cliente, t_log* logger);
 bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete);
-instr_t* sumarTamaniosInstrucciones(instr_t *unaInstruccion,instr_t *otraInstruccion);
-int calcularTamanioDeInstruccion(instr_t *unaInstruccion);
+t_instr * sumarTamaniosInstrucciones(t_instr* unaInstruccion,t_instr *otraInstruccion);
+int calcularTamanioDeInstruccion(t_instr* unaInstruccion);
 t_list* recibirListaInstrucciones(int socket_cliente);
 
 
-bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger);
+bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* logger,op_code codigo);
 bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete);
 t_list* recibirTablasSegmentosInstrucciones(int socket_cliente);
 
@@ -179,7 +175,23 @@ void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos);
 void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro);
 void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb);
 
+//Necesarias para cpu-kernel
+void enviar_paquete_pcb(t_pcb* pcbDelProceso, int conexion, op_code codigo, t_log* logger);
+t_pcb* recibir_pcb(int conexion);
 
+//////////////////////////////////////////////////////////
+
+
+t_pcb * recibir_pcb2 ( int );
+t_pcb * recibir_paquete_con_PCB(uint32_t*, char* ) ;
+char* sacar_cadena_de_paquete( uint32_t*desplazamiento , char* buffer);
+uint32_t  sacar_uint32_t_de_paquete( uint32_t*desplazamiento, char* buffer);
+uint8_t  sacar_uint8_t_de_paquete( uint32_t*desplazamiento, char* buffer) ;
+void agregar_segmentos_a_paquete2(t_paquete*, t_list*);
+void agregar_instrucciones_a_paquete2(t_paquete*,t_list* );
+void agregar_registros_a_paquete2(t_paquete*,registros_cpu* );
+void agregar_PCB_a_paquete2(t_paquete *,t_pcb* ) ;
+void agregar_registroPCB(char*,t_paquete* );
 
 
 
