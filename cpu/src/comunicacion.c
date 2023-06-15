@@ -7,6 +7,7 @@
 
 bool conexionesHechas = false;
 t_pcb* pcb_actual;
+int pid;
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -15,6 +16,7 @@ void procesar_conexion(void *void_args) {
     free(args);
 
     op_code cop;
+    pid = 2000000000;
     while (cliente_socket != -1) {
 
         if (recv(cliente_socket, &cop, sizeof(op_code), 0) != sizeof(op_code)) {
@@ -28,9 +30,9 @@ void procesar_conexion(void *void_args) {
                 break;
 
             case PCB:
-                 pcb_actual = recibir_pcb(cliente_socket);
-                 pid = 2000000000;
-                 if(nuevo_pcb->id == pid ) {
+                 pcb_actual = recibir_pcb2(cliente_socket);
+                 
+                 if(pcb_actual->id == pid ) {
 	                    ciclo_instrucciones();
                          //eliminar_PCB(pcb_actual);
                  }else {
