@@ -485,7 +485,7 @@ char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
     agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));
 
-    enviar_paquete(paquete, conexion);
+    enviar_paquete(paquete, fd_memoria);
     eliminar_paquete(paquete, info_logger);
 
     char* valor = recibir_valor_de_memoria(cantidad_bytes);
