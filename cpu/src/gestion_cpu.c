@@ -84,10 +84,7 @@ void ejecutar_F_OPEN(char* nombre_archivo) {
 void ejecutar_YIELD() {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
-    t_paquete* paquete = crear_paquete(YIELD, info_logger);
-    agregar_PCB_a_paquete2(paquete, pcb_actual);
-    enviar_paquete(paquete, fd_kernel);
-    eliminar_paquete(paquete, info_logger);
+    enviar_paquete_pcb2(pcb_actual, fd_kernel, YIELD, info_logger);
     cicloInstruccionesDebeEjecutarse = false;
 }
 
@@ -132,7 +129,9 @@ void ejecutar_CREATE_SEGMENT(int id_del_segmento, int tamanio) {
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     //eliminar_PCB(pcb_actual);
-    recibirPCB() 
+    //recibirPCB() 
+    cicloInstruccionesDebeEjecutarse = false;
+
 }
 
 void ejecutar_F_WRITE(char* nombre_archivo, int direccion_logica, int cantidad_bytes) {
