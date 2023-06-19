@@ -45,9 +45,9 @@ int cargar_configuracion(char *path) {
 
 bool crearEstructurasAdministrativas(){
     bool comp1 = crearSemaforos();
-    bool comp2 = crearBitmapBloques();
-    bool comp3 = crearSuperbloque();
-    bool comp4 = crearArchivoBloques();
+    bool comp2 = levantarSuperbloque();
+    bool comp3 = levantarBitmapBloques();
+    bool comp4 = levantarArchivoBloques();
     bool comp5 = recorrerDirectorioFcb();
     return comp1 && comp2 && comp3 && comp4 && comp5;
 }
@@ -57,49 +57,9 @@ bool crearSemaforos(){
     return true;
 }
 
+//LEVANTO SUPERBLOQUE, siempre esta creado de antemano
 
-bool crearBitmapBloques(){
-    bitmapDeBloques = malloc(sizeof(t_bitmapBloques));
-    char* path =cfg_filesystem->PATH_BITMAP;
-    if((bitmapDeBloques->fd = open(path,O_RDWR,S_IRUSR|S_IWUSR))==-1){ //O_RDWR crea o abre el archivo en modo lectura y escritura, S_IRUSR
-        char* a;
-            perror(&a);
-            log_error(error_logger,"Error al abrir el bitmap de bloques");
-            return false;
-    }
-
-    off_t file_size = lseek(bitmapDeBloques->fd, 0, SEEK_END); // Mueve el puntero al final del archivo
-    if (file_size == -1) {
-        perror("Error al obtener el tamaño del archivo");
-        close(bitmapDeBloques->fd);
-        return false;
-    }
-
-    if (lseek(bitmapDeBloques->fd, 0, SEEK_SET) == -1) { // Mueve el puntero al principio del archivo
-        perror("Error al volver al principio del archivo");
-        close(bitmapDeBloques->fd);
-        return false;
-    }
-
-    char* unBitArray = malloc(file_size); //TODO
-
-    bitarrayBitmapDeBloques = bitarray_create(unBitArray,file_size);
-    bitmapDeBloques->archivo= mmap(bitarrayBitmapDeBloques->bitarray, file_size,PROT_WRITE|PROT_READ, MAP_SHARED,bitmapDeBloques->fd,0 );
-    if(bitmapDeBloques->archivo != bitarrayBitmapDeBloques->bitarray){
-        log_warning(warning_logger, "Se ignoro la direccion sugerida para mmap");
-        return false;
-    }
-
-
-    if (bitmapDeBloques->archivo == MAP_FAILED) {
-        perror("Error al mapear el archivo en memoria");
-        close(bitmapDeBloques->fd);
-        return false;
-    }
-
-    return true;
-}
-bool crearSuperbloque(){
+bool levantarSuperbloque(){
     t_config *superBloqueConfig = config_create(cfg_filesystem->PATH_SUPERBLOQUE);
     if(superBloqueConfig == NULL){
         log_error(error_logger,"No se pudo crear la config para el superbloque");
@@ -114,37 +74,129 @@ bool crearSuperbloque(){
     cfg_superbloque->BLOCK_SIZE= config_get_int_value(superBloqueConfig,"BLOCK_SIZE");
     return true;
 }
-bool crearArchivoBloques(){
-    if((archivoBloques->fd=open(cfg_filesystem->PATH_BLOQUES,O_RDWR,S_IRUSR|S_IWUSR))==-1){
-        char* a;
-        perror(&a);
-        log_error(error_logger,"Error al abrir el archivo de bloques");
+
+//LEVANTO BITMAP DE BLOQUES
+
+bool levantarBitmapBloques(){
+
+    bitmapDeBloques = malloc(sizeof(t_bitmapBloques));
+    int fd_bitMapBloques;
+    struct stat file_st;
+    char* path = cfg_filesystem->PATH_BITMAP;
+    int tamanioBitmap;
+
+    if (existeArchivo(fd_bitMapBloques, path)){
+
+        fstat(fd_bitMapBloques, &file_st);
+        tamanioBitmap = file_st.st_size;
+        char *bitarraycontent = mmap(NULL, tamanioBitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bitMapBloques, 0);
+
+        if (bitarraycontent == MAP_FAILED) {
+            perror("Error al mapear el archivo en memoria\n");
+            close(fd_bitMapBloques);
+            return false;
+        }
+
+        bitarrayBitmapDeBloques = bitarray_create(bitarraycontent,tamanioBitmap);//t_bitarray*bitarrayBitmapDeBloques; definido en gestion_filesystem
+
+        return true;
+
+    }else{
+        //si no existe el archivo ;
+        return crearBitmapBloques();
+    }
+}
+
+bool crearBitmapBloques(){
+
+    char* path = cfg_filesystem->PATH_BITMAP;
+    int fd_bitMapBloques;
+
+    if(fd_bitMapBloques = open(path,O_RDWR|O_CREAT, S_IRUSR|S_IWUSR) == -1){ 	//se crea el archivo con O_CREAT
+        log_error(error_logger,"Error al crear el archivo bitmap de bloques");
+        return false;
+    };
+
+    int tamaño_del_bitarray = obtener_tamanio_en_bytes(); //lo obtengo del superbloque
+    ftruncate(fd_bitMapBloques, tamaño_del_bitarray);
+    char *bitarraycontent = (char*) mmap(NULL, tamaño_del_bitarray, PROT_WRITE|PROT_READ, MAP_SHARED, fd_bitMapBloques, 0);
+
+    if (bitarraycontent == MAP_FAILED) {
+        perror("Error al mapear el archivo en memoria\n");
+        close(fd_bitMapBloques);
         return false;
     }
 
-    off_t file_size = lseek(archivoBloques->fd, 0, SEEK_END); // Mueve el puntero al final del archivo
-    if (file_size == -1) {
-        perror("Error al obtener el tamaño del archivo");
-        close(archivoBloques->fd);
-        return false;
-    }
-
-    if (lseek(archivoBloques->fd, 0, SEEK_SET) == -1) { // Mueve el puntero al principio del archivo
-        perror("Error al volver al principio del archivo");
-        close(archivoBloques->fd);
-        return false;
-    }
-    archivoBloques->archivo= mmap(NULL, file_size,PROT_WRITE|PROT_READ, MAP_SHARED,archivoBloques->fd,0 );
-
-
+    bitarrayBitmapDeBloques = bitarray_create(bitarraycontent, tamaño_del_bitarray);
+    inicializarBitmap(tamaño_del_bitarray); //se escribe el bitmapDeBloques con 0 en cada posicion del array
+    msync(bitarraycontent, fd_bitMapBloques, MS_SYNC); //se guarda los cambios del archivo
 
     return true;
 }
+
+bool existeArchivo(int fd, char *path){
+    if((fd = open(path, O_RDWR, S_IRUSR|S_IWUSR))==-1){ //si existe el archivo, O_RDWR: se solicita la apertura del archivo en modo lectura/escritura
+        log_error(error_logger,"Error al abrir el archivo");
+        return false;
+    }else {
+        return true;
+    }
+}
+int obtener_tamanio_en_bytes(){ //esto capaz va en otro archivo
+
+    if(cfg_superbloque->BLOCK_COUNT%8 == 0){
+        return cfg_superbloque->BLOCK_COUNT/8;
+    }
+
+    return cfg_superbloque->BLOCK_COUNT/8 + 1; //block_count = 10 .. 10/8 = 1 .. return 2 Bytes
+}
+
+void inicializarBitmap(int tamaño_del_bitarray){
+    int i;
+    for(i=0; i< tamaño_del_bitarray * 8; i++){
+        bitarrayBitmapDeBloques->bitarray[i] = 0;
+    }
+}
+
+//ARCHIVO DE BLOQUES
+
+bool levantarArchivoBloques(){
+    archivoBloques = malloc(sizeof(t_bloques)); //definido en filesytem.c
+    struct stat file_st;
+
+    if(existeArchivo(archivoBloques->fd, cfg_filesystem->PATH_BLOQUES)){
+
+        fstat(archivoBloques->fd, &file_st);
+        int tamanio= file_st.st_size;
+        archivoBloques->archivo= mmap(NULL, tamanio, PROT_WRITE|PROT_READ, MAP_SHARED, archivoBloques->fd, 0);
+
+        return true;
+    }
+
+    return crearArchivoDeBloques();
+}
+
+bool crearArchivoDeBloques(){
+
+    if((archivoBloques->fd = open(cfg_filesystem->PATH_BLOQUES, O_RDWR| O_CREAT, S_IRUSR|S_IWUSR))==-1){
+
+        log_error(error_logger,"Error al crear el archivo de bloques");
+        return false;
+    }else {
+
+        int tamanio = cfg_superbloque-> BLOCK_COUNT * cfg_superbloque->BLOCK_SIZE;
+        ftruncate(archivoBloques->fd, tamanio);
+        archivoBloques->archivo = mmap(NULL, tamanio, PROT_WRITE|PROT_READ, MAP_SHARED, archivoBloques->fd, 0); //devuelve un void*
+
+        //aca el archivo por el ftrucate esta lleno de basura, ver si lo inizalizamos y como
+        return true;
+    }
+}
+
+
 bool recorrerDirectorioFcb(){
     return true;
 }
-
-
 
 
 bool iniciarFilesystem(){
