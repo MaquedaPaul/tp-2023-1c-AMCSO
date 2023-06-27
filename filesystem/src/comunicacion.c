@@ -47,7 +47,7 @@ void procesar_conexion(void *void_args) {
                 escribirArchivo(cliente_socket);
                 break;
             case ESCRITURA_REALIZADA:
-                finalizarEscrituraArchivo(cliente_socket);
+                finalizarLecturaArchivo(cliente_socket);
             break;
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);

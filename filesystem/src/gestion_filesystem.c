@@ -27,21 +27,66 @@ void realizarTruncacionArchivo(char* nombreArchivo){
 
 }
 
-void realizarEscrituraArchivo(void* datos, uint32_t tamanioDatos){
+void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos){
 
-}
-void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t  tamanio){
     t_config_fcb* fcb = buscarFCBporNombre(nombreArchivo);
-    uint32_t numeroBloque = numero_bloque_a_escribir(fcb->TAMANIO_ARCHIVO, punteroArchivo); //punteroArchivo lo uso para buscar el numero de bloque
+    uint32_t numeroBloque = numeroDeBloque(fcb->TAMANIO_ARCHIVO, punteroArchivo);
     uint32_t posicionBloque = buscar_posicion_dentro_del_bloque(fcb->TAMANIO_ARCHIVO, numeroBloque);
+    int posicionInicial = buscarPunteroInicioDelBloque(numeroBloque, fcb);
 
+    escribirBloque(numeroBloque, posicionBloque, punteroArchivo, datos,tamanioDatos, fcb);
 
+}
+
+void escribirBloque(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* fcb){
+
+    void* datoEscrito = NULL;
+    uint32_t cantidad = cantidadDisponibleDelBloque(punteroBloque);
+    uint32_t nuevoTamanioAEscribir = 0;
+
+    if (cantidad >= nuevoTamanioAEscribir) { //1 >= 6
+        //LO QUE SE TIENE Q ESCRIBIR ESTA EN UN BLOQUE
+        //escribir archivo de bloques a partir de la posicionInicialBloque con el tamanioALeer de una
+    }else{
+
+        int cantidadOcupada = cantidadOcupadaDentroDelBloque(cantidad);
+        uint32_t tamanio = cfg_superbloque->BLOCK_SIZE - cantidadOcupada;
+
+        //leer archivo de bloques con el tamaño que se pueda desde la "punteroBloque", y buscar el SIGUIENTE bloque para terminar de leer los bytes
+        //lo que escribo en el archivo, lo copio en datoEscrito
+
+        nuevoTamanioAEscribir = nuevoTamanioAEscribir - tamanio;
+    }
+
+    while(sizeof(datoEscrito) != tamanioAEscrbir) {
+
+        uint32_t cantidadFaltante = cantidadFaltanteDelDato(nuevoTamanioAEscribir);
+        uint32_t nuevoTamanio = nuevoTamanioAEscribir - cantidadFaltante;
+        numeroBloque++;
+        uint32_t posicionNuevoBloque = buscarPunteroInicioDelBloque(numeroBloque, fcb);
+
+        //escrbir archivo de bloques con el nuevoTamaño a partir del posicionNuevoBloque
+        //lo que escribo en el archivo, lo copio en datoEscrito
+
+        nuevoTamanioAEscribir = cantidadFaltante;
+    }
+
+}
+
+void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t  tamanio){
+
+    t_config_fcb* fcb = buscarFCBporNombre(nombreArchivo);
+    uint32_t numeroBloque = numeroDeBloque(fcb->TAMANIO_ARCHIVO, punteroArchivo); //punteroArchivo lo uso para buscar el numero de bloque
+    uint32_t posicionBloque = buscar_posicion_dentro_del_bloque(fcb->TAMANIO_ARCHIVO, numeroBloque);
     int posicionInicial = buscarPunteroInicioDelBloque(numeroBloque, fcb);  //buscar puntero de inicio del bloque correspondiende al numero_bloque
-    leer_archivo(numeroBloque, posicionBloque, punteroArchivo, tamanio, fcb);
+
+    void* datoLeido = leer_archivo(numeroBloque, posicionBloque, punteroArchivo, tamanio, fcb);
+
+    return datoLeido;
 }
 
 
-uint32_t numero_bloque_a_escribir(uint32_t tamanioArchivo, uint32_t puntero) {
+int numeroDeBloque(uint32_t tamanioArchivo, uint32_t puntero) {
     int i;
     int numero_bloque;
     int cantidad_bloques = tamanioArchivo / cfg_superbloque->BLOCK_SIZE + 1;
@@ -62,13 +107,9 @@ uint32_t numero_bloque_a_escribir(uint32_t tamanioArchivo, uint32_t puntero) {
 int buscar_posicion_dentro_del_bloque(uint32_t tamanioArchivo, uint32_t puntero){ //ej: size bloque: 16, 0 a 15 devuelve
 
     int cantidad_bloques = tamanioArchivo / cfg_superbloque->BLOCK_SIZE + 1;
-
     int tamanio_logico = cantidad_bloques*cfg_superbloque->BLOCK_SIZE;
-
     int posicion = tamanio_logico - puntero;
-
     int posicion_bloque_real = (cfg_superbloque->BLOCK_SIZE - posicion) + 1;
-
     return posicion_bloque_real;
 
 }
@@ -78,6 +119,7 @@ uint32_t buscarPunteroInicioDelBloque(int numero_bloque, t_config_fcb* fcb){
         return fcb -> PUNTERO_DIRECTO;
     }else{
         //buscar en el archivo de bloque desde la posicion del punteroIndirecto, el puntero correspondiendo numeroBloque
+        fcb -> PUNTERO_INDIRECTO;
         return 1;
     }
 }
@@ -85,8 +127,8 @@ uint32_t buscarPunteroInicioDelBloque(int numero_bloque, t_config_fcb* fcb){
 void* leer_archivo(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, uint32_t tamanioALeer, t_config_fcb* fcb){
 
     void* datoLeido = NULL;
-    uint32_t cantidad = cantidadDisponibleParaLeer(punteroBloque);
-    uint32_t nuevoTamanioALeer = 0;
+    uint32_t cantidad = cantidadDisponibleDelBloque(punteroBloque);
+    uint32_t nuevoTamanioALeer;
 
     if (cantidad >= tamanioALeer) { //1 >=  6
         //LO QUE SE TIENE Q LEER ESTA EN UN BLOQUE
@@ -106,18 +148,15 @@ void* leer_archivo(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArc
     while(sizeof(datoLeido) != tamanioALeer) {
 
         uint32_t cantidadFaltante = cantidadFaltanteDelDato(nuevoTamanioALeer);  // 5- 3 = 2
-
         uint32_t nuevoTamanio = nuevoTamanioALeer - cantidadFaltante; //5 - 2 = 3
-
         numeroBloque++;
-
         uint32_t posicionNuevoBloque = buscarPunteroInicioDelBloque(numeroBloque, fcb);
 
         //leer archivo de bloques con el nuevoTamaño a partir del posicionNuevoBloque
         nuevoTamanioALeer = cantidadFaltante;
     }
-    void* a;
-    return a;
+
+    return datoLeido;
 }
 
 uint32_t cantidadFaltanteDelDato(uint32_t nuevoTamanioALeer){
@@ -129,7 +168,7 @@ uint32_t cantidadFaltanteDelDato(uint32_t nuevoTamanioALeer){
     }
 }
 
-uint32_t cantidadDisponibleParaLeer(uint32_t puntero){
+uint32_t cantidadDisponibleDelBloque(uint32_t puntero){
     return cfg_superbloque->BLOCK_SIZE - puntero;
 }
 

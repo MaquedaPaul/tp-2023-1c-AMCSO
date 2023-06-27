@@ -65,8 +65,14 @@ void escribirArchivo(int cliente_socket){
 }
 
 void finalizarEscrituraArchivo(int cliente_socket){
+     //mientras espero que memoria me de el dato en la direccion fisica, se deberia mantener el mismo archivo
     uint32_t tamanioDatos;
+    uint32_t puntero;
     void* datos = recibirDatos(cliente_socket, tamanioDatos);
-    realizarEscrituraArchivo(datos, tamanioDatos);
+    realizarEscrituraArchivo(archivoPendienteDeEscribir,  puntero, datos,tamanioDatos);//escribir el dato en el archivo
+    //mandar ok a kernel
+}
 
+void  finalizarLecturaArchivo(int cliente){
+    //mando ok a kernel, se escrbio bien en memoria lo q se leyo del archivo
 }

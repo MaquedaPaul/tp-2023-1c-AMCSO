@@ -38,14 +38,15 @@ bool existeFcbConNombre(char* nombreArchivo);
 t_config_fcb* buscarFCBporNombre(char* nombre);
 void realizarCreacionArchivo(char* nombreArchivo);
 void realizarTruncacionArchivo(char* nombreArchivo);
-void* realizarLecturaArchivo(char* nombreArchivo, uint32_t puntero, uint32_t  tamanio);
-void realizarEscrituraArchivo(void* datos, uint32_t tamanioDatos);
+void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t  tamanio);
+void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos);
 
-uint32_t numero_bloque_a_escribir(uint32_t tamanioArchivo, uint32_t puntero);
+int numeroDeBloque(uint32_t tamanioArchivo, uint32_t puntero);
 int buscar_posicion_dentro_del_bloque(uint32_t tamanioArchivo, uint32_t puntero);
 void* leer_archivo(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, uint32_t tamanioALeer, t_config_fcb* fcb);
-uint32_t cantidadDisponibleParaLeer(uint32_t puntero);
+void escribirBloque(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* pcb);
 
+uint32_t cantidadDisponibleDelBloque(uint32_t puntero);
 uint32_t cantidadFaltanteDelDato(uint32_t nuevoTamanioALeer);
 uint32_t buscarPunteroInicioDelBloque(int numeroBloque, t_config_fcb* fcb);
 uint32_t cantidadOcupadaDentroDelBloque(uint32_t cantidadDisponibles);
