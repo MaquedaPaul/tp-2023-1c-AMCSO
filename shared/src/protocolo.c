@@ -1192,7 +1192,7 @@ t_pcb * recibir_paquete_con_PCB(uint32_t*desplazamiento, char* buffer) {
     unPcb->tiempoEnvioExec    = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento) ;
   
     registros_cpu* registro = malloc(sizeof(registros_cpu));
-
+/*
     registro->registro_AX  = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
     registro->registro_BX  = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
     registro->registro_CX  = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
@@ -1205,7 +1205,7 @@ t_pcb * recibir_paquete_con_PCB(uint32_t*desplazamiento, char* buffer) {
     registro->registro_RBX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
     registro->registro_RCX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
     registro->registro_RDX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-
+*/
 	unPcb->registrosCpu = registro;
 
     uint32_t  tamanio_de_lista = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento) ;
