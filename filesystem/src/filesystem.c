@@ -19,9 +19,6 @@ void abrirArchivo(int cliente_socket){
 
 }
 
-
-
-
 void crearArchivo(int cliente_socket){
     char* nombreArchivo = recibirString(cliente_socket);
     realizarCreacionArchivo(nombreArchivo);
