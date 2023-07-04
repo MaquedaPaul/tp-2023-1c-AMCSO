@@ -66,11 +66,13 @@ int calcular_bytes_segun_registro(char* registro);
 void copiar_registrosCPU_a_los_registroPCB(registros_cpu* registro);
 char* obtener_valor_registroCPU(char* registro);
 
-char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes,int conexion);
+char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes);
 void escribir_valor_en_memoria(int , int, char*);
 char* recibir_valor_de_memoria();
 char* recibir_paquete_con_cadena(int socket_cliente);
 void esperar_orden();
 
+void agregar_registroCPU_a_paquete(char* registro, t_paquete* paquete);
+char*  recibir_confirmacion_de_escritura();
 void  recibirPCB();
 #endif

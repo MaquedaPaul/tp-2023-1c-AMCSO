@@ -14,7 +14,7 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
     int direccion_fisica = traducir_direccion_logica(direccion_logica,cantidad_bytes);
 
     if (!(direccion_fisica < 0)) {
-           char* valor = leer_valor_de_memoria(direccion_fisica, cantidad_bytes,conexion_actual);
+           char* valor = leer_valor_de_memoria(direccion_fisica, cantidad_bytes);
            cambiar_valor_del_registroCPU(registro,valor);
            pcb_actual->programCounter++;
     }
@@ -69,19 +69,7 @@ void ejecutar_SIGNAL(char* nombre_recurso) {
     cicloInstruccionesDebeEjecutarse = false;
 }
 
-void ejecutar_MOV_IN(char* registro, int direccion_logica) {
-    int cantidad_bytes = calcular_bytes_segun_registro(registro);
 
-    //if( calcular_bytes_segun_registro(registro) < 0 )
-
-    int direccion_fisica = traducir_direccion_logica(direccion_logica,cantidad_bytes);
-
-    if (!(direccion_fisica < 0)) {
-           char* valor = leer_valor_de_memoria(direccion_fisica, cantidad_bytes);
-           cambiar_valor_del_registroCPU(registro,valor);
-           pcb_actual->programCounter++;
-    }
-}
 
 void ejecutar_F_OPEN(char* nombre_archivo) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
@@ -196,7 +184,7 @@ void ejecutar_DELETE_SEGMENT(int id_del_segmento) {
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     //eliminar_PCB(pcb_actual);
-    recibirPCB() 
+    recibirPCB();
 }
 
 void ejecutar_F_CLOSE(char* nombre_archivo) {
@@ -260,7 +248,7 @@ void cambiar_valor_del_registroCPU(char* registro, char* valor) {
         memcpy(registroCPU_RDX, valor, 16);
 }
 
-int calcular_bytes_segun_registro(char* registro)  { 
+int calcular_bytes_segun_registro(char* registro)  {
     int bytes;
 
     if ((strcmp(registro, "AX") == 0)||(strcmp(registro, "BX") == 0)||(strcmp(registro, "CX") == 0)||(strcmp(registro, "DX") == 0))
@@ -383,17 +371,17 @@ void agregar_registroCPU_a_paquete(char* registro, t_paquete* paquete) {
     agregar_a_paquete(paquete, registroCPU_RDX, 16);
 }
 
-char* obtener_valor_registroCPU(char* registro) { 
-  
-    if (strcmp(registro, "AX") == 0){  
-       
+char* obtener_valor_registroCPU(char* registro) {
+
+    if (strcmp(registro, "AX") == 0){
+
          char* valor = (char *) malloc (4 + 1);
          strcpy (valor,"pppp");
          memcpy(valor,registroCPU_AX,4);
 
         return valor;
     }
-    if (strcmp(registro, "BX") == 0) { 
+    if (strcmp(registro, "BX") == 0) {
 
          char* valor = (char *) malloc (4 + 1);
          strcpy (valor,"pppp");
@@ -401,7 +389,7 @@ char* obtener_valor_registroCPU(char* registro) {
 
         return valor;
      }
-    if (strcmp(registro, "CX") == 0) { 
+    if (strcmp(registro, "CX") == 0) {
 
         char* valor = (char *) malloc (4 + 1);
         strcpy (valor,"pppp");
@@ -409,21 +397,21 @@ char* obtener_valor_registroCPU(char* registro) {
 
         return valor;
      }
-    if (strcmp(registro, "DX") == 0) { 
+    if (strcmp(registro, "DX") == 0) {
         char* valor = (char *) malloc (4 + 1);
         strcpy (valor,"pppp");
         memcpy(valor, registroCPU_DX, 4);
 
         return valor;
      }
-    if (strcmp(registro, "EAX") == 0) { 
+    if (strcmp(registro, "EAX") == 0) {
         char* valor = (char *) malloc (8 + 1);
         strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EAX, 8);
 
         return valor;
      }
-    if (strcmp(registro, "EBX") == 0) { 
+    if (strcmp(registro, "EBX") == 0) {
         char* valor = (char *) malloc (8 + 1);
         strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EBX, 8);
@@ -431,28 +419,28 @@ char* obtener_valor_registroCPU(char* registro) {
         return valor;
      }
 
-    if (strcmp(registro, "ECX") == 0) { 
+    if (strcmp(registro, "ECX") == 0) {
         char* valor = (char *) malloc (8 + 1);
         strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_ECX, 8);
 
         return valor;
      }
-    if (strcmp(registro, "EDX") == 0) { 
+    if (strcmp(registro, "EDX") == 0) {
         char* valor = (char *) malloc (8 + 1);
         strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EDX, 8);
 
         return valor;
      }
-    if (strcmp(registro, "RAX") == 0) { 
+    if (strcmp(registro, "RAX") == 0) {
         char* valor = (char *) malloc (16 + 1);
         strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RAX, 16);
 
         return valor;
      }
-    if (strcmp(registro, "RBX") == 0) { 
+    if (strcmp(registro, "RBX") == 0) {
         char* valor = (char *) malloc (16 + 1);
         strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RBX, 16);
@@ -466,7 +454,7 @@ char* obtener_valor_registroCPU(char* registro) {
 
         return valor;
       }
-    if (strcmp(registro, "RDX") == 0) { 
+    if (strcmp(registro, "RDX") == 0) {
         char* valor = (char *) malloc (16 + 1);
         strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RDX, 16);
@@ -492,7 +480,7 @@ char*  recibir_confirmacion_de_escritura()  {
 char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
 
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_LECTURA, info_logger);
-    
+
     uint8_t catidad_enteros = 3;
     agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
@@ -505,7 +493,7 @@ char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
     char* valor = recibir_valor_de_memoria(cantidad_bytes);
 
     log_info(info_logger, "PID: <%d> - Acción: <LEER> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
-   
+
     return valor;
  }
 /*
@@ -558,17 +546,17 @@ char* recibir_paquete_con_cadena(int socket_cliente) {
         memcpy(&tamanio, buffer + desplazamiento, sizeof(uint32_t));
         desplazamiento+=sizeof(uint32_t);
 
-        char* valor = malloc(tamanio+1); 
+        char* valor = malloc(tamanio+1);
 
         if(tamanio == 4)
             strcpy (valor,"0000");
         if(tamanio == 8)
             strcpy (valor,"00000000");
-        if(tamanio == 16)        
+        if(tamanio == 16)
 		    strcpy (valor,"0000000000000000");
 
 		memcpy(valor, buffer+desplazamiento, tamanio);
-        
+
         free(buffer);
 
     return valor;
