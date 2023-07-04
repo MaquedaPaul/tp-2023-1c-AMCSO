@@ -1,4 +1,6 @@
 #include <cpu.h>
+t_instr* instruccion;
+char* nombre_instruccion_actual;
 
 
 void copiar_registroPCB_a_los_registrosCPU (registros_cpu* registro) {

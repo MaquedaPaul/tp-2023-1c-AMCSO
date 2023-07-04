@@ -1,4 +1,5 @@
 #include <gestion_cpu.h>
+bool cicloInstruccionesDebeEjecutarse = true;
 
 void ejecutar_SET(char* registro, char* valor){
     cambiar_valor_del_registroCPU(registro,valor);
@@ -261,20 +262,7 @@ int calcular_bytes_segun_registro(char* registro)  {
     return bytes;
 }
 
-void copiar_registrosCPU_a_los_registroPCB(registros_cpu* registro) {
-    memcpy(registro->registro_AX,registroCPU_AX,4);
-    memcpy(registro->registro_BX,registroCPU_BX,4);
-    memcpy(registro->registro_CX,registroCPU_CX,4);
-    memcpy(registro->registro_DX,registroCPU_DX,4);
-    memcpy(registro->registro_EAX,registroCPU_EAX,8);
-    memcpy(registro->registro_EBX,registroCPU_EBX,8);
-    memcpy(registro->registro_ECX,registroCPU_ECX,8);
-    memcpy(registro->registro_EDX,registroCPU_EDX,8);
-    memcpy(registro->registro_RAX,registroCPU_RAX,16);
-    memcpy(registro->registro_RBX,registroCPU_RBX,16);
-    memcpy(registro->registro_RCX,registroCPU_RCX,16);
-    memcpy(registro->registro_RDX,registroCPU_RDX,16);
-}
+
 
 void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* registro) {
 

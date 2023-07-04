@@ -33,7 +33,7 @@ void procesar_conexion(void *void_args) {
                 pcb_actual = recibir_pcb2(cliente_socket);
 
                 if (pcb_actual->id == pid) {
-                    ciclo_instrucciones();
+                    ciclo_de_instruccion();
                     //eliminar_PCB(pcb_actual);
                 } else {
                     pid = pcb_actual->id;
@@ -55,11 +55,12 @@ void procesar_conexion(void *void_args) {
         log_warning(warning_logger, "El cliente se desconecto de %s server", server_name);
         return;
     }
+}
 
-    int server_escuchar(t_log *logger, char *server_name, int server_socket) {
-        int cliente_socket = esperar_cliente(logger, server_name, server_socket);
+int server_escuchar(t_log *logger, char *server_name, int server_socket) {
+    int cliente_socket = esperar_cliente(logger, server_name, server_socket);
 
-        if (cliente_socket != -1) {
+    if (cliente_socket != -1) {
             pthread_t atenderConexionNueva;
             t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
             args->fd = cliente_socket;
@@ -69,9 +70,9 @@ void procesar_conexion(void *void_args) {
             return 1;
         }
         return 0;
-    }
+}
 
-    bool generar_conexiones() {
+bool generar_conexiones() {
         pthread_t crear_server_cpu;
         pthread_t conexion_con_memoria;
         pthread_create(&crear_server_cpu, NULL, (void *) crearServidor, NULL);
@@ -80,10 +81,9 @@ void procesar_conexion(void *void_args) {
         pthread_join(conexion_con_memoria, NULL);
         conexionesHechas = true;
         return true; //debe tomarse lo que retorna el hilo al crear el servidor
-    }
+}
 
-
-    void *crearServidor() {
+void *crearServidor() {
         puerto_cpu = cfg_cpu->PUERTO_ESCUCHA;
         fd_cpu = iniciar_servidor(info_logger, "SERVER CPU", ip_cpu, puerto_cpu);
 
@@ -93,19 +93,19 @@ void procesar_conexion(void *void_args) {
         }
 
         while (server_escuchar(info_logger, "SERVER CPU", fd_cpu));
-    }
+}
 
 
-    void *conectarConMemoria() {
+void *conectarConMemoria() {
         bool comprobacion = generarConexionesConMemoria();
         if (comprobacion) {
             enviarOrden(HANDSHAKE_FS, fd_memoria, info_logger);
             atenderMemoria();
         }
 
-    }
+}
 
-    bool generarConexionesConMemoria() {
+bool generarConexionesConMemoria() {
         char *ip;
 
         ip = strdup(cfg_cpu->IP_MEMORIA);
@@ -129,10 +129,10 @@ void procesar_conexion(void *void_args) {
 
         return fd_memoria != 0;
 
-    }
+}
 
 
-    bool atenderMemoria() {
+bool atenderMemoria() {
         if (fd_memoria == -1) {
             return EXIT_FAILURE;
         }
@@ -143,5 +143,4 @@ void procesar_conexion(void *void_args) {
         pthread_create(&atenderMemoria, NULL, (void *) procesar_conexion, args);
         pthread_detach(atenderMemoria);
         return true;
-    }
 }

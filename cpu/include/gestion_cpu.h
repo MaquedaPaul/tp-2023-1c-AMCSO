@@ -6,7 +6,7 @@
 #define CPU_GESTION_CPU_H
 #include <stdbool.h>
 #include <protocolo.h>
-#include <comunicacion.h>
+
 #include <mmu.h>
 #include <string.h>
 #include <estructuras.h>
@@ -17,8 +17,11 @@ extern char* nombre_instruccion_actual;
 extern t_segmento* segmento;
 
 //extern int cliente_servidor;
+extern char* ip_cpu;
+extern char* puerto_cpu;
 extern int fd_memoria;
 extern int fd_kernel;
+extern int fd_cpu;
 
 extern char registroCPU_AX[4];
 extern char registroCPU_BX[4];
@@ -34,15 +37,11 @@ extern char registroCPU_RCX[16];
 extern char registroCPU_RDX[16];
 extern int num_segmento;
 
-char* ip_cpu;
-char* puerto_cpu;
-int fd_memoria;
-int fd_kernel;
-int fd_cpu;
+
 
 //Instruccion a ejecutar actual
 
-bool cicloInstruccionesDebeEjecutarse = true;
+
 
 void ejecutar_SET(char* registro, char* valor);
 void ejecutar_MOV_IN(char* registro, int direccion_logica);
@@ -63,7 +62,7 @@ void ejecutar_EXIT();
 
 void cambiar_valor_del_registroCPU(char* registro, char* valor);
 int calcular_bytes_segun_registro(char* registro);
-void copiar_registrosCPU_a_los_registroPCB(registros_cpu* registro);
+
 char* obtener_valor_registroCPU(char* registro);
 
 char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes);

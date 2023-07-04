@@ -5,8 +5,8 @@
 #include <string.h>
 
 #include <protocolo.h>
-#include <mmu.h>
-#include <init.h>
+//#include <mmu.h>
+//#include <init.h>
 #include <gestion_cpu.h>
 
 //extern t_segmento* segmento; nose si va aca
@@ -19,8 +19,6 @@ extern t_instr* instruccion;
 extern t_pcb* pcb_actual;
 
 
-t_instr* instruccion;
-char* nombre_instruccion_actual;
 
 
 extern uint32_t tam_max_segmento;

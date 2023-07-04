@@ -1409,4 +1409,9 @@ void agregar_segmentos_a_paquete2(t_paquete* paquete, t_list* segmentos){
            }
 }
 
-
+void enviar_paquete_pcb2(t_pcb* pcb, int conexion, op_code codigo, t_log* info_logger){
+    t_paquete* paquete= crear_paquete(codigo, info_logger);
+    agregar_PCB_a_paquete2(paquete,pcb);
+    enviar_paquete(paquete, conexion);
+    eliminar_paquete(paquete, info_logger);
+}
