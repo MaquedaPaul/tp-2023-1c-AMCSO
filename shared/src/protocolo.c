@@ -1193,18 +1193,18 @@ t_pcb * recibir_paquete_con_PCB(uint32_t*desplazamiento, char* buffer) {
   
     registros_cpu* registro = malloc(sizeof(registros_cpu));
 
-    registro->registro_AX  = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_BX  = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_CX  = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_DX  = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_EAX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_EBX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_ECX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_EDX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_RAX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_RBX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_RCX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
-    registro->registro_RDX = sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento);
+    strcpy(registro->registro_AX, sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_BX, sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_CX,   sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_DX,   sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_EAX,  sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_EBX,  sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_ECX,  sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_EDX,  sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_RAX,  sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_RBX,  sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_RCX,  sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
+    strcpy(registro->registro_RDX,  sacar_cadena_de_paquete(desplazamiento, buffer + *desplazamiento));
 
 	unPcb->registrosCpu = registro;
 
