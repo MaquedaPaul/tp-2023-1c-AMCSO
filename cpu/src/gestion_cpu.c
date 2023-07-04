@@ -14,7 +14,7 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
     int direccion_fisica = traducir_direccion_logica(direccion_logica,cantidad_bytes);
 
     if (!(direccion_fisica < 0)) {
-           char* valor = leer_valor_de_memoria(direccion_fisica, cantidad_bytes);
+           char* valor = leer_valor_de_memoria(direccion_fisica, cantidad_bytes,conexion_actual);
            cambiar_valor_del_registroCPU(registro,valor);
            pcb_actual->programCounter++;
     }
@@ -89,7 +89,7 @@ void ejecutar_F_SEEK(char* nombre_archivo, int posicion) {
     eliminar_paquete(paquete, info_logger);
 
     //eliminar_PCB(pcb_actual);
-    recibirPCB() 
+    recibirPCB();
 }
 
 
@@ -188,7 +188,7 @@ void ejecutar_CREATE_SEGMENT(int id_del_segmento, int tamanio) {
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     //eliminar_PCB(pcb_actual);
-    recibirPCB() 
+    recibirPCB();
 
 }
 
@@ -201,7 +201,7 @@ void ejecutar_DELETE_SEGMENT(int id_del_segmento) {
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     //eliminar_PCB(pcb_actual);
-    recibirPCB() 
+    recibirPCB();
 }
 
 
@@ -388,7 +388,7 @@ char* obtener_valor_registroCPU(char* registro) {
 }
 
 
-char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
+char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes, int conexion) {
 
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_LECTURA, info_logger);
     
@@ -396,10 +396,10 @@ char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
     agregar_a_paquete(paquete, &catidad_enteros, sizeof(int));
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
     agregar_a_paquete(paquete, &cantidad_bytes, sizeof(int));
-    agregar_a_paquete(paquete, &(contexto_ejecucion->id), sizeof(int));
+    agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(int));
 
     enviar_paquete(paquete, conexion);
-    eliminar_paquete(paquete, logger);
+    eliminar_paquete(paquete, info_logger);
 
     char* valor = recibir_valor_de_memoria(cantidad_bytes);
 
@@ -566,7 +566,7 @@ char*  recibir_valor_de_memoria( int cantidad_bytes){
 		switch (cod_op) {
 		case LECTURA_REALIZADA:
 
-            valor= recibir_paquete_con_cadena(fd_memoria);
+            valor = recibir_paquete_con_cadena(fd_memoria);
 			break;
         }
     return valor;

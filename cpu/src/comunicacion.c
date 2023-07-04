@@ -3,7 +3,7 @@
 //
 
 #include <comunicacion.h>
-
+int conexion_actual;
 
 bool conexionesHechas = false;
 t_pcb* pcb_actual;
@@ -28,30 +28,32 @@ void procesar_conexion(void *void_args) {
                 break;
 
             case PCB:
-                 pcb_actual = recibir_pcb(cliente_socket);
-                 pid = 2000000000;
-                 if(nuevo_pcb->id == pid ) {
-	                    ciclo_instrucciones();
-                         //eliminar_PCB(pcb_actual);
-                 }else {
-                         pid = pcb_actual->id ;
-                         copiar_registroPCB_a_los_registrosCPU (pcb_actual->registrosCpu);
-                         ciclo_de_instruccion();
-                          //eliminar_PCB(pcb_actual);
-                  break;
+                pcb_actual = recibir_pcb(cliente_socket);
+                conexion_actual = cliente_socket;
+                pid = 2000000000;
+                if (pcb_actual->id == pid) {
+                    ciclo_de_instruccion();
+                    //eliminar_PCB(pcb_actual);
+                } else {
+                    pid = pcb_actual->id;
+                    copiar_registroPCB_a_los_registrosCPU(pcb_actual->registrosCpu);
+                    ciclo_de_instruccion();
+                    //eliminar_PCB(pcb_actual);
+                    break;
 
-            case -1:
-                log_error(error_logger, "Cliente desconectado de %s...", server_name);
-                return;
-            default:
-                log_error(error_logger, "Algo anduvo mal en el server de %s", server_name);
-                log_info(info_logger, "Cop: %d", cop);
-                return;
+                    case -1:
+                        log_error(error_logger, "Cliente desconectado de %s...", server_name);
+                    return;
+                    default:
+                        log_error(error_logger, "Algo anduvo mal en el server de %s", server_name);
+                    log_info(info_logger, "Cop: %d", cop);
+                    return;
+                }
         }
-    }
 
-    log_warning(warning_logger, "El cliente se desconecto de %s server", server_name);
-    return;
+        log_warning(warning_logger, "El cliente se desconecto de %s server", server_name);
+        return;
+    }
 }
 
 int server_escuchar(t_log *logger, char *server_name, int server_socket) {

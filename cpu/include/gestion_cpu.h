@@ -10,6 +10,7 @@
 #include <mmu.h>
 #include <string.h>
 #include <estructuras.h>
+extern int conexion_actual;
 
 extern t_pcb* pcb_actual;
 extern char* nombre_instruccion_actual;
@@ -63,10 +64,13 @@ void ejecutar_EXIT();
 void cambiar_valor_del_registroCPU(char* registro, char* valor);
 int calcular_bytes_segun_registro(char* registro);
 void copiar_registrosCPU_a_los_registroPCB(registros_cpu* registro);
-void obtener_valor_registroCPU(char* registro,char valor[]);
+char* obtener_valor_registroCPU(char* registro);
 
-char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes);
+char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes,int conexion);
 void escribir_valor_en_memoria(int , int, char*);
 char* recibir_valor_de_memoria();
+char* recibir_paquete_con_cadena(int socket_cliente);
 void esperar_orden();
+
+void  recibirPCB();
 #endif
