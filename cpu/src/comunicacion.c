@@ -28,6 +28,10 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
+            case HANDSHAKE_CPU:
+                recibirOrden(cliente_socket);
+                fd_memoria = cliente_socket;
+                break;
 
             case PCB:
                 pcb_actual = recibir_pcb2(cliente_socket);
@@ -99,7 +103,7 @@ void *crearServidor() {
 void *conectarConMemoria() {
         bool comprobacion = generarConexionesConMemoria();
         if (comprobacion) {
-            enviarOrden(HANDSHAKE_FS, fd_memoria, info_logger);
+            enviarOrden(HANDSHAKE_CPU, fd_memoria, info_logger);
             atenderMemoria();
         }
 

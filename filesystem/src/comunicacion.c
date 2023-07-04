@@ -28,6 +28,10 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
+            case HANDSHAKE_FS:
+                recibirOrden(cliente_socket);
+                fd_memoria = cliente_socket;
+                break;
             case APERTURA_ARCHIVO:
                 abrirArchivo(cliente_socket);
                 break;
