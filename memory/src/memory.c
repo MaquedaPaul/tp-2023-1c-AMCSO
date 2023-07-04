@@ -7,12 +7,12 @@
 
 void inicializarProceso(int cliente_socket){
     uint32_t pid = recibirValor_uint32(cliente_socket,info_logger);
-//    t_tablaSegmentos * nuevaTabla = crearTablaSegmentos(pid);
- //   pthread_mutex_lock(&mutex_tablasSegmentos);
-   // list_add(tablasSegmentos, nuevaTabla);
-    //pthread_mutex_unlock(&mutex_tablasSegmentos);
+    t_tablaSegmentos * nuevaTabla = crearTablaSegmentos(pid);
+    pthread_mutex_lock(&mutex_tablasSegmentos);
+    list_add(tablasSegmentos, nuevaTabla);
+    pthread_mutex_unlock(&mutex_tablasSegmentos);
     t_list* listaConUnElemento = list_create();
-    //list_add(listaConUnElemento, nuevaTabla);
+    list_add(listaConUnElemento, nuevaTabla);
 
     enviarTablasSegmentos(listaConUnElemento, cliente_socket, info_logger,ESTRUCTURAS_INICALIZADAS);
     //limpiarYEliminarListaAuxiliarPeroSinEliminarContenido(listaConUnElemento);
