@@ -12,7 +12,6 @@
 #include <cpu.h>
 #include <commons/string.h>
 
-int pid;
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;

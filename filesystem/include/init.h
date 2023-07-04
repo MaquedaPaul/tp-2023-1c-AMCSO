@@ -9,6 +9,8 @@
 #include <gestion_filesystem.h>
 #include <fcntl.h>
 #include <commons/bitarray.h>
+#include <sys/stat.h>
+
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
@@ -24,9 +26,18 @@ extern t_bitarray* bitarrayBitmapDeBloques;
 extern t_bitmapBloques* bitmapDeBloques;
 
 bool crearSemaforos();
+
+bool levantarSuperbloque();
+bool levantarBitmapBloques();
+bool levantarArchivoBloques();
+
 bool crearBitmapBloques();
 bool crearSuperbloque();
-bool crearArchivoBloques();
+bool crearArchivoDeBloques();
 bool recorrerDirectorioFcb();
+
+bool existeArchivo(int fd, char *path);
+int obtener_tamanio_en_bytes();
+void inicializarBitmap(int tamaño_del_bitarray);
 bool iniciarFilesystem();
 #endif //TEMPLATE_INIT_H

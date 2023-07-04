@@ -22,23 +22,33 @@ typedef struct
 
 typedef struct
 {
-    int BLOCK_SIZE;
-    int BLOCK_COUNT;
+    uint32_t BLOCK_SIZE;
+    uint32_t BLOCK_COUNT;
 } t_config_superbloque;
 
 typedef struct
 {
     char* NOMBRE_ARCHIVO;
-    int TAMANIO_ARCHIVO;
-    int PUNTERO_DIRECTO;
-    int PUNTERO_INDIRECTO;
+    uint32_t TAMANIO_ARCHIVO;
+    uint32_t PUNTERO_DIRECTO;
+    uint32_t PUNTERO_INDIRECTO;
 } t_config_fcb;
 
 bool existeFcbConNombre(char* nombreArchivo);
+t_config_fcb* buscarFCBporNombre(char* nombre);
 void realizarCreacionArchivo(char* nombreArchivo);
 void realizarTruncacionArchivo(char* nombreArchivo);
-void* realizarLecturaArchivo(char* nombreArchivo, uint32_t puntero, uint32_t  tamanio);
-void realizarEscrituraArchivo(void* datos, uint32_t tamanioDatos);
+void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t  tamanio);
+void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos);
 
+int numeroDeBloque(uint32_t tamanioArchivo, uint32_t puntero);
+int buscar_posicion_dentro_del_bloque(uint32_t tamanioArchivo, uint32_t puntero);
+void* leer_archivo(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, uint32_t tamanioALeer, t_config_fcb* fcb);
+void escribirBloque(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* pcb);
+
+uint32_t cantidadDisponibleDelBloque(uint32_t puntero);
+uint32_t cantidadFaltanteDelDato(uint32_t nuevoTamanioALeer);
+uint32_t buscarPunteroInicioDelBloque(int numeroBloque, t_config_fcb* fcb);
+uint32_t cantidadOcupadaDentroDelBloque(uint32_t cantidadDisponibles);
 
 #endif //FILESYSTEM_GESTION_FILESYSTEM_H

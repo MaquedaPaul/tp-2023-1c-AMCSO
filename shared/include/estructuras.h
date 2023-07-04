@@ -55,6 +55,23 @@ typedef struct{
 }registros_cpu;
 //Tabla de Segmentos
 
+/*                            // use este formato de registros_cpu 
+typedef struct{
+    char* registro_AX;
+    char* registro_BX;
+    char* registro_CX;
+    char* registro_DX;
+    char* registro_EAX;
+    char* registro_EBX;
+    char* registro_ECX;
+    char* registro_EDX;
+    char* registro_RAX;
+    char* registro_RCX;
+    char* registro_RBX;
+    char* registro_RDX;
+}registros_cpu;
+*/
+
 typedef struct
 {
     uint32_t pid;

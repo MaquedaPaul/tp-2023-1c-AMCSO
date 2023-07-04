@@ -25,5 +25,5 @@ void leerArchivo(int cliente_socket);
 void escribirArchivo(int cliente_socket);
 
 void finalizarEscrituraArchivo(int cliente_socket);
-
+void  finalizarLecturaArchivo(int cliente);
 #endif //FILESYSTEM_FILESYSTEM_H
