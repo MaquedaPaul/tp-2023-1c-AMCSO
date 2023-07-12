@@ -41,14 +41,13 @@ void realizarTruncacionArchivo(char* nombreArchivo);
 void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t  tamanio);
 void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos);
 
-int numeroDeBloque(uint32_t tamanioArchivo, uint32_t puntero);
-int buscar_posicion_dentro_del_bloque(uint32_t tamanioArchivo, uint32_t puntero);
+int numeroDeBloque(uint32_t punteroArchivo);
+int buscarPosicionDentroDelBloque(uint32_t puntero, uint32_t numeroBloque);
 void* leer_archivo(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, uint32_t tamanioALeer, t_config_fcb* fcb);
 void escribirBloque(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* pcb);
 
 uint32_t cantidadDisponibleDelBloque(uint32_t puntero);
-uint32_t cantidadFaltanteDelDato(uint32_t nuevoTamanioALeer);
+uint32_t cantidadBytesQueFaltaOperar(uint32_t nuevoTamanioALeer);
 uint32_t buscarPunteroInicioDelBloque(int numeroBloque, t_config_fcb* fcb);
-uint32_t cantidadOcupadaDentroDelBloque(uint32_t cantidadDisponibles);
 
 #endif //FILESYSTEM_GESTION_FILESYSTEM_H
