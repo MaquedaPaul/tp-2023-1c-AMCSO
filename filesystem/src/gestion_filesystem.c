@@ -25,7 +25,251 @@ void realizarCreacionArchivo(char* nombreArchivo){
 }
 void realizarTruncacionArchivo(char* nombreArchivo){
 
+    uint32_t tamanio_del_archivo_a_truncar;
+    uint32_t tamanio_de_lista_FCBs = list_size(lista_FCBs);
+    for (int i = 0; i < tamanio_de_lista_FCBs; i++) {
+
+        t_config_fcb *aux_FCB = list_get(lista_FCBs, i);
+        if (strcmp(aux_FCB->nombre_archivo, nombre_del_archivo_a_truncar) == 0) {
+
+            tamanio_del_archivo_a_truncar = aux_FCB->tamanio_archivo;
+
+            ampliar_o_reducir_tamanio(aux_FCB, nuevo_tamanio_del_archivo, tamanio_del_archivo_a_truncar); 
+        
+    }
+         }
 }
+
+
+void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, uint32_t tamanio_archivo) { 
+
+if(tamanio_archivo == 0){ 
+
+    if(nuevo_tamanio > tamanio_del_bloque){
+
+      lista_bloques = list_create();
+
+      uint32_t cantidad_de_bloques = 1 + ((nuevo_tamanio - 1) / tamanio_del_bloque);
+
+       for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
+
+          uint32_t bloque_libre = obtener_bloque_libre(auxBitArray) ;
+          list_add(lista_bloques, bloque_libre);
+       } 
+
+     aux_FCB->puntero_directo = list_remove(lista_bloques,0);
+     aux_FCB->puntero_indirecto = list_remove(lista_bloques,0);
+
+     uint32_t  puntero_directo = aux_FCB->puntero_directo ;
+     uint32_t  puntero_indirecto = aux_FCB->puntero_indirecto ;
+
+
+     uint32_t cantidad_de_punteros = list_size(lista_bloques);
+
+     uint32_t  offset = 0;
+
+       for (uint32_t i = 0; i < cantidad_de_punteros; i++) {
+
+             uint32_t puntero_a_escribir = list_get(lista_bloques,i);
+
+             uint32_t posicion_del_puntero_indirecto = puntero_indirecto * tamanio_del_bloque + offset;
+ 
+             memcpy(superbloque + posicion_del_puntero_indirecto, &puntero_a_escribir, sizeof(uint32_t));
+             offset += sizeof(uint32_t);
+
+       } 
+
+    config_set_value(archivo_config, "TAMANIO_ARCHIVO", nuevo_tamanio);
+    config_set_value(archivo_config, "PUNTERO_DIRECTO", puntero_directo);     
+    config_set_value(archivo_config, "PUNTERO_INDIRECTO", puntero_indirecto); 
+    config_save(archivo_config);
+
+    // cambiaren el bitmap el bloque con 1 todos los bloques
+    // agregar en el archivo el numero de bloque directo y el bloque con punteros 
+    // agrego en el archivo de bloques los punteros 
+
+    } else {    // nuevo_tamanio < tamanio_del_bloque
+
+
+      uint32_t puntero_directo = obtener_bloque_libre(auxBitArray) ;
+
+    config_set_value(archivo_config, "TAMANIO_ARCHIVO", nuevo_tamanio);
+    config_set_value(archivo_config, "PUNTERO_DIRECTO", puntero_directo);     
+    config_save(archivo_config);
+
+    // cambiaren en el bitmap el bloque que voy a ocupar  con 1
+    // agregar en el archivo el numero de bloque directo
+            
+    }
+
+} else {   // tamanio_archivo > 0
+
+    if(tamanio_archivo =< tamanio_del_bloque){
+
+        if(nuevo_tamanio=< tamanio_del_bloque ){    //  cantidad_de_bloques = 1 ;
+
+        } else {    // nuevo_tamanio  > 64
+
+           lista_bloques = list_create();
+
+            cantidad_de_bloques = 1 + ((nuevo_tamanio - 1) / tamanio_del_bloque);
+
+             cantidad_de_bloques = cantidad_de_bloques - 1 ;
+
+          for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
+
+          uint32_t bloque_libre = obtener_bloque_libre(auxBitArray) ;
+          list_add(lista_bloques, bloque_libre);
+
+         } 
+
+        uint32_t puntero_directo = config_get_value(archivo_config, "PUNTERO_DIRECTO"); 
+
+        uint32_t puntero_indirecto = list_remove(lista_bloques,0);
+
+        uint32_t cantidad_de_punteros = list_size(lista_bloques);
+
+         uint32_t  offset = sizeof(uint32_t);
+
+         for (uint32_t i = 0; i < cantidad_de_punteros; i++) {
+
+             uint32_t puntero_a_escribir = list_get(lista_bloques,i);
+
+             uint32_t posicion_del_puntero_indirecto = puntero_indirecto * tamanio_del_bloque + offset;
+ 
+             memcpy(superbloque + posicion_del_puntero_indirecto, &puntero_a_escribir, sizeof(uint32_t));
+             offset += sizeof(uint32_t);
+
+       } 
+
+    config_set_value(archivo_config, "TAMANIO_ARCHIVO", nuevo_tamanio);
+    config_set_value(archivo_config, "PUNTERO_INDIRECTO", puntero_indirecto); 
+    config_save(archivo_config);
+
+
+    // cambiaren el bitmap el bloque con 1 todos los bloques menos el primero que ya esta ocupado
+    // agregar en el archivo, el bloque con punteros , puede que el bloque con punteros ya exista
+    // agrego en el archivo de bloques los punteros 
+        }
+
+    } else { // si tamaño es mayor al bloque  tamanio_archivo > tamanio_del_bloque
+              
+              
+       int cantidad_de_bloques_viejos = 1 + ((tamanio_archivo - 1) / tamanio_del_bloque);
+
+            cantidad_de_bloques = 1 + ((nuevo_tamanio - 1) / tamanio_del_bloque);
+
+      //   int tamanioSobrante = cantidad_de_bloques_viejos* tamanioDelBloque - tamanio_archivo ;
+ 
+        if(cantidad_de_bloques > cantidad_de_bloques_viejos ){      //  agrandando
+ 
+           // nuevo_tamanio = nuevo_tamanio - cantidad_de_bloques_viejos* tamanioDelBloque;
+
+             cantidad_de_bloques = cantidad_de_bloques - cantidad_de_bloques_viejos ;
+
+              lista_bloques = list_create();
+
+          for (uint32_t i = 0; i < cantidad_de_bloques; i++) {
+
+          uint32_t bloque_libre = obtener_bloque_libre(auxBitArray) ;
+          list_add(lista_bloques, bloque_libre);
+
+         } 
+
+        uint32_t puntero_directo = config_get_value(archivo_config, "PUNTERO_DIRECTO"); 
+        uint32_t puntero_indirecto = config_get_value(archivo_config, "PUNTERO_INDIRECTO"); 
+
+        uint32_t cantidad_de_punteros = list_size(lista_bloques);
+
+        uint32_t  offset = sizeof(uint32_t) * cantidad_de_bloques_viejos;
+
+
+        for (uint32_t i = 0; i < cantidad_de_punteros; i++) {
+
+             uint32_t puntero_a_escribir = list_get(lista_bloques,i);
+
+             uint32_t posicion_del_puntero_indirecto = puntero_indirecto * tamanio_del_bloque + offset;
+ 
+             memcpy(superbloque + posicion_del_puntero_indirecto, &puntero_a_escribir, sizeof(uint32_t));
+             offset += sizeof(uint32_t);
+
+       } 
+
+    config_set_value(archivo_config, "TAMANIO_ARCHIVO", nuevo_tamanio);
+    config_save(archivo_config);
+
+   // cambiaren el bitmap el bloque con 1 todos los bloques menos los que ya estan ocupados
+    // el bloque con punteros ya exista
+    // agrego en el archivo de bloques los punteros 
+             
+
+        } else {   // cantidad_de_bloques < cantidad_de_bloques_viejos
+
+
+           uint32_t  cantidad_de_bloques_a_eliminar = cantidad_de_bloques_viejos - cantidad_de_bloques ;
+
+          if (cantidad_de_bloques > 1){
+               
+          uint32_t puntero_indirecto = config_get_value(archivo_config, "PUNTERO_INDIRECTO"); 
+
+        uint32_t  offset = sizeof(uint32_t) * (cantidad_de_bloques - 1);
+
+        for (uint32_t i = 0; i < cantidad_de_bloques_a_eliminar; i++) {
+
+             uint32_t bloque_ocupado ;
+             uint32_t posicion_del_puntero_indirecto = puntero_indirecto * tamanio_del_bloque + offset;
+ 
+             memcpy(&bloque_ocupado, superbloque + posicion_del_puntero_indirecto, sizeof(uint32_t));
+             offset += sizeof(uint32_t);
+
+            bitarray_clean_bit(bitmap,bloque_ocupado );
+       } 
+
+    config_set_value(archivo_config, "TAMANIO_ARCHIVO", nuevo_tamanio);
+    config_save(archivo_config);
+
+
+    // agregar en el archivo, el bloque con punteros , puede que el bloque con punteros ya exista
+    // agrego en el archivo de bloques los punteros 
+
+          }
+
+          if (cantidad_de_bloques == 1){
+
+                      uint32_t puntero_indirecto = config_get_value(archivo_config, "PUNTERO_INDIRECTO"); 
+
+        uint32_t  offset = sizeof(uint32_t) * (cantidad_de_bloques - 1);
+
+        for (uint32_t i = 0; i < cantidad_de_bloques_a_eliminar; i++) {
+
+             uint32_t bloque_ocupado ;
+             uint32_t posicion_del_puntero_indirecto = puntero_indirecto * tamanio_del_bloque + offset;
+ 
+             memcpy(&bloque_ocupado, superbloque + posicion_del_puntero_indirecto, sizeof(uint32_t));
+             offset += sizeof(uint32_t);
+
+            bitarray_clean_bit(bitmap,bloque_ocupado );
+       } 
+
+    config_set_value(archivo_config, "TAMANIO_ARCHIVO", nuevo_tamanio);
+    config_set_value(archivo_config, "PUNTERO_INDIRECTO", 0); 
+    config_save(archivo_config);
+
+
+             }
+
+  } 
+    }
+}
+
+}
+
+
+
+
+
+
+
 
 void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos){
 
