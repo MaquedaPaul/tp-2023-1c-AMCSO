@@ -119,7 +119,7 @@ typedef struct{
     registros_cpu* registrosCpu;
     t_list* instr;
     t_tablaSegmentos* tablaSegmentos;
-    t_list* tablaArchivosAbiertos; //TODO AGREGAR A LA PCB CUANDO LO USEMOS
+    //t_list* tablaArchivosAbiertos; //TODO AGREGAR A LA PCB CUANDO LO USEMOS
 } t_pcb;
 
 

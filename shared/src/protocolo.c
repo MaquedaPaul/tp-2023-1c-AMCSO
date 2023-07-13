@@ -590,8 +590,6 @@ bool enviarTablasSegmentos(t_list* tablasSegmentos, int socket_cliente, t_log* l
 
 bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete)
 {
-
-
     void sumarTamaniosTablas(t_tablaSegmentos* tablaSegmentos){
         int pid = sizeof(uint32_t);
         int cantidadSegmentos = list_size(tablaSegmentos->segmentos) * 2*sizeof(uint32_t);
@@ -657,9 +655,11 @@ t_list* recibirTablasSegmentosInstrucciones(int socket_cliente){
 
         for (int j = 0; j <cantidadSegmentos ; ++j) {
             t_segmento* nuevoSegmento = malloc(sizeof(t_segmento));
-            memcpy(&nuevoSegmento->base, buffer + desplazamiento, sizeof(uint32_t));
+            memcpy(&nuevoSegmento->id, buffer + desplazamiento, sizeof(uint32_t));
             desplazamiento+=sizeof(uint32_t);
             memcpy(&nuevoSegmento->limite, buffer + desplazamiento, sizeof(uint32_t));
+            desplazamiento+=sizeof(uint32_t);
+            memcpy(&nuevoSegmento->base, buffer + desplazamiento, sizeof(uint32_t));
             desplazamiento+=sizeof(uint32_t);
             list_add(segmentos, nuevoSegmento);
         }

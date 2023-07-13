@@ -126,7 +126,7 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
             archivo->id_pcb_en_uso = pcbRecibido->id;
             archivo->ptro=0;
             list_replace(tablaGlobal_ArchivosAbiertos,pos, archivo);
-            list_add(pcbRecibido->tablaArchivosAbiertos,nomArch); //VERIFICAR
+           //TODO list_add(pcbRecibido->tablaArchivosAbiertos,nomArch); //VERIFICAR
             enviar_paquete_pcb(pcbRecibido,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
         }
     }
@@ -315,6 +315,6 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
     archivo->lista_espera_pcbs = list_create();
     
     list_add(tablaGlobal_ArchivosAbiertos, archivo);
-    list_add(pcbBuscado->tablaArchivosAbiertos,nomArch); //VERIFICAR
+    //TODO list_add(pcbBuscado->tablaArchivosAbiertos,nomArch); //VERIFICAR
     enviar_paquete_pcb(pcbBuscado,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
 }

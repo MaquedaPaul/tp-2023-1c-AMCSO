@@ -24,7 +24,7 @@ void ciclo_de_instruccion(){
 
     cicloInstruccionesDebeEjecutarse = true;
     
-    while(cicloInstruccionesDebeEjecutarse){      // && (pcb->programCounter < list_size(pcb->instr))
+    while(cicloInstruccionesDebeEjecutarse)    //   && (pcb->programCounter < list_size(pcb->instr)){
 
         instruccion = fetch();
 

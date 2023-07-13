@@ -193,11 +193,10 @@ void procesar_conexion(void *void_args) {
                 //----------------------------------MEMORIA----------------------------------------
             case ESTRUCTURAS_INICALIZADAS:
             {
-                //t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
-                //t_tablaSegmentos* tablaSegmentos = list_get(listaTablaSegmentosRecibida,1);
-                t_tablaSegmentos* tablaSegmentosFake = NULL;
-                moverProceso_NewReady(tablaSegmentosFake);
-                log_info(info_logger,"Aca NO se genera el SEGFALUT");
+                t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
+                t_tablaSegmentos* tablaSegmentos = list_get(listaTablaSegmentosRecibida,0);
+                tablaSegmentos->segmentos = list_create();
+                moverProceso_NewReady(tablaSegmentos);
                 break;
             }
             case CREACION_SEGMENTO_EXITOSO:

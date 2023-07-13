@@ -34,7 +34,7 @@ void procesar_conexion(void *void_args) {
                 break;
 
             case PCB:
-                pcb_actual = recibir_pcb2(cliente_socket);
+                pcb_actual = recibir_pcb(cliente_socket);
 
                 if (pcb_actual->id == pid) {
                     ciclo_de_instruccion();
