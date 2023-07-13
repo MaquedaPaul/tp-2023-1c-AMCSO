@@ -169,7 +169,7 @@ bool agregarIntsYDatosAPaquete(t_list* listaInts, t_datos* datos, t_paquete* paq
 t_list* recibirListaIntsYDatos(int cliente_socket,t_datos* datos);
 
 
-
+void agregar_tablaSegmentos_a_paquete(t_paquete* paquete, t_tablaSegmentos* tablaSegmentos);
 void agregar_instrucciones_a_paquete(t_paquete *paquete, t_list *instrucciones);
 void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos);
 void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro);

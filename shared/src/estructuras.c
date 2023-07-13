@@ -28,6 +28,7 @@ void liberarSegmento(t_segmento* segmento){
 }
 
 void liberarPcb(t_pcb* pcb) {
+    //TODO modificar la liberacion de la tabla de segmentos. Ya no se libera como lista. Sino como cebolla
     free(pcb->registrosCpu);
     // Liberar memoria de instr y tablaSegmentos si es necesario
     list_destroy_and_destroy_elements(pcb->instr,liberarInstruccion);

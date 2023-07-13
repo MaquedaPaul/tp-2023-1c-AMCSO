@@ -859,8 +859,22 @@ void agregar_instrucciones_a_paquete(t_paquete *paquete, t_list *instrucciones) 
 
     }
 }
+//pcb->tablaSegmentos
 
+void agregar_tablaSegmentos_a_paquete(t_paquete* paquete, t_tablaSegmentos* tablaSegmentos){
+    uint32_t cantidad_segmentos = list_size(tablaSegmentos->segmentos);
 
+    agregar_a_paquete(paquete, &cantidad_segmentos, sizeof(int));
+
+    for (int i = 0; i < cantidad_segmentos; i++) {
+        t_segmento *segmen = list_get(tablaSegmentos->segmentos, i);
+        agregar_a_paquete(paquete, &(segmen->id), sizeof(u_int32_t));
+        agregar_a_paquete(paquete, &(segmen->limite), sizeof(u_int32_t));
+        agregar_a_paquete(paquete, &(segmen->base), sizeof(u_int32_t));
+    }
+}
+
+/*
 void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos) {
 
     uint32_t cantidad_segmentos = list_size(segmentos);
@@ -874,6 +888,7 @@ void agregar_segmentos_a_paquete(t_paquete *paquete, t_list *segmentos) {
         agregar_a_paquete(paquete, &(segmen->base), sizeof(u_int32_t));
     }
 }
+ */
 
 void agregar_registros_a_paquete(t_paquete *paquete, registros_cpu *registro) {
 
@@ -920,7 +935,7 @@ void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb) {
     //PCB: REGISTROS CPU, INSTRUCCIONES, TABLA SEGMENTOS
     agregar_registros_a_paquete(paquete, pcb->registrosCpu);
     agregar_instrucciones_a_paquete(paquete, pcb->instr);
-    agregar_segmentos_a_paquete(paquete, pcb->tablaSegmentos);
+    agregar_tablaSegmentos_a_paquete(paquete, pcb->tablaSegmentos);
 }
 
 
@@ -968,6 +983,7 @@ t_pcb * recibir_pcb(int conexion) {
     t_pcb *unPcb = malloc(sizeof(t_pcb));
     registros_cpu *registros = malloc(sizeof(registros_cpu));
     t_list *instrucciones = list_create();
+    t_tablaSegmentos* tablaSegmentos = malloc(sizeof (t_tablaSegmentos));
     t_list *segmentos = list_create();
 
     //Comienzo a consumir el buffer (EN ORDEN, MUY IMPORTANTE)
@@ -1127,7 +1143,9 @@ t_pcb * recibir_pcb(int conexion) {
             memcpy(instruccion->param3, buffer + desplazamiento, instruccion->param3Length + 1);
             desplazamiento += instruccion->param3Length + 1;
         }
+        list_add(instrucciones,instruccion);
     }
+    unPcb->instr = instrucciones;
 
     //TABLA SEGMENTOS
     //Al ser una lista primero recibimos el tamanio
@@ -1153,9 +1171,13 @@ t_pcb * recibir_pcb(int conexion) {
         memcpy(&(segmento->base), buffer + desplazamiento, sizeof(uint32_t));
         desplazamiento += sizeof(uint32_t);
 
-
+        list_add(segmentos,segmento);
     }
+    tablaSegmentos->segmentos = segmentos;
+    tablaSegmentos->pid = unPcb->id;
+    unPcb->tablaSegmentos = tablaSegmentos;
 
+    return unPcb;
 }
 
 

@@ -118,7 +118,7 @@ typedef struct{
     uint32_t tiempoEnvioExec;
     registros_cpu* registrosCpu;
     t_list* instr;
-    t_list* tablaSegmentos;
+    t_tablaSegmentos* tablaSegmentos;
     t_list* tablaArchivosAbiertos; //TODO AGREGAR A LA PCB CUANDO LO USEMOS
 } t_pcb;
 
