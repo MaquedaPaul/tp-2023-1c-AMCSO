@@ -266,6 +266,26 @@ if(tamanio_archivo == 0){
 
 
 
+uint32_t obtener_bloque_libre(t_bitarray* auxBitArray) {
+
+    for (uint32_t i = 0; i < bitarray_get_max_bit(auxBitArray); i++) {
+
+        if (!bitarray_test_bit(auxBitArray, i)) {
+
+            bitarray_set_bit(auxBitArray, i);
+
+            return i;
+        }
+
+    }
+
+	log_info(info_log, "No se obtuvo un bloque libre");
+
+    return -1;
+
+}
+
+
 
 
 
