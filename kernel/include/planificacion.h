@@ -19,7 +19,7 @@ void liberar_procesos();
 
 //Funciones cambio de estado
 void agregarProceso_New(t_pcb*);
-void moverProceso_NewReady(t_list* tablaDeSegmentosMemoria);
+void moverProceso_NewReady(t_tablaSegmentos* tablaDeSegmentosMemoria);
 void moverProceso_BloqrecursoReady(t_recurso* recurso);
 void moverProceso_ExecReady(t_pcb*);
 void moverProceso_readyExec(); 

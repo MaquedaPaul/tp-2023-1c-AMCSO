@@ -59,7 +59,7 @@ void liberar_procesos(){
     }
 }
 
-void moverProceso_NewReady(t_list* tablaDeSegmentosMemoria){
+void moverProceso_NewReady(t_tablaSegmentos* tablaDeSegmentosMemoria){
     pthread_mutex_lock(&mutex_colaNew);
     t_pcb* pcbAReady = queue_pop(colaNew);
     pthread_mutex_unlock(&mutex_colaNew);
