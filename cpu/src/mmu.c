@@ -54,7 +54,7 @@ bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes) {
 
     //if (numero_segmento >= list_size(pcb_actual->tabla_segmentos))  return true;
 
-    segmento = list_get(pcb_actual->tablaSegmentos, num_segmento);
+    segmento = list_get(pcb_actual->tablaSegmentos->segmentos, num_segmento);
 
 /* 
 int i;
