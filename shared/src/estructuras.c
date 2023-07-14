@@ -78,7 +78,25 @@ bool esInstruccionConTresParametros(t_instr * instruccion){
     return (strcmp(instruccion->id, "F_WRITE") == 0) || (strcmp(instruccion->id, "F_READ") == 0);
 }
 
+void establecerCantidadParametrosInstrucciones(t_list* listaInstrucciones){
+    void establecerCantidadParams(t_instr* unaInstruccion){
 
+        if(esInstruccionSinParametros(unaInstruccion)){
+            unaInstruccion->cantidad_parametros= 0;
+        }
+        if(esInstruccionConUnParametro(unaInstruccion)){
+            unaInstruccion->cantidad_parametros= 1;
+        }
+        if(esInstruccionConDosParametros(unaInstruccion)){
+            unaInstruccion->cantidad_parametros= 2;
+        }
+        if(esInstruccionConTresParametros(unaInstruccion)){
+            unaInstruccion->cantidad_parametros= 3;
+        }
+    }
+
+    list_iterate(listaInstrucciones, establecerCantidadParams);
+}
 
 
 void mostrarIntArray(uint32_t *array, char*message, t_log* logger){

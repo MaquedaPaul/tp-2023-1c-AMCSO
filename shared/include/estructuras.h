@@ -146,7 +146,7 @@ bool esInstruccionSinParametros(t_instr * instruccion);
 bool esInstruccionConUnParametro(t_instr * instruccion);
 bool esInstruccionConDosParametros(t_instr * instruccion);
 bool esInstruccionConTresParametros(t_instr * instruccion);
-
+void establecerCantidadParametrosInstrucciones(t_list* listaInstrucciones);
 void mostrarIntArray(uint32_t *array, char*message, t_log* logger);
 
 void simularRetardoSinMensaje(int retardo);

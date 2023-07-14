@@ -32,6 +32,7 @@ void procesar_conexion(void *void_args) {
             case GESTIONAR_CONSOLA_NUEVA:
             {
                 t_list* listaInstrucciones = recibirListaInstrucciones(cliente_socket);
+                establecerCantidadParametrosInstrucciones(listaInstrucciones);
                 t_pcb *pcbDispatch = crearPcb(listaInstrucciones);
                 agregarProceso_New(pcbDispatch);
                 break;
