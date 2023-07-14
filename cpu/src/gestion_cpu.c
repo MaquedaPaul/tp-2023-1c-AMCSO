@@ -37,7 +37,7 @@ void ejecutar_WAIT(char* nombre_recurso) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(WAIT, info_logger);
-    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    agregar_PCB_a_paquete(paquete, pcb_actual);
     uint32_t largo_nombre = strlen(nombre_recurso) + 1;
     agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_recurso, largo_nombre);
