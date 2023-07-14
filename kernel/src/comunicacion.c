@@ -195,7 +195,6 @@ void procesar_conexion(void *void_args) {
             {
                 t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
                 t_tablaSegmentos* tablaSegmentos = list_get(listaTablaSegmentosRecibida,0);
-                tablaSegmentos->segmentos = list_create();
                 moverProceso_NewReady(tablaSegmentos);
                 break;
             }
