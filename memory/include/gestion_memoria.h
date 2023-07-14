@@ -31,7 +31,7 @@ void escribirEnPosicion(uint32_t direccion, void* datos, uint32_t tamanio, uint3
 void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, bool esCpu);
 bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento);
 bool elEspacioSeEncuentraEnDiferentesHuecos();
-uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio);
+uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio, uint32_t idSegmento);
 
 
 

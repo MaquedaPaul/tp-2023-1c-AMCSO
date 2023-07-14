@@ -98,7 +98,8 @@ void realizarPedidoEscritura(int cliente_socket){
 void crearSegmento(int cliente_socket) {
     t_list *listaInts = recibirListaUint32_t(cliente_socket);
     uint32_t* pid = list_get(listaInts, 0);
-    uint32_t* tamanioSegmento = list_get(listaInts, 1);
+    uint32_t* idSegmento = list_get(listaInts, 1);
+    uint32_t* tamanioSegmento = list_get(listaInts, 2);
     pthread_mutex_lock(&mutex_espacioDisponible);
     if (!hayDisponibilidadDeEspacio(*tamanioSegmento)) {
         enviarOrden(SIN_ESPACIO_DISPONIBLE, cliente_socket, info_logger);
@@ -121,7 +122,7 @@ void crearSegmento(int cliente_socket) {
         log_error(error_logger,"Ocurrio algo que no debia pasar, ayuda :(");
     }
 
-    uint32_t direccion = realizarCreacionSegmento(*pid, huecoLibre, *tamanioSegmento);
+    uint32_t direccion = realizarCreacionSegmento(*pid, huecoLibre, *tamanioSegmento, *idSegmento);
     pthread_mutex_unlock(&mutex_huecosDisponibles);
     pthread_mutex_unlock(&mutex_huecosUsados);
     pthread_mutex_unlock(&mutex_idSegmento);

@@ -85,7 +85,7 @@ t_tablaSegmentos* buscarEnTablasSegmentos(uint32_t unPid){
 
 
 
-uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio){
+uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t tamanio, uint32_t idSegmento){
     t_segmento* segmentoParaAgregar;
     t_tablaSegmentos* tablaEncontrada = buscarEnTablasSegmentos(pid);
 
@@ -106,7 +106,6 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
 
     espacioDisponible-=tamanio;
     list_add(tablaEncontrada->segmentos, segmentoParaAgregar);
-    int idSegmento; //TODO CONSULTAR POR ID SEGMENTO
     creacionSegmento(pid,idSegmento,segmentoParaAgregar->base, segmentoParaAgregar->limite);
 
     return 0;
