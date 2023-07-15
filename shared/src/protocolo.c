@@ -115,7 +115,14 @@ void agregar_a_paquete(t_paquete *paquete, void *valor, int tamanio) {
 
 int recibir_operacion(int socket_cliente)
 {
+
     int cod_op;
+    /*
+    int flags = fcntl(socket_cliente, F_GETFL, 0);
+    flags &= ~O_NONBLOCK;  // Desactivar el modo no bloqueante
+    fcntl(socket_cliente, F_SETFL, flags);
+
+    */
     if(recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL) > 0)
         return cod_op;
     else

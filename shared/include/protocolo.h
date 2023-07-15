@@ -16,7 +16,7 @@
 #include <commons/log.h>
 #include <commons/collections/list.h>
 #include <estructuras.h>
-
+#include <fcntl.h>
 typedef enum {
     //-------------MENSAJES ENTRE CONSOLA-KERNEL------------------------------------
     GESTIONAR_CONSOLA_NUEVA = 0,
