@@ -72,12 +72,7 @@ void actualizarTiempoRafaga(t_pcb* pcbEjecutado){
 1.FCLOSE retoma FOPEN si hay alguno encolado, sino borra la entrada en TGAA
 2.Se implemento una tabla local de peticiones a FS para trackear archivo-pcb-opCode
 3.FSEEK no avisa a FS o CPU
-4.FTRUNCATE no bloquea el proceso, actualemennte todos los procesos se 
-    bloquean --> se envia lista [tamArch,nombreArch]
-5.FREAD no bloquea el proceso, actualemennte todos los procesos se 
-    bloquean --> se envia lista [ptro,largo,dl,nombreArch]
-6.FWRITE no bloquea el proceso, actualemennte todos los procesos se 
-    bloquean --> se envia lista [largo,dF,nombreArch]
+4.FTRUNCATE FREAD FWRITE bloquean el proceso
 
 void* datosRecibidos = recibirDatos(socket_cliente, tamanioDatos);
 
@@ -94,10 +89,8 @@ FALTA
 
     1. verificar bloq de pcb x filesystem o devolver a exec --> AVERIGUAR que hacer con la pcb
     5. FSEEK: que tiene que avisar a FS o CPU?
-    7. FTRUNCATE FREAD FWRITE no bloquea el proceso en si,ya que actualemente todos los procesos se bloquean
     8. COORDINAR CON COMPACTACION
     9. Log fclose y fopen cuando efectivamente se cierra/abre o cuando es llamado?
-    10. SEG FAULT libera los archivos que estaban contenidos por el pcb
 
 */
 
@@ -315,6 +308,9 @@ void ejecutar_FTRUNCATE(int socket_entrada){
     pthread_mutex_unlock(&mutex_TGAA);
     log_info(info_logger, "PID: <%d> - Truncar Archivo: <%s> - Tamaño <%d>", 
                 archivo->id_pcb_en_uso, nomArchivo, tamanioArch);
+
+    
+    moverProceso_ExecBloq(pcbRecibido);
     
 }
 
@@ -357,6 +353,8 @@ void ejecutar_FREAD(int socket_entrada){
     archivo->ptro += largArch;
     list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
     pthread_mutex_unlock(&mutex_TGAA);
+
+    moverProceso_ExecBloq(pcbRecibido);
   
 }
 
@@ -398,6 +396,8 @@ void ejecutar_FWRITE(int socket_entrada){
     archivo->ptro += largArch;
     list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
     pthread_mutex_unlock(&mutex_TGAA);
+
+    moverProceso_ExecBloq(pcbRecibido);
 }
 
 
@@ -499,5 +499,29 @@ void eliminarPcb_TGAA_SEGFAULT(t_pcb* pcbBuscado){
     }
 
     pthread_mutex_unlock(&mutex_TGAA);
+
+}
+
+
+void desbloquearPcb_porNombreArchivo (char* nombArch){
+
+    t_TablaArchivos *archivo = buscarEntrada_TablaGlobalArchivo(nombArch);
+    int id_buscado = archivo->id_pcb_en_uso;
+    t_pcb* pcbBuscado;
+
+    pthread_mutex_lock(&mutex_colaBloq);
+    int count = list_size(colaBloq);
+    for (size_t i = 0; i < count; i++)
+    {
+        pcbBuscado = list_get(colaBloq, i);
+        if (id_buscado == pcbBuscado->id)
+        {
+            i = count;
+        }
+        
+    }
+
+    pthread_mutex_unlock(&mutex_colaBloq);
+    moverProceso_BloqReady(pcbBuscado);
 
 }

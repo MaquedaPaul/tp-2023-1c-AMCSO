@@ -173,16 +173,19 @@ void procesar_conexion(void *void_args) {
             
             case TRUNCACION_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
+                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
             case LECTURA_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
+                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
             case ESCRITURA_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
+                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 

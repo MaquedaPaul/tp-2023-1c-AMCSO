@@ -31,5 +31,6 @@ t_pcb* buscarPcb_enTablaPeticionesFS(char* );
 t_TablaArchivos* buscarEntrada_TablaGlobalArchivo(char* );
 void agregarEntrada_TablaGlobalArchivosAbiertos(char* );
 void eliminarPcb_TGAA_SEGFAULT(t_pcb*);
+void desbloquearPcb_porNombreArchivo (char*);
 
 #endif
