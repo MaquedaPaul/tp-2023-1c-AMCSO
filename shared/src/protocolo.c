@@ -702,18 +702,16 @@ bool agregarIntsYDatosAPaquete(t_list* listaInts, t_datos* datos, t_paquete* paq
     paquete->buffer->size+= sizeof(uint32_t)*list_size(listaInts);
     paquete->buffer->size+= datos->tamanio + sizeof(uint32_t);
 
-
+    //Sumo la cantidad de enteros al buffer
+    paquete->buffer->size += sizeof(uint8_t);
     void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
     int offset=0; //desplazamiento
 
-    //Sumo la cantidad de enteros al buffer
-    paquete->buffer->size += sizeof(uint8_t);
-
-    void copiarElementos(uint32_t unEntero){
-        memcpy(stream + offset, &unEntero, sizeof(uint32_t));
+    void copiarElementos(uint32_t* unEntero){
+        memcpy(stream + offset, unEntero, sizeof(uint32_t));
         offset+= sizeof(uint32_t);
     }
-    int cantidad_ints = list_size(listaInts);
+    uint8_t cantidad_ints = list_size(listaInts);
     memcpy(stream + offset, &cantidad_ints, sizeof(uint8_t));
     offset += sizeof(uint8_t);
     list_iterate(listaInts,copiarElementos);
@@ -741,12 +739,13 @@ t_list* recibirListaIntsYDatos(int socket_cliente,t_datos* datos)
     desplazamiento+=sizeof(uint8_t);
 
     for (int i = 0; i < cantidad_ints; ++i) {
-        uint32_t nuevoEntero;
-        memcpy(&nuevoEntero, buffer + desplazamiento, sizeof (uint32_t));
+        uint32_t* nuevoEntero = malloc(sizeof(uint32_t));
+        memcpy(nuevoEntero, buffer + desplazamiento, sizeof (uint32_t));
         desplazamiento+=sizeof(uint32_t);
         list_add(listaInts, nuevoEntero);
     }
-
+    uint32_t* posicion = list_get(listaInts,0);
+    uint32_t* pid = list_get(listaInts,1);
     memcpy(&datos->tamanio, buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento+=sizeof(uint32_t);
     datos->datos = malloc(datos->tamanio);

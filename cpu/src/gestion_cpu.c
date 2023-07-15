@@ -269,6 +269,16 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* r
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA, info_logger);
 
     uint8_t catidad_enteros = 2;
+    t_list* listaInts = list_create();
+    t_datos* unosDatos = malloc(sizeof(t_datos));
+    unosDatos->tamanio= cantidad_bytes;
+    unosDatos->datos = (void*) registro;
+    list_add(listaInts, &direccion_fisica);
+    list_add(listaInts, &pcb_actual->id);
+    uint32_t* a = list_get(listaInts, 0);
+    uint32_t* b = list_get(listaInts, 1);
+    enviarListaIntsYDatos(listaInts, unosDatos, fd_memoria, info_logger, ACCESO_PEDIDO_ESCRITURA);
+/*
     agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
     agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));
@@ -277,7 +287,7 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* r
 
     enviar_paquete(paquete, fd_memoria);
     eliminar_paquete(paquete, info_logger);
-
+*/
     char* valor1  = obtener_valor_registroCPU(registro);
     char* valor2 = recibir_confirmacion_de_escritura() ;
 
