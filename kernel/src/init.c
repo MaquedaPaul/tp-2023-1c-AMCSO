@@ -193,7 +193,7 @@ int cargarRecursos(){
         recurso->nombreRecurso = recursos[i];
         recurso->instanciasRecurso = atoi(instancias[i]);
         recurso->indiceSemaforo = i;
-        recurso->cola = queue_create();
+        recurso->cola = list_create();
         list_add(listaRecursos,recurso);
     }
     estadoBlockRecursos = listaRecursos;

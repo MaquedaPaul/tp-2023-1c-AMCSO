@@ -71,7 +71,6 @@ void procesar_conexion(void *void_args) {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbRecibida->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
                 moverProceso_ExecExit(pcbRecibida);
-                eliminarPcb_TGAA_SEGFAULT(pcbRecibida);
             }
             case EXIT:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
@@ -82,21 +81,7 @@ void procesar_conexion(void *void_args) {
             case CREATE_SEGMENT:
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
-
-                //Memoria necesita: PID,idSeg ,tamaño segmento
-                t_list* listaIntsMemoria = list_create();
-                list_add(listaIntsMemoria,&pcbRecibida->id);
-
-                t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter-1);
-                uint32_t idSegmento = atoi(instruccion->param1);
-                list_add(listaIntsMemoria,&pcbRecibida->idSegmento);
-
-                uint32_t tamSegmento = atoi(instruccion->param2);
-                list_add(listaIntsMemoria,&tamSegmento);
-
-                log_info(info_logger,"PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcbRecibida->id,idSegmento,tamSegmento);
-                enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,CREACION_SEGMENTOS);
-                list_destroy_and_destroy_elements(listaIntsMemoria,free);
+                solicitarCreacionSegmentoMemoria(pcbRecibida);
                 break;
             }
             case DELETE_SEGMENT: {
@@ -117,39 +102,45 @@ void procesar_conexion(void *void_args) {
             }
 
             case F_OPEN: {
-                //recibe largoNombreArchivo /nombreArchivo / pcb
-                ejecutar_FOPEN_socket(cliente_socket);
+                //recibir pcb y nomrbre archivo --> averiguar
+                //Verificar como se reciben los paquetes --> Agregar campo a pcb o crear nuevo recibir (300lineas)
+                //ejecutar_FOPEN(pcbBuscado, nombreArchivo);
                 break;
             }
 
             case F_CLOSE: {
-                //recibe largoNombreArchivo /nombreArchivo / pcb
-                ejecutar_FCLOSE(cliente_socket);
+                //FCLOSE solo debe rerecibir el nombrearch
+                //pcb si es necesario se envia x separado
+                //ejecutar_FCLOSE(nombreArchivo);
 
                 break;
             }
 
             case F_SEEK: {
-                //recibe largoNombreArchivo /nombreArchivo / puntero / pcb
-                ejecutar_FSEEK(cliente_socket);
+                //FCLOSE solo debe rerecibir el nombrearch y puntero
+                //pcb si es necesario se envia x separado
+                //ejecutar_FSEEK(nombreArchivo, puntero);
                 break;
             }
 
             case F_TRUNCATE: {
-                //recibe largoNombreArchivo /nombreArchivo / tamaño / pcb
-                ejecutar_FTRUNCATE(cliente_socket);
+                //FTRUNCATE solo debe rerecibir el nombrearch y tamaño
+                //pcb si es necesario se envia x separado
+                //ejecutar_FTRUNCATE(nombreArchivo, tamArch);
                 break;
             }
 
             case F_READ: {
-                //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
-                ejecutar_FREAD(cliente_socket);
+                //FREAD solo debe rerecibir el nombrearch largo y DL 
+                //pcb si es necesario se envia x separado
+                //ejecutar_FREAD(nombreArchivo, largo, dl);
                 break;
             }
 
             case F_WRITE: {
-                //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
-                ejecutar_FWRITE(cliente_socket);
+                //FWRITE solo debe rerecibir el nombrearch largo y DF
+                //pcb si es necesario se envia x separado
+                //ejecutar_FWRITE(nombreArchivo, largo, df);
                 break;
             }
 
@@ -175,19 +166,16 @@ void procesar_conexion(void *void_args) {
             
             case TRUNCACION_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
-                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
             case LECTURA_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
-                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
             case ESCRITURA_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
-                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
@@ -226,8 +214,11 @@ void procesar_conexion(void *void_args) {
                 break;
             }
             case COMPACTACION_FINALIZADA: {
-                //TODO FALTA actualizar las tablas de segmentos de todos los procesos en Memoria
+                t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
+                actualizarTablasSegmentosProcesos(listaTablaSegmentosRecibida);
                 log_info(info_logger,"Se finalizó el proceso de compactación");
+                t_pcb* pcbExec = list_get(colaExec,0);
+                solicitarCreacionSegmentoMemoria(pcbExec);
                 break;
             }
             case SEGMENTO_ELIMINADO:{
@@ -456,7 +447,7 @@ void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {
     recurso->instanciasRecurso--;
     log_info(info_logger,"PID: <%d> - Wait: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if (recurso->instanciasRecurso < 0) {
-        queue_push(recurso->cola, unaPcb);
+        list_add(recurso->cola, unaPcb);
         log_info(info_logger,"PID: <%d> - Bloqueado por: <%s>",unaPcb->id,recurso->nombreRecurso);
     }else{
         enviar_paquete_pcb(unaPcb,fd_cpu,WAIT,info_logger);
@@ -467,7 +458,7 @@ void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {
 void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
     recurso->instanciasRecurso++;
     log_info(info_logger,"PID: <%d> - Signal: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
-    if(!queue_is_empty(recurso->cola)){
+    if(!list_is_empty(recurso->cola)){
         moverProceso_BloqrecursoReady(recurso);
     }
      enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,info_logger);
@@ -539,38 +530,39 @@ void actualizarTablasSegmentosProcesos(t_list* listaTablasSegmentosProcesos){
     for (int i = 0 ; i < list_size(listaTablasSegmentosProcesos); i++){
         t_tablaSegmentos* tablaSegmentos = list_get(listaTablasSegmentosProcesos,i);
 
-        for(int j = 0; j < list_size(colaReady); j++){
-            t_pcb* pcb = list_get(colaReady,j);
-            if(pcb->id == tablaSegmentos->pid){
-                pcb->tablaSegmentos = tablaSegmentos;
-            }
-        }
-
-        for(int j = 0; j < list_size(colaExec); j++){
-            t_pcb* pcb = list_get(colaExec,j);
-            if(pcb->id == tablaSegmentos->pid){
-                pcb->tablaSegmentos = tablaSegmentos;
-            }
-        }
-
-        for(int j = 0; j < list_size(colaBloq); j++){
-            t_pcb* pcb = list_get(colaBloq,j);
-            if(pcb->id == tablaSegmentos->pid){
-                pcb->tablaSegmentos = tablaSegmentos;
-            }
-        }
+        buscarDuenioTablaSegEnListaYActualizar(colaReady,tablaSegmentos);
+        buscarDuenioTablaSegEnListaYActualizar(colaExec,tablaSegmentos);
+        buscarDuenioTablaSegEnListaYActualizar(colaBloq,tablaSegmentos);
 
         for (int j = 0; j < list_size(estadoBlockRecursos); j++){
             t_recurso* recurso = list_get(estadoBlockRecursos,j);
-            for(int m = 0; m < queue_size(recurso->cola); m++){
-                t_pcb* pcb = queue_pop(recurso->cola);
-                if(pcb->id )
-            }
+            buscarDuenioTablaSegEnListaYActualizar(recurso->cola,tablaSegmentos);
         }
     }
 }
 
+void buscarDuenioTablaSegEnListaYActualizar(t_list* listaEstado,t_tablaSegmentos* tablaSegmentos){
+    for(int j = 0; j < list_size(listaEstado); j++){
+        t_pcb* pcb = list_get(listaEstado,j);
+        if(pcb->id == tablaSegmentos->pid){
+            pcb->tablaSegmentos = tablaSegmentos;
+        }
+    }
+}
 
+void solicitarCreacionSegmentoMemoria(t_pcb* pcb){
+    //Memoria necesita: PID,idSeg ,tamaño segmento
+    t_list* listaIntsMemoria = list_create();
+    list_add(listaIntsMemoria,&pcb->id);
 
+    t_instr* instruccion = list_get(pcb->instr,pcb->programCounter-1);
+    uint32_t idSegmento = atoi(instruccion->param1);
+    list_add(listaIntsMemoria,&idSegmento);
 
-//TODO
+    uint32_t tamSegmento = atoi(instruccion->param2);
+    list_add(listaIntsMemoria,&tamSegmento);
+
+    log_info(info_logger,"PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcb->id,idSegmento,tamSegmento);
+    enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,CREACION_SEGMENTOS);
+    list_destroy_and_destroy_elements(listaIntsMemoria,free);
+}
