@@ -22,6 +22,11 @@ extern char* puerto_cpu;
 extern int fd_memoria;
 extern int fd_kernel;
 extern int fd_cpu;
+extern t_log* trace_logger;
+extern t_log* debug_logger;
+extern t_log* info_logger;
+extern t_log* warning_logger;
+extern t_log* error_logger;
 
 extern char registroCPU_AX[4];
 extern char registroCPU_BX[4];

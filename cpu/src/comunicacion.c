@@ -52,6 +52,10 @@ void procesar_conexion(void *void_args) {
 
                 }
             }
+            case ESCRITURA_REALIZADA:
+                recibirOrden(cliente_socket);
+                log_info(info_logger,"PRueba");
+                break;
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;
@@ -60,10 +64,9 @@ void procesar_conexion(void *void_args) {
                 log_info(info_logger, "Cop: %d", cop);
                 return;
         }
-
-        log_warning(warning_logger, "El cliente se desconecto de %s server", server_name);
-        return;
     }
+    log_warning(warning_logger, "El cliente se desconecto de %s server", server_name);
+    return;
 }
 
 int server_escuchar(t_log *logger, char *server_name, int server_socket) {

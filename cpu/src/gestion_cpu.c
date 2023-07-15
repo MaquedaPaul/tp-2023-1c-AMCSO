@@ -50,7 +50,7 @@ void ejecutar_IO(int tiempo) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(IO_BLOCK,info_logger);
-    agregar_PCB_a_paquete2(paquete, pcb_actual);
+    agregar_PCB_a_paquete(paquete, pcb_actual);
     agregar_a_paquete(paquete, &tiempo, sizeof(uint32_t));
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete,info_logger);
@@ -275,8 +275,6 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* r
     unosDatos->datos = (void*) registro;
     list_add(listaInts, &direccion_fisica);
     list_add(listaInts, &pcb_actual->id);
-    uint32_t* a = list_get(listaInts, 0);
-    uint32_t* b = list_get(listaInts, 1);
     enviarListaIntsYDatos(listaInts, unosDatos, fd_memoria, info_logger, ACCESO_PEDIDO_ESCRITURA);
 /*
     agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
@@ -289,8 +287,8 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* r
     eliminar_paquete(paquete, info_logger);
 */
     char* valor1  = obtener_valor_registroCPU(registro);
-    char* valor2 = recibir_confirmacion_de_escritura() ;
-
+   // char* valor2 = recibir_confirmacion_de_escritura() ;
+    char* valor2= "OK";
     if (strcmp(valor2, "OK") == 0) {
     log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor1);
     }
@@ -469,6 +467,7 @@ char*  recibir_confirmacion_de_escritura()  {
 		switch (cod_op) {
 		case ESCRITURA_REALIZADA:
              recibirOrden(fd_memoria);
+             log_debug(debug_logger,"RECIBI EL OK ESCRITURA");
              valor= "OK";
 			 break;
         }
