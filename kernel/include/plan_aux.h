@@ -21,6 +21,7 @@ void actualizarTiempoRafaga(t_pcb*);
 void ejecutar_FOPEN(t_pcb* ,char* );
 void ejecutar_FOPEN_socket(int);
 void ejecutar_FCLOSE(int);
+void ejecutar_FCLOSE_porNombreArchivo(t_pcb* , char*);
 void ejecutar_FSEEK(int );
 void ejecutar_FTRUNCATE( int );
 void ejecutar_FREAD(int);
@@ -29,5 +30,6 @@ int buscarArch_TablaGlobalArchivo(char* );
 t_pcb* buscarPcb_enTablaPeticionesFS(char* );
 t_TablaArchivos* buscarEntrada_TablaGlobalArchivo(char* );
 void agregarEntrada_TablaGlobalArchivosAbiertos(char* );
+void eliminarPcb_TGAA_SEGFAULT(t_pcb*);
 
 #endif

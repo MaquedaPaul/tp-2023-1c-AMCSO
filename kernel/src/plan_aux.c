@@ -227,6 +227,31 @@ void ejecutar_FCLOSE(int socket_entrada){
 
 }
 
+void ejecutar_FCLOSE_porNombreArchivo(t_pcb* pcbBuscado, char* nombreArchivo){
+
+    pthread_mutex_lock(&mutex_TGAA);
+    int pos = buscarArch_TablaGlobalArchivo(nombreArchivo);
+    t_TablaArchivos* archivo =  list_get(tablaGlobal_ArchivosAbiertos,pos);
+    archivo->enUso = false;
+
+    log_info(info_logger, "PID: <%d> - Cerrar Archivo: <%s>", 
+                archivo->id_pcb_en_uso, nombreArchivo);
+
+    if(list_is_empty(archivo->lista_espera_pcbs)){
+        list_remove(tablaGlobal_ArchivosAbiertos,pos);
+        pthread_mutex_unlock(&mutex_TGAA);
+    }
+    else{
+        t_pcb* pcbBuscado = list_get(archivo->lista_espera_pcbs,0);
+        list_remove(archivo->lista_espera_pcbs,0);
+        list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
+
+        pthread_mutex_unlock(&mutex_TGAA);
+        ejecutar_FOPEN(pcbBuscado, nombreArchivo);
+    }
+
+}
+
 
 void ejecutar_FSEEK(int socket_entrada){
 
@@ -443,4 +468,36 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
     list_add(tablaGlobal_ArchivosAbiertos, archivo);
     //TODO list_add(pcbBuscado->tablaArchivosAbiertos,nomArch); //VERIFICAR
     enviar_paquete_pcb(pcbBuscado,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
+}
+
+void eliminarPcb_TGAA_SEGFAULT(t_pcb* pcbBuscado){
+
+    pthread_mutex_lock(&mutex_TGAA);
+    int size = list_size(tablaGlobal_ArchivosAbiertos);
+    t_TablaArchivos *archivo;
+    int id = pcbBuscado->id;
+
+    for (size_t i = 0; i < size ; i++)
+    {
+        archivo = list_get(tablaGlobal_ArchivosAbiertos,i);
+
+        if(archivo->id_pcb_en_uso == id){//valido primero si esta en uso
+            ejecutar_FCLOSE_porNombreArchivo(pcbBuscado, archivo->nombreArchivo);
+        }
+        else{//valido la lista de espera para eliminarlo
+            int count = list_size(archivo->lista_espera_pcbs);
+            int id_aux;
+            for (size_t x = 0; x < count; x++)
+                {
+                    id_aux = *(int*)list_get(archivo->lista_espera_pcbs, x);
+                    if(id == id_aux){  
+                        list_remove(archivo->lista_espera_pcbs,x);
+                        x = count;
+                    }
+                }
+            }
+    }
+
+    pthread_mutex_unlock(&mutex_TGAA);
+
 }

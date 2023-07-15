@@ -71,6 +71,7 @@ void procesar_conexion(void *void_args) {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbRecibida->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
                 moverProceso_ExecExit(pcbRecibida);
+                eliminarPcb_TGAA_SEGFAULT(pcbRecibida);
             }
             case EXIT:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
