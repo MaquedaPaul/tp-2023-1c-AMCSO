@@ -83,15 +83,17 @@ void procesar_conexion(void *void_args) {
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
 
-                //Memoria necesita: PID, tamaño segmento
+                //Memoria necesita: PID,idSeg ,tamaño segmento
                 t_list* listaIntsMemoria = list_create();
                 list_add(listaIntsMemoria,&pcbRecibida->id);
 
                 t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter-1);
+                uint32_t idSegmento = atoi(instruccion->param1);
+                list_add(listaIntsMemoria,&pcbRecibida->idSegmento);
+
                 uint32_t tamSegmento = atoi(instruccion->param2);
                 list_add(listaIntsMemoria,&tamSegmento);
 
-                uint32_t idSegmento = atoi(instruccion->param1); //Lo usamos solo para el logger
                 log_info(info_logger,"PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcbRecibida->id,idSegmento,tamSegmento);
                 enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,CREACION_SEGMENTOS);
                 list_destroy_and_destroy_elements(listaIntsMemoria,free);
@@ -229,8 +231,9 @@ void procesar_conexion(void *void_args) {
                 break;
             }
             case SEGMENTO_ELIMINADO:{
-                t_list* tablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
-                eliminacionSegmento(tablaSegmentosRecibida);
+                t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
+                t_tablaSegmentos* tablaSegmentos = list_get(listaTablaSegmentosRecibida,0);
+                eliminacionSegmento(tablaSegmentos);
                 break;
             }
 
@@ -455,6 +458,8 @@ void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {
     if (recurso->instanciasRecurso < 0) {
         queue_push(recurso->cola, unaPcb);
         log_info(info_logger,"PID: <%d> - Bloqueado por: <%s>",unaPcb->id,recurso->nombreRecurso);
+    }else{
+        enviar_paquete_pcb(unaPcb,fd_cpu,WAIT,info_logger);
     }
 }
 
@@ -477,8 +482,10 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden){
         if((strcmp(recurso->nombreRecurso,recursoSolicitado)) == 0){
             if((strcmp(orden,"WAIT")) == 0){
                 waitRecursoPcb(recurso,unaPcb);
+                break;
             }else{
                 signalRecursoPcb(recurso,unaPcb);
+                break;
             }
         }else{
             log_info(info_logger,"Recurso <%s> solicitado INEXISTENTE", recursoSolicitado);
@@ -501,7 +508,7 @@ void creacionSegmentoExitoso(uint32_t baseSegmento){
     segmento->base = baseSegmento;
     segmento->limite = baseSegmento + tamSegmento;
 
-    list_add(pcbExec->tablaSegmentos,segmento);
+    list_add(pcbExec->tablaSegmentos->segmentos,segmento);
 
     enviar_paquete_pcb(pcbExec,fd_cpu,PCB,info_logger);
 }
@@ -517,7 +524,7 @@ void* esperaIo(void* void_pcb){
     moverProceso_BloqReady(pcb);
 }
 
-void eliminacionSegmento(t_list* tablaSegmentosActualizada){
+void eliminacionSegmento(t_tablaSegmentos* tablaSegmentosActualizada){
     pthread_mutex_lock(&mutex_colaExec);
     t_pcb* pcbExec = list_get(colaExec,0);
     pthread_mutex_unlock(&mutex_colaExec);
@@ -525,3 +532,45 @@ void eliminacionSegmento(t_list* tablaSegmentosActualizada){
     pcbExec->tablaSegmentos = tablaSegmentosActualizada;
     enviar_paquete_pcb(pcbExec,fd_cpu,PCB,info_logger);
 }
+
+
+void actualizarTablasSegmentosProcesos(t_list* listaTablasSegmentosProcesos){
+    //Los procesos pueden estar en READY,EXEC,BLOCK,BLOKEDRECURSO
+    for (int i = 0 ; i < list_size(listaTablasSegmentosProcesos); i++){
+        t_tablaSegmentos* tablaSegmentos = list_get(listaTablasSegmentosProcesos,i);
+
+        for(int j = 0; j < list_size(colaReady); j++){
+            t_pcb* pcb = list_get(colaReady,j);
+            if(pcb->id == tablaSegmentos->pid){
+                pcb->tablaSegmentos = tablaSegmentos;
+            }
+        }
+
+        for(int j = 0; j < list_size(colaExec); j++){
+            t_pcb* pcb = list_get(colaExec,j);
+            if(pcb->id == tablaSegmentos->pid){
+                pcb->tablaSegmentos = tablaSegmentos;
+            }
+        }
+
+        for(int j = 0; j < list_size(colaBloq); j++){
+            t_pcb* pcb = list_get(colaBloq,j);
+            if(pcb->id == tablaSegmentos->pid){
+                pcb->tablaSegmentos = tablaSegmentos;
+            }
+        }
+
+        for (int j = 0; j < list_size(estadoBlockRecursos); j++){
+            t_recurso* recurso = list_get(estadoBlockRecursos,j);
+            for(int m = 0; m < queue_size(recurso->cola); m++){
+                t_pcb* pcb = queue_pop(recurso->cola);
+                if(pcb->id )
+            }
+        }
+    }
+}
+
+
+
+
+//TODO
