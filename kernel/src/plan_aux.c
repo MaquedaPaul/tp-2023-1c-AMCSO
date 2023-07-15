@@ -90,7 +90,6 @@ FALTA
     1. verificar bloq de pcb x filesystem o devolver a exec --> AVERIGUAR que hacer con la pcb
     5. FSEEK: que tiene que avisar a FS o CPU?
     8. COORDINAR CON COMPACTACION
-    9. Log fclose y fopen cuando efectivamente se cierra/abre o cuando es llamado?
 
 */
 
@@ -126,6 +125,8 @@ void ejecutar_FOPEN_socket(int socket_entrada){
     else{//Si esta en la TGAA
         if(archivo->enUso){ //Si esta en uso x otro pcb
             list_add(archivo->lista_espera_pcbs,pcbRecibido);
+
+            moverProceso_ExecBloq(pcbRecibido);
         }
         else{//Si no esta en uso, se pasa al siguiente pcb
             archivo->enUso = true;
@@ -134,13 +135,13 @@ void ejecutar_FOPEN_socket(int socket_entrada){
             list_replace(tablaGlobal_ArchivosAbiertos,pos, archivo);
            //TODO list_add(pcbRecibido->tablaArchivosAbiertos,nomArch); //VERIFICAR
             enviar_paquete_pcb(pcbRecibido,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
+
+            log_info(info_logger, "PID: <%d> - Abrir Archivo: <%s>", 
+                        archivo->id_pcb_en_uso, nomArch);
         }
     }
 
     pthread_mutex_unlock(&mutex_TGAA);
-
-    log_info(info_logger, "PID: <%d> - Abrir Archivo: <%s>", 
-                archivo->id_pcb_en_uso, nomArch);
 
 }
 
@@ -161,6 +162,8 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
     else{//Si esta en la TGAA
         if(archivo->enUso){ //Si esta en uso x otro pcb
             list_add(archivo->lista_espera_pcbs,pcbRecibido);
+
+            moverProceso_ExecBloq(pcbRecibido);
         }
         else{//Si no esta en uso, se pasa al siguiente pcb
             archivo->enUso = true;
@@ -169,13 +172,13 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
             list_replace(tablaGlobal_ArchivosAbiertos,pos, archivo);
            //TODO list_add(pcbRecibido->tablaArchivosAbiertos,nomArch); //VERIFICAR
             enviar_paquete_pcb(pcbRecibido,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
+
+            log_info(info_logger, "PID: <%d> - Abrir Archivo: <%s>", 
+                        archivo->id_pcb_en_uso, nomArch);
         }
     }
 
     pthread_mutex_unlock(&mutex_TGAA);
-
-    log_info(info_logger, "PID: <%d> - Abrir Archivo: <%s>", 
-                archivo->id_pcb_en_uso, nomArch);
 
 }
 
@@ -210,12 +213,13 @@ void ejecutar_FCLOSE(int socket_entrada){
         pthread_mutex_unlock(&mutex_TGAA);
     }
     else{
-        t_pcb* pcbBuscado = list_get(archivo->lista_espera_pcbs,0);
+        t_pcb* pcbRecibido = list_get(archivo->lista_espera_pcbs,0);
         list_remove(archivo->lista_espera_pcbs,0);
         list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
 
         pthread_mutex_unlock(&mutex_TGAA);
-        ejecutar_FOPEN(pcbBuscado, nombreArchivo);
+        ejecutar_FOPEN(pcbRecibido, nombreArchivo);
+        moverProceso_BloqReady(pcbRecibido);
     }
 
 }
@@ -241,6 +245,7 @@ void ejecutar_FCLOSE_porNombreArchivo(t_pcb* pcbBuscado, char* nombreArchivo){
 
         pthread_mutex_unlock(&mutex_TGAA);
         ejecutar_FOPEN(pcbBuscado, nombreArchivo);
+        moverProceso_BloqReady(pcbBuscado);
     }
 
 }
