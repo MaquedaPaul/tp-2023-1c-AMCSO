@@ -724,7 +724,7 @@ bool agregarIntsYDatosAPaquete(t_list* listaInts, t_datos* datos, t_paquete* paq
     list_iterate(listaInts,copiarElementos);
     memcpy(stream + offset, &datos->tamanio, sizeof(uint32_t));
     offset+= sizeof(uint32_t);
-    memcpy(stream + offset, &datos->datos, datos->tamanio);
+    memcpy(stream + offset, datos->datos, datos->tamanio);
     paquete->buffer->stream = stream;
     printf("SE AGREGO EL PAQUETE\n");
     return true;
