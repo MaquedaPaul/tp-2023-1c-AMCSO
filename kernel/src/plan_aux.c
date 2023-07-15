@@ -92,19 +92,67 @@ free(datosRecibidos);
 
 FALTA
 
-    1. VERIFICAR como se reciben los paquetes --> Agregar campo a pcb o crear nuevo 
-        recibir (300lineas) [depende el caso]
-    2. verificar bloq de pcb x filesystem o devolver a exec --> AVERIGUAR que hacer con la pcb
+    1. verificar bloq de pcb x filesystem o devolver a exec --> AVERIGUAR que hacer con la pcb
     5. FSEEK: que tiene que avisar a FS o CPU?
     7. FTRUNCATE FREAD FWRITE no bloquea el proceso en si,ya que actualemente todos los procesos se bloquean
     8. COORDINAR CON COMPACTACION
     9. Log fclose y fopen cuando efectivamente se cierra/abre o cuando es llamado?
+    10. SEG FAULT libera los archivos que estaban contenidos por el pcb
 
 */
 
 
+void ejecutar_FOPEN_socket(int socket_entrada){
+
+    int size;
+	void * buffer = recibir_buffer(&size, socket_entrada);
+    uint32_t* desplazamiento = 0;
+    
+    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    char* nomArch;
+
+    memcpy(nomArch, buffer + *desplazamiento, largoNomArch + 1);
+    desplazamiento += largoNomArch + 1;
+
+    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
+
+	free(buffer);
+
+    pthread_mutex_lock(&mutex_TGAA);
+    int pos = buscarArch_TablaGlobalArchivo(nomArch);
+    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
+
+    if(pos == -1){ // En caso de que no este en la TGAA
+        enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
+        t_peticionesFS* peticion;
+        peticion->pcb=pcbRecibido;
+        peticion->nombreArchivo=nomArch;
+        list_add(tabla_PeticionesFS,peticion);
+
+    }
+    else{//Si esta en la TGAA
+        if(archivo->enUso){ //Si esta en uso x otro pcb
+            list_add(archivo->lista_espera_pcbs,pcbRecibido);
+        }
+        else{//Si no esta en uso, se pasa al siguiente pcb
+            archivo->enUso = true;
+            archivo->id_pcb_en_uso = pcbRecibido->id;
+            archivo->ptro=0;
+            list_replace(tablaGlobal_ArchivosAbiertos,pos, archivo);
+           //TODO list_add(pcbRecibido->tablaArchivosAbiertos,nomArch); //VERIFICAR
+            enviar_paquete_pcb(pcbRecibido,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
+        }
+    }
+
+    pthread_mutex_unlock(&mutex_TGAA);
+
+    log_info(info_logger, "PID: <%d> - Abrir Archivo: <%s>", 
+                archivo->id_pcb_en_uso, nomArch);
+
+}
 
 void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
+    
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nomArch);
     t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
@@ -140,7 +188,22 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
 
 
 
-void ejecutar_FCLOSE(char* nombreArchivo){
+void ejecutar_FCLOSE(int socket_entrada){
+
+    int size;
+	void * buffer = recibir_buffer(&size, socket_entrada);
+    uint32_t *desplazamiento = 0;
+    
+    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    char* nombreArchivo;
+
+    memcpy(nombreArchivo, buffer + *desplazamiento, largoNomArch + 1);
+    desplazamiento += largoNomArch + 1;
+
+    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
+
+	free(buffer);
+
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nombreArchivo);
     t_TablaArchivos* archivo =  list_get(tablaGlobal_ArchivosAbiertos,pos);
@@ -165,7 +228,24 @@ void ejecutar_FCLOSE(char* nombreArchivo){
 }
 
 
-void ejecutar_FSEEK(char* nombreArchivo, int punteroRecibido){
+void ejecutar_FSEEK(int socket_entrada){
+
+
+    int size;
+	void * buffer = recibir_buffer(&size, socket_entrada);
+    uint32_t *desplazamiento = 0;
+    
+    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    char* nombreArchivo;
+    
+    memcpy(nombreArchivo, buffer + *desplazamiento, largoNomArch + 1);
+    desplazamiento += largoNomArch + 1;
+
+    uint32_t punteroRecibido = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+   
+    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
+
+	free(buffer);
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nombreArchivo);
@@ -180,7 +260,23 @@ void ejecutar_FSEEK(char* nombreArchivo, int punteroRecibido){
 }
 
 
-void ejecutar_FTRUNCATE(char* nomArchivo, int tamanioArch){
+void ejecutar_FTRUNCATE(int socket_entrada){
+
+    int size;
+	void * buffer = recibir_buffer(&size, socket_entrada);
+    uint32_t *desplazamiento = 0;
+    
+    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    char* nomArchivo;
+
+    memcpy(nomArchivo, buffer + *desplazamiento, largoNomArch + 1);
+    desplazamiento += largoNomArch + 1;
+
+    uint32_t tamanioArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    
+    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
+
+	free(buffer);
 
     uint32_t tamDatos = sizeof(int) + strlen(nomArchivo) + 1;
     void* datos = malloc(tamDatos);
@@ -198,7 +294,25 @@ void ejecutar_FTRUNCATE(char* nomArchivo, int tamanioArch){
 }
 
 
-void ejecutar_FREAD(char* nomArchivo, int largArch, int dlArch){
+void ejecutar_FREAD(int socket_entrada){
+
+    int size;
+	void * buffer = recibir_buffer(&size, socket_entrada);
+    uint32_t *desplazamiento = 0;
+    
+    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    char* nomArchivo;
+
+    memcpy(nomArchivo, buffer + *desplazamiento, largoNomArch + 1);
+    desplazamiento += largoNomArch + 1;
+
+    uint32_t dlArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+   
+    uint32_t largArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    
+    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
+
+	free(buffer);
    
     uint32_t tamDatos = sizeof(int) + sizeof(int) + strlen(nomArchivo) + 1;
     void* datos = malloc(tamDatos);
@@ -221,7 +335,25 @@ void ejecutar_FREAD(char* nomArchivo, int largArch, int dlArch){
   
 }
 
-void ejecutar_FWRITE(char* nomArchivo, int largArch, int dfArch){
+void ejecutar_FWRITE(int socket_entrada){
+
+    int size;
+	void * buffer = recibir_buffer(&size, socket_entrada);
+    uint32_t *desplazamiento = 0;
+    
+    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    char* nomArchivo;
+
+    memcpy(nomArchivo, buffer + *desplazamiento, largoNomArch + 1);
+    desplazamiento += largoNomArch + 1;
+
+    uint32_t dfArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    
+    uint32_t largArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    
+    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
+
+	free(buffer);
    
     uint32_t tamDatos = sizeof(int) + sizeof(int) + strlen(nomArchivo) + 1;
     void* datos = malloc(tamDatos);
@@ -242,12 +374,6 @@ void ejecutar_FWRITE(char* nomArchivo, int largArch, int dfArch){
     list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
     pthread_mutex_unlock(&mutex_TGAA);
 }
-/*
-Filesystem debe recibir de la siguiente manera:
-
-
-*/
-
 
 
 

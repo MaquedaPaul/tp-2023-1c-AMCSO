@@ -19,11 +19,12 @@ void actualizarTiempoRafaga(t_pcb*);
 
 //FILESYSTEM
 void ejecutar_FOPEN(t_pcb* ,char* );
-void ejecutar_FCLOSE(char* );
-void ejecutar_FSEEK(char* , int );
-void ejecutar_FTRUNCATE(char* , int );
-void ejecutar_FREAD(char* , int , int );
-void ejecutar_FWRITE(char* , int , int );
+void ejecutar_FOPEN_socket(int);
+void ejecutar_FCLOSE(int);
+void ejecutar_FSEEK(int );
+void ejecutar_FTRUNCATE( int );
+void ejecutar_FREAD(int);
+void ejecutar_FWRITE(int);
 int buscarArch_TablaGlobalArchivo(char* );
 t_pcb* buscarPcb_enTablaPeticionesFS(char* );
 t_TablaArchivos* buscarEntrada_TablaGlobalArchivo(char* );

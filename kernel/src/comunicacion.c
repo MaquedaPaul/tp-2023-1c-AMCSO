@@ -114,45 +114,39 @@ void procesar_conexion(void *void_args) {
             }
 
             case F_OPEN: {
-                //recibir pcb y nomrbre archivo --> averiguar
-                //Verificar como se reciben los paquetes --> Agregar campo a pcb o crear nuevo recibir (300lineas)
-                //ejecutar_FOPEN(pcbBuscado, nombreArchivo);
+                //recibe largoNombreArchivo /nombreArchivo / pcb
+                ejecutar_FOPEN_socket(cliente_socket);
                 break;
             }
 
             case F_CLOSE: {
-                //FCLOSE solo debe rerecibir el nombrearch
-                //pcb si es necesario se envia x separado
-                //ejecutar_FCLOSE(nombreArchivo);
+                //recibe largoNombreArchivo /nombreArchivo / pcb
+                ejecutar_FCLOSE(cliente_socket);
 
                 break;
             }
 
             case F_SEEK: {
-                //FCLOSE solo debe rerecibir el nombrearch y puntero
-                //pcb si es necesario se envia x separado
-                //ejecutar_FSEEK(nombreArchivo, puntero);
+                //recibe largoNombreArchivo /nombreArchivo / puntero / pcb
+                ejecutar_FSEEK(cliente_socket);
                 break;
             }
 
             case F_TRUNCATE: {
-                //FTRUNCATE solo debe rerecibir el nombrearch y tamaño
-                //pcb si es necesario se envia x separado
-                //ejecutar_FTRUNCATE(nombreArchivo, tamArch);
+                //recibe largoNombreArchivo /nombreArchivo / tamaño / pcb
+                ejecutar_FTRUNCATE(cliente_socket);
                 break;
             }
 
             case F_READ: {
-                //FREAD solo debe rerecibir el nombrearch largo y DL 
-                //pcb si es necesario se envia x separado
-                //ejecutar_FREAD(nombreArchivo, largo, dl);
+                //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
+                ejecutar_FREAD(cliente_socket);
                 break;
             }
 
             case F_WRITE: {
-                //FWRITE solo debe rerecibir el nombrearch largo y DF
-                //pcb si es necesario se envia x separado
-                //ejecutar_FWRITE(nombreArchivo, largo, df);
+                //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
+                ejecutar_FWRITE(cliente_socket);
                 break;
             }
 
