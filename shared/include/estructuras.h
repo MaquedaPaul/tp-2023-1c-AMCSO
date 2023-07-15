@@ -99,7 +99,7 @@ typedef struct {
 } t_procesar_conexion_args;
 
 typedef struct {
-    t_queue* cola;
+    t_list* cola; //La usamos como una cola.Por el unico motivo que es una lista es por el tema de actualizacion de tablas de segmentos.
     char* nombreRecurso;
     int indiceSemaforo;
     int instanciasRecurso;

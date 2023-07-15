@@ -74,7 +74,7 @@ void moverProceso_NewReady(t_tablaSegmentos* tablaDeSegmentosMemoria){
 
 void moverProceso_BloqrecursoReady(t_recurso* recurso){
     pthread_mutex_lock(&semaforos_io[recurso->indiceSemaforo]);
-    t_pcb* pcbLiberada = queue_pop(recurso->cola);
+    t_pcb* pcbLiberada = list_remove(recurso->cola,0);
     pthread_mutex_unlock(&semaforos_io[recurso->indiceSemaforo]);
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady,pcbLiberada);

@@ -47,8 +47,11 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden);
 
 t_list* recibirListaInstrucciones(int socket_cliente);
 void creacionSegmentoExitoso(uint32_t baseSegmento);
-void eliminacionSegmento(t_list* tablaSegmentosActualizada);
+void eliminacionSegmento(t_tablaSegmentos* tablaSegmentosActualizada);
 
 void* esperaIo(void* void_pcb);
+void actualizarTablasSegmentosProcesos(t_list* listaTablasSegmentosProcesos);
+void buscarDuenioTablaSegEnListaYActualizar(t_list* listaEstado,t_tablaSegmentos* tablaSegmentos);
+void solicitarCreacionSegmentoMemoria(t_pcb* pcb);
 
 #endif //TEMPLATE_COMUNICACION_H
