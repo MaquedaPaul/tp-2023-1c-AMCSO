@@ -473,7 +473,7 @@ void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
 void manejoDeRecursos(t_pcb* unaPcb,char* orden){
     int apunteProgramCounter = unaPcb->programCounter;
     t_instr * instruccion = list_get(unaPcb->instr,apunteProgramCounter-1);
-    char* recursoSolicitado = instruccion->param2;
+    char* recursoSolicitado = instruccion->param1;
     for(int i = 0 ; i < list_size(estadoBlockRecursos); i++){
         t_recurso* recurso = list_get(estadoBlockRecursos,i);
         if((strcmp(recurso->nombreRecurso,recursoSolicitado)) == 0){

@@ -33,7 +33,10 @@ void procesar_conexion(void *void_args) {
                 fd_memoria = cliente_socket;
                 break;
 
-            case PCB:
+            case PCB: {
+                fd_kernel= cliente_socket;
+
+
                 pcb_actual = recibir_pcb(cliente_socket);
 
                 if (pcb_actual->id == pid) {
@@ -46,14 +49,16 @@ void procesar_conexion(void *void_args) {
                     //eliminar_PCB(pcb_actual);
                     break;
 
-                    case -1:
-                        log_error(error_logger, "Cliente desconectado de %s...", server_name);
-                    return;
-                    default:
-                        log_error(error_logger, "Algo anduvo mal en el server de %s", server_name);
-                    log_info(info_logger, "Cop: %d", cop);
-                    return;
+
                 }
+            }
+            case -1:
+                log_error(error_logger, "Cliente desconectado de %s...", server_name);
+                return;
+            default:
+                log_error(error_logger, "Algo anduvo mal en el server de %s", server_name);
+                log_info(info_logger, "Cop: %d", cop);
+                return;
         }
 
         log_warning(warning_logger, "El cliente se desconecto de %s server", server_name);

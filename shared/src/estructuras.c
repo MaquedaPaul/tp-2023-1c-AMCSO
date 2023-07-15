@@ -16,10 +16,22 @@ t_proceso *crearNuevoProceso()
     return nuevoProceso;
 }
 void liberarInstruccion(t_instr * instruccion){
+    if(esInstruccionSinParametros(instruccion)){
+
+    }
+    if(esInstruccionConUnParametro(instruccion)){
+        free(instruccion->param1);
+    }
+    if(esInstruccionConDosParametros(instruccion)){
+        free(instruccion->param1);
+        free(instruccion->param2);
+    }
+    if(esInstruccionConTresParametros(instruccion)){
+        free(instruccion->param1);
+        free(instruccion->param2);
+        free(instruccion->param3);
+    }
     free(instruccion->id);
-    free(instruccion->param1);
-    free(instruccion->param2);
-    free(instruccion->param3);
     free(instruccion);
 }
 
@@ -32,7 +44,7 @@ void liberarPcb(t_pcb* pcb) {
     free(pcb->registrosCpu);
     // Liberar memoria de instr y tablaSegmentos si es necesario
     list_destroy_and_destroy_elements(pcb->instr,liberarInstruccion);
-    list_destroy_and_destroy_elements(pcb->tablaSegmentos,liberarSegmento);
+    list_destroy_and_destroy_elements(pcb->tablaSegmentos->segmentos,liberarSegmento);
     free(pcb);
 }
 
