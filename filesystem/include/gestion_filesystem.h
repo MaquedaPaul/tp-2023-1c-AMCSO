@@ -6,7 +6,17 @@
 #define FILESYSTEM_GESTION_FILESYSTEM_H
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <commons/string.h>
+#include <commons/collections/list.h>
 #include <commons/bitarray.h>
+#include <loggers_configs.h>
+extern t_log* trace_logger;
+extern t_log* debug_logger;
+extern t_log* info_logger;
+extern t_log* warning_logger;
+extern t_log* error_logger;
+
 typedef struct
 {
     void* archivo;
@@ -37,7 +47,9 @@ typedef struct
 bool existeFcbConNombre(char* nombreArchivo);
 t_config_fcb* buscarFCBporNombre(char* nombre);
 void realizarCreacionArchivo(char* nombreArchivo);
-void realizarTruncacionArchivo(char* nombreArchivo);
+void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_archivo);
+void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, uint32_t tamanio_archivo);
+uint32_t obtener_bloque_libre(t_bitarray* auxBitArray);
 void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t  tamanio);
 void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos);
 

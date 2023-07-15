@@ -28,7 +28,8 @@ void crearArchivo(int cliente_socket){
 
 void truncarArchivo(int cliente_socket){
     char* nombreArchivo = recibirString(cliente_socket);
-    realizarTruncacionArchivo(nombreArchivo);
+    uint32_t nuevoTamanio; //TODO INCLUIR EN LA RECEPCIÓN
+    realizarTruncacionArchivo(nombreArchivo, nuevoTamanio);
     enviarOrden(TRUNCACION_ARCHIVO_EXITOSA,cliente_socket, info_logger);
 }
 
