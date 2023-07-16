@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
     if (!generar_conexiones()) {
-        log_error(error_logger,"No se pudo generar las conexiones, cerrando CPU");
+        log_error(error_logger,"Hubo un error con las conexiones, cerrando CPU");
         return EXIT_FAILURE;
     }
 
