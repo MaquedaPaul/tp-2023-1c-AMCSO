@@ -154,15 +154,16 @@ bool agregarUint32_tsAPaquete(t_list* listaInts, t_paquete* paquete)
 {
 
     paquete->buffer->size+= sizeof(uint32_t)*list_size(listaInts);
+    //Sumo la cantidad de ints al buffer
+    paquete->buffer->size += sizeof(uint8_t);
 
     void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
     int offset=0; //desplazamiento
 
-    //Sumo la cantidad de instrucciones al buffer
-    paquete->buffer->size += sizeof(uint8_t);
 
-    void copiarElementos(uint32_t unEntero){
-        memcpy(stream + offset, &unEntero, sizeof(uint32_t));
+
+    void copiarElementos(uint32_t* unEntero){
+        memcpy(stream + offset, unEntero, sizeof(uint32_t));
         offset+= sizeof(uint32_t);
     }
     int cantidad_ints = list_size(listaInts);
@@ -171,7 +172,6 @@ bool agregarUint32_tsAPaquete(t_list* listaInts, t_paquete* paquete)
 
     list_iterate(listaInts,copiarElementos);
     paquete->buffer->stream = stream;
-    printf("SE AGREGO EL PAQUETE\n");
     return true;
 
 }
@@ -190,8 +190,8 @@ t_list* recibirListaUint32_t(int socket_cliente){
     desplazamiento+=sizeof(uint8_t);
 
     for (int i = 0; i < cantidad_ints; ++i) {
-        uint32_t nuevoEntero;
-        memcpy(&nuevoEntero, buffer + desplazamiento, sizeof (uint32_t));
+        uint32_t* nuevoEntero = malloc(sizeof(uint32_t));
+        memcpy(nuevoEntero, buffer + desplazamiento, sizeof (uint32_t));
         desplazamiento+=sizeof(uint32_t);
         list_add(listaInts, nuevoEntero);
     }
