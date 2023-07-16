@@ -109,7 +109,7 @@ void crearSegmento(int cliente_socket) {
     pthread_mutex_unlock(&mutex_espacioDisponible);
     pthread_mutex_lock(&mutex_huecosDisponibles);
 
-    if(elEspacioSeEncuentraEnDiferentesHuecos()){
+    if(elEspacioSeEncuentraEnDiferentesHuecos(*tamanioSegmento)){
         enviarOrden(SE_NECESITA_COMPACTACION,cliente_socket,info_logger);
         pthread_mutex_unlock(&mutex_huecosDisponibles);
         return;
