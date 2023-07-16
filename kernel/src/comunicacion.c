@@ -193,7 +193,7 @@ void procesar_conexion(void *void_args) {
                 creacionSegmentoExitoso(baseSegmento);
                 break;
             }
-            case OUT_OF_MEMORY:
+            case SIN_ESPACIO_DISPONIBLE:
             {
                 recibirOrden(cliente_socket);
                 t_pcb* pcbRecibida = list_get(colaExec,0); //Ya que se elimina en moverProceso
@@ -450,7 +450,7 @@ void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {
         list_add(recurso->cola, unaPcb);
         log_info(info_logger,"PID: <%d> - Bloqueado por: <%s>",unaPcb->id,recurso->nombreRecurso);
     }else{
-        enviar_paquete_pcb(unaPcb,fd_cpu,WAIT,info_logger);
+        enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
     }
 }
 
@@ -461,7 +461,7 @@ void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
     if(!list_is_empty(recurso->cola)){
         moverProceso_BloqrecursoReady(recurso);
     }
-     enviar_paquete_pcb(unaPcb,fd_cpu,SIGNAL,info_logger);
+     enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
 }
 
 void manejoDeRecursos(t_pcb* unaPcb,char* orden){
@@ -564,5 +564,4 @@ void solicitarCreacionSegmentoMemoria(t_pcb* pcb){
 
     log_info(info_logger,"PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcb->id,idSegmento,tamSegmento);
     enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,CREACION_SEGMENTOS);
-    list_destroy_and_destroy_elements(listaIntsMemoria,free);
 }
