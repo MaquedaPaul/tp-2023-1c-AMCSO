@@ -10,101 +10,69 @@ t_pcb* pcb_actual;
 int pid;
 
 void procesar_conexion(void *void_args) {
-    t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
-    int cliente_socket = args->fd;
-    char *server_name = args->server_name;
-    free(args);
-
-    op_code cop;
     pid = 2000000000; //TODO no es una solución elegante utilizar números aleatorios grandes
-    while (cliente_socket != -1) {
+    while (1) {
+        op_code cop = recibir_operacion(fd_kernel);
 
-        if (recv(cliente_socket, &cop, sizeof(op_code), 0) != sizeof(op_code)) {
-            log_info(info_logger, "DISCONNECT!");
-            return;
-        }
+        if(cop>0) {
+            switch (cop) {
+                case PCB: {
 
-        switch (cop) {
-            case DEBUG:
-                log_info(info_logger, "debug");
-                break;
-            case HANDSHAKE_CPU:
-                recibirOrden(cliente_socket);
-                fd_memoria = cliente_socket;
-                break;
+                    pcb_actual = recibir_pcb(fd_kernel);
 
-            case PCB: {
-                fd_kernel= cliente_socket;
-
-
-                pcb_actual = recibir_pcb(cliente_socket);
-
-                if (pcb_actual->id == pid) {
-                    ciclo_de_instruccion();
-                    //eliminar_PCB(pcb_actual);
-                } else {
-                    pid = pcb_actual->id;
-                    copiar_registroPCB_a_los_registrosCPU(pcb_actual->registrosCpu);
-                    ciclo_de_instruccion();
-                    //eliminar_PCB(pcb_actual);
-                    break;
+                    if (pcb_actual->id == pid) {
+                        ciclo_de_instruccion();
+                        //eliminar_PCB(pcb_actual);
+                        break;
+                    } else {
+                        pid = pcb_actual->id;
+                        copiar_registroPCB_a_los_registrosCPU(pcb_actual->registrosCpu);
+                        ciclo_de_instruccion();
+                        //eliminar_PCB(pcb_actual);
+                        break;
 
 
+                    }
                 }
+                case -1:
+                    log_error(error_logger, "Cliente desconectado de %s...", "SERVER CPU");
+                    return;
+                default:
+                    log_error(error_logger, "Algo anduvo mal en el server de %s", "SERVER CPU");
+                    log_info(info_logger, "Cop: %d", cop);
+                    return;
             }
-            case ESCRITURA_REALIZADA:
-                recibirOrden(cliente_socket);
-                log_info(info_logger,"PRueba");
-                break;
-            case -1:
-                log_error(error_logger, "Cliente desconectado de %s...", server_name);
-                return;
-            default:
-                log_error(error_logger, "Algo anduvo mal en el server de %s", server_name);
-                log_info(info_logger, "Cop: %d", cop);
-                return;
         }
     }
-    log_warning(warning_logger, "El cliente se desconecto de %s server", server_name);
+    log_warning(warning_logger, "El cliente se desconecto de %s server", "SERVER CPU");
     return;
 }
 
-int server_escuchar(t_log *logger, char *server_name, int server_socket) {
-    int cliente_socket = esperar_cliente(logger, server_name, server_socket);
-
-    if (cliente_socket != -1) {
-            pthread_t atenderConexionNueva;
-            t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
-            args->fd = cliente_socket;
-            args->server_name = server_name;
-            pthread_create(&atenderConexionNueva, NULL, (void *) procesar_conexion, args);
-            pthread_detach(atenderConexionNueva);
-            return 1;
-        }
-        return 0;
-}
 
 bool generar_conexiones() {
-        pthread_t crear_server_cpu;
         pthread_t conexion_con_memoria;
-        pthread_create(&crear_server_cpu, NULL, (void *) crearServidor, NULL);
         pthread_create(&conexion_con_memoria, NULL, (void *) conectarConMemoria, NULL);
-        pthread_join(crear_server_cpu, NULL);
+        if(!crearServidor()){
+            return false;
+        }
+
         pthread_join(conexion_con_memoria, NULL);
         conexionesHechas = true;
         return true; //debe tomarse lo que retorna el hilo al crear el servidor
 }
 
-void *crearServidor() {
-        puerto_cpu = cfg_cpu->PUERTO_ESCUCHA;
-        fd_cpu = iniciar_servidor(info_logger, "SERVER CPU", ip_cpu, puerto_cpu);
+bool crearServidor() {
+    puerto_cpu = cfg_cpu->PUERTO_ESCUCHA;
+    fd_cpu = iniciar_servidor(info_logger, "SERVER CPU", ip_cpu, puerto_cpu);
 
-        if (fd_cpu == 0) {
-            log_error(error_logger, "Fallo al crear el servidor CPU, cerrando CPU");
-            return (void *) EXIT_FAILURE;
-        }
-
-        while (server_escuchar(info_logger, "SERVER CPU", fd_cpu));
+    if (fd_cpu == 0) {
+        log_error(error_logger, "Fallo al crear el servidor CPU, cerrando CPU");
+        return EXIT_FAILURE;
+    }
+    fd_kernel = esperar_cliente(info_logger, "SERVER CPU", fd_cpu);
+    pthread_t atenderPeticionesKernel;
+    pthread_create(&atenderPeticionesKernel, NULL, (void*)procesar_conexion, NULL);
+    pthread_join(atenderPeticionesKernel, NULL);
 }
 
 
@@ -112,7 +80,15 @@ void *conectarConMemoria() {
         bool comprobacion = generarConexionesConMemoria();
         if (comprobacion) {
             enviarOrden(HANDSHAKE_CPU, fd_memoria, info_logger);
-            atenderMemoria();
+            op_code cod = recibir_operacion(fd_memoria);
+            if(cod == HANDSHAKE_CPU){
+                recibirOrden(fd_memoria);
+                log_info(info_logger,"HANDSHAKE con Memoria acontecido");
+            }
+            else{
+                log_error(error_logger,"FALLO en el recibo del HANDSHAKE de Memoria");
+            }
+
         }
 
 }
@@ -144,15 +120,3 @@ bool generarConexionesConMemoria() {
 }
 
 
-bool atenderMemoria() {
-        if (fd_memoria == -1) {
-            return EXIT_FAILURE;
-        }
-        pthread_t atenderMemoria;
-        t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
-        args->fd = fd_memoria;
-        args->server_name = "ATENDER_MEMORIA";
-        pthread_create(&atenderMemoria, NULL, (void *) procesar_conexion, args);
-        pthread_detach(atenderMemoria);
-        return true;
-}

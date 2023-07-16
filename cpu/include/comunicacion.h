@@ -30,7 +30,7 @@ extern int fd_memoria;
 void procesar_conexion(void *void_args);
 int server_escuchar(t_log *logger, char *server_name, int server_socket);
 bool generar_conexiones();
-void* crearServidor();
+bool crearServidor();
 
 void* conectarConMemoria();
 bool generarConexionesConMemoria();
