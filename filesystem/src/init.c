@@ -161,7 +161,7 @@ void inicializarBitmap(int tamaño_del_bitarray){
 //ARCHIVO DE BLOQUES
 
 bool levantarArchivoBloques(){
-    archivoBloques = malloc(sizeof(t_bloques)); //definido en filesytem.c
+    archivoBloques = malloc(sizeof(t_bloques)); //definido en gestion_filesytem.c
     struct stat file_st;
 
     if(existeArchivo(archivoBloques->fd, cfg_filesystem->PATH_BLOQUES)){

@@ -55,11 +55,11 @@ void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void
 
 int numeroDeBloque(uint32_t punteroArchivo);
 int buscarPosicionDentroDelBloque(uint32_t puntero, uint32_t numeroBloque);
-void* leer_archivo(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, uint32_t tamanioALeer, t_config_fcb* fcb);
-void escribirBloque(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* pcb);
+void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroArchivo, uint32_t tamanioALeer, t_config_fcb* fcb);
+void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* pcb);
 
 uint32_t cantidadDisponibleDelBloque(uint32_t puntero);
-uint32_t cantidadBytesQueFaltaOperar(uint32_t nuevoTamanioALeer);
-uint32_t buscarPunteroInicioDelBloque(int numeroBloque, t_config_fcb* fcb);
+uint32_t cantidadBytesQueNoSePuedeLeerEnUnBloque(uint32_t nuevoTamanioALeer);
+uint32_t buscarNumeroDeBloqueDelArchivoDeBloque(int numero_bloque, t_config_fcb* fcb);
 
 #endif //FILESYSTEM_GESTION_FILESYSTEM_H

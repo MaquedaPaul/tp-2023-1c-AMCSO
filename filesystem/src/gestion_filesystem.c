@@ -299,61 +299,69 @@ uint32_t obtener_bloque_libre(t_bitarray* auxBitArray) {
 }
 
 
-
-
-
-
-
 void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos){
 
     t_config_fcb* fcb = buscarFCBporNombre(nombreArchivo);
     uint32_t numeroBloque = numeroDeBloque(punteroArchivo);
     uint32_t posicionBloque = buscarPosicionDentroDelBloque(fcb->TAMANIO_ARCHIVO, numeroBloque);
-    int posicionInicial = buscarPunteroInicioDelBloque(numeroBloque, fcb);
 
     escribirBloque(numeroBloque, posicionBloque, punteroArchivo, datos,tamanioDatos, fcb);
 
 }
 
-void escribirBloque(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* fcb){
+void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* fcb){ //tamanioAEscrbir = 11
 
-    void* datoEscrito = NULL;
-    uint32_t bytesQueSePuedenEscrbirEnUnBloque = cantidadDisponibleDelBloque(punteroBloque);
+    uint32_t offset;
+    void* datoAEscribirFaltante =NULL;
+
+    uint32_t bytesQueSePuedenEscrbirEnUnBloque = cantidadDisponibleDelBloque(posicionBloque);
     uint32_t cantidadBytesNoEscrita = 0;
+    uint32_t bytesEscritos = 0;
 
-    if (bytesQueSePuedenEscrbirEnUnBloque >= tamanioAEscrbir) { //1 >= 6
-        //LO QUE SE TIENE Q ESCRIBIR ESTA EN UN BLOQUE
-        //escribir archivo de bloques a partir de la posicionInicialBloque con el tamanioALeer de una
+    uint32_t numeroBloqueArchivoGlobal = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
+
+    if (bytesQueSePuedenEscrbirEnUnBloque >= tamanioAEscrbir) {
+
+        memcpy(archivoBloques->archivo + (numeroBloqueArchivoGlobal - 1 * cfg_superbloque->BLOCK_SIZE), datos, tamanioAEscrbir);
+        bytesEscritos = tamanioAEscrbir;
+
     }else{
 
-        //leer archivo de bloques con el tamaño = bytesQueSePuedenEscrbirEnUnBloque, desde la posicion "punteroBloque", y buscar el SIGUIENTE bloque para terminar de leer los bytes
-        //lo que escribo en el archivo, lo copio en datoEscrito
+        memcpy(archivoBloques->archivo + (numeroBloqueArchivoGlobal - 1 * cfg_superbloque->BLOCK_SIZE), datos, bytesQueSePuedenEscrbirEnUnBloque); // bytesQueSePuedenEscrbirEnUnBloque = 1
 
-        cantidadBytesNoEscrita = tamanioAEscrbir - bytesQueSePuedenEscrbirEnUnBloque;
+        bytesEscritos = bytesQueSePuedenEscrbirEnUnBloque; //se escribio 1
+        cantidadBytesNoEscrita = tamanioAEscrbir - bytesQueSePuedenEscrbirEnUnBloque; //11 - 1 = 10
+
+        offset = bytesQueSePuedenEscrbirEnUnBloque; //lo que se lleyo, offset = 1, me sirve para leer "datos"
+
+        while(bytesEscritos != tamanioAEscrbir) { //datos = holacomoe st , 1º ya escrbir  ç
+
+            uint32_t cantidadBytesQueFaltanEscrbir = cantidadBytesQueNoSePuedeLeerEnUnBloque(cantidadBytesNoEscrita); //2  "st"
+            uint32_t nuevoTamanio = cantidadBytesNoEscrita - cantidadBytesQueFaltanEscrbir; //10 - 2 = 8,         2º: 2
+
+            datoAEscribirFaltante = malloc(nuevoTamanio);
+            memcpy(datoAEscribirFaltante, datos + offset, nuevoTamanio); //copio lo que falta escrbir  datos + offset = 8, 		2º= offeset = 9
+            numeroBloque++;
+            numeroBloqueArchivoGlobal = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
+
+            memcpy(archivoBloques->archivo + ((numeroBloqueArchivoGlobal - 1) * cfg_superbloque->BLOCK_SIZE), datoAEscribirFaltante, nuevoTamanio);
+
+            cantidadBytesNoEscrita = cantidadBytesQueFaltanEscrbir; //2  "st"
+            bytesEscritos += nuevoTamanio;
+            offset += nuevoTamanio; //offset = 1 + 8 = 9, osea lo que se leyo
+
+            free(datoAEscribirFaltante); //libero lo que escribi en este ciclo
+            datoAEscribirFaltante = NULL; //solo va a contener lo que necesito escrbir en cada ciclo
+        }
+
     }
-
-    while(sizeof(datoEscrito) != tamanioAEscrbir) {
-
-        uint32_t cantidadBytesQueFaltanEscrbir = cantidadBytesQueFaltaOperar(cantidadBytesNoEscrita);
-        uint32_t nuevoTamanio = cantidadBytesNoEscrita - cantidadBytesQueFaltanEscrbir;
-        numeroBloque++;
-        uint32_t posicionNuevoBloque = buscarPunteroInicioDelBloque(numeroBloque, fcb);
-
-        //escrbir archivo de bloques con el nuevoTamaño a partir del posicionNuevoBloque
-        //lo que escribo en el archivo, lo copio en datoEscrito
-
-        cantidadBytesNoEscrita = cantidadBytesQueFaltanEscrbir;
-
-    }
-
 }
 
-void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t  tamanio){
+void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t tamanio){
 
     t_config_fcb* fcb = buscarFCBporNombre(nombreArchivo);
-    uint32_t numeroBloque = numeroDeBloque(punteroArchivo);
-    uint32_t posicionBloque = buscarPosicionDentroDelBloque(punteroArchivo,numeroBloque);
-    int punteroAlBloqueDeDatos = buscarPunteroInicioDelBloque(numeroBloque, fcb);  //buscar puntero de inicio del bloque correspondiende al numero_bloque
+    uint32_t numeroBloque = numeroDeBloque(punteroArchivo); //1
+    uint32_t posicionBloque = buscarPosicionDentroDelBloque(punteroArchivo, numeroBloque); //6
 
     void* datoLeido = leer_archivo(numeroBloque, posicionBloque, punteroArchivo, tamanio, fcb);
 
@@ -362,37 +370,51 @@ void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint3
 }
 
 
-void* leer_archivo(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArchivo, uint32_t tamanioALeer, t_config_fcb* fcb){
+void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroArchivo, uint32_t tamanioALeer, t_config_fcb* fcb){
 
     void* datoLeido = NULL;
-    uint32_t loQueSePuedeLeerEnUnBloque = cantidadDisponibleDelBloque(punteroBloque); //2
+    void* datoLeidoNuevo = NULL;
+    uint32_t loQueSePuedeLeerEnUnBloque = cantidadDisponibleDelBloque(posicionBloque); //2
     uint32_t cantidadBytesNoLeida;
+    uint32_t punteroBloqueDentroDelArchivo;
 
-    if (loQueSePuedeLeerEnUnBloque >= tamanioALeer) { //8>=10 ,,
+    if (loQueSePuedeLeerEnUnBloque >= tamanioALeer) {
 
-        //LO QUE SE TIENE Q LEER ESTA EN UN BLOQUE
-        //leer archivo de bloques a partir del numeroBloque, y una vez encontrado el bloque usar punteroBloque con el tamanioALeer de una
+        //Lo que se tiene q leer se puede leer en un bloque
+        char bytesALeer[tamanioALeer];
+        datoLeido = malloc(sizeof(bytesALeer));
+        memcpy(datoLeido, archivoBloques->archivo + (posicionBloque-1 * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  tamanioALeer);
 
     }else{
 
-        //se va a leer el bloque pero lo que se pueda
-        //leer archivo de bloques a partir del numeroBloque, y una vez encontrado el bloque usar punteroBloque con el tamanioALeer= loQueSePuedeLeerEnUnBloque.
+        datoLeido = malloc(sizeof (loQueSePuedeLeerEnUnBloque));
+        memcpy(datoLeido, archivoBloques-> archivo + (posicionBloque-1 * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  loQueSePuedeLeerEnUnBloque);
 
-        //y buscar el SIGUIENTE bloque para terminar de leer los bytes
-
-        cantidadBytesNoLeida = tamanioALeer - loQueSePuedeLeerEnUnBloque; // 10-8 = 5,,, 12-2=10
+        cantidadBytesNoLeida = tamanioALeer - loQueSePuedeLeerEnUnBloque;
     }
 
+    while(sizeof(datoLeido) != tamanioALeer) {
 
-    while(sizeof(datoLeido) != tamanioALeer) { //8 != 10,, 2!=10
-
-        uint32_t cantidadBytesQueFaltanLeer = cantidadBytesQueFaltaOperar(cantidadBytesNoLeida);  // 5- 3 = 2
-        uint32_t nuevoTamanio = cantidadBytesNoLeida - cantidadBytesQueFaltanLeer; //10-2= 8
+        uint32_t cantidadBytesQueFaltanLeer = cantidadBytesQueNoSePuedeLeerEnUnBloque(cantidadBytesNoLeida); //verifico si el nuevoTamaño a leer se puede leer en 1 bloque, si es asi da 0
+        uint32_t nuevoTamanioALeer = cantidadBytesNoLeida - cantidadBytesQueFaltanLeer; //si alcanza en un bloque va a ser igual a cantidadBytesNoLeida
         numeroBloque++;
-        uint32_t posicionNuevoBloque = buscarPunteroInicioDelBloque(numeroBloque, fcb);
+        punteroBloqueDentroDelArchivo = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
-        //leer archivo de bloques con el nuevoTamaño a partir del posicionNuevoBloque
-        cantidadBytesNoLeida = cantidadBytesQueFaltanLeer; //2
+        datoLeidoNuevo = malloc(nuevoTamanioALeer);
+        memcpy(&datoLeidoNuevo, archivoBloques-> archivo + (punteroBloqueDentroDelArchivo - 1 * cfg_superbloque->BLOCK_SIZE),  nuevoTamanioALeer);
+
+        uint32_t cantidadBytesLeidos = sizeof(datoLeido);
+        void* datoLeido_temporal = realloc(datoLeido, cantidadBytesLeidos + nuevoTamanioALeer); //Cuando se redimensiona la memoria con realloc, si el nuevo tamaño es mayor que el anterior, se conservan todos los valores originales
+
+        if(datoLeido_temporal == NULL){
+            //ERROR
+        }
+        datoLeido = datoLeido_temporal;
+        memcpy(datoLeido + nuevoTamanioALeer, datoLeidoNuevo, nuevoTamanioALeer); //escribo en el datoLeido el nuevo contenido, voy concatenando lo leido
+        free(datoLeidoNuevo);
+        datoLeidoNuevo = NULL; //solo va a contener lo que necesito leer en cada ciclo
+
+        cantidadBytesNoLeida = cantidadBytesQueFaltanLeer;
     }
 
     return datoLeido;
@@ -400,27 +422,30 @@ void* leer_archivo(int numeroBloque, uint32_t punteroBloque, uint32_t punteroArc
 
 int numeroDeBloque(uint32_t punteroArchivo) {
 
-    return punteroArchivo/cfg_superbloque->BLOCK_SIZE;
+    return (punteroArchivo/cfg_superbloque->BLOCK_SIZE) + 1;
 }
 
-int buscarPosicionDentroDelBloque(uint32_t puntero, uint32_t numeroBloque){ //ej: size bloque: 16, 0 a 15 devuelve
+int buscarPosicionDentroDelBloque(uint32_t punteroArchivo, uint32_t numeroBloque){ //ej: size bloque: 16, 0 a 15 devuelve
 
-    uint32_t offset = puntero % cfg_superbloque->BLOCK_SIZE; //me devuelve un puntero desde donde hay que escrbir o leer dentro del bloque
+    uint32_t offset = punteroArchivo % cfg_superbloque->BLOCK_SIZE; //me devuelve un puntero desde donde hay que escrbir o leer dentro del bloque
 
 }
 
-uint32_t buscarPunteroInicioDelBloque(int numero_bloque, t_config_fcb* fcb) {
+uint32_t buscarNumeroDeBloqueDelArchivoDeBloque(int numero_bloque, t_config_fcb* fcb) {
     if (numero_bloque == 1) {
         return fcb->PUNTERO_DIRECTO;
-    } else {
-        //buscar en el archivo de bloque desde la posicion del punteroIndirecto, el puntero correspondiendo numeroBloque
-        fcb->PUNTERO_INDIRECTO;
-        return 1;
 
+    } else {
+
+        void* punteroAUnBloque;
+        memcpy(&punteroAUnBloque, archivoBloques-> archivo + ((fcb -> PUNTERO_INDIRECTO -1) * cfg_superbloque->BLOCK_SIZE) + (numero_bloque-1), sizeof(uint32_t));
+        (char*) punteroAUnBloque;
+
+        return atoi(punteroAUnBloque);
     }
 }
 
-uint32_t cantidadBytesQueFaltaOperar(uint32_t nuevoTamanioALeer){
+uint32_t cantidadBytesQueNoSePuedeLeerEnUnBloque(uint32_t nuevoTamanioALeer){
 
     if (nuevoTamanioALeer > cfg_superbloque->BLOCK_SIZE){ //2   .. 16| 10 .. 8
         return  nuevoTamanioALeer - cfg_superbloque->BLOCK_SIZE; //10-8 =2
