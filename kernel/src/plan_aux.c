@@ -118,7 +118,7 @@ void ejecutar_FOPEN_socket(int socket_entrada){
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
         t_peticionesFS* peticion;
         peticion->pcb=pcbRecibido;
-        peticion->nombreArchivo=nomArch;
+        strcpy(peticion->nombreArchivo, nomArch);
         list_add(tabla_PeticionesFS,peticion);
 
     }
@@ -155,7 +155,7 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
         t_peticionesFS* peticion;
         peticion->pcb=pcbRecibido;
-        peticion->nombreArchivo=nomArch;
+        strcpy(peticion->nombreArchivo, nomArch);
         list_add(tabla_PeticionesFS,peticion);
 
     }
@@ -171,7 +171,7 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
             archivo->ptro=0;
             list_replace(tablaGlobal_ArchivosAbiertos,pos, archivo);
            //TODO list_add(pcbRecibido->tablaArchivosAbiertos,nomArch); //VERIFICAR
-            enviar_paquete_pcb(pcbRecibido,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
+            //enviar_paquete_pcb(pcbRecibido,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
 
             log_info(info_logger, "PID: <%d> - Abrir Archivo: <%s>", 
                         archivo->id_pcb_en_uso, nomArch);
@@ -208,18 +208,21 @@ void ejecutar_FCLOSE(int socket_entrada){
     log_info(info_logger, "PID: <%d> - Cerrar Archivo: <%s>", 
                 archivo->id_pcb_en_uso, nombreArchivo);
 
+    
+    enviar_paquete_pcb(pcbRecibido,fd_cpu,PCB,info_logger);
+
     if(list_is_empty(archivo->lista_espera_pcbs)){
         list_remove(tablaGlobal_ArchivosAbiertos,pos);
         pthread_mutex_unlock(&mutex_TGAA);
     }
     else{
-        t_pcb* pcbRecibido = list_get(archivo->lista_espera_pcbs,0);
+        t_pcb* pcbRecibido2 = list_get(archivo->lista_espera_pcbs,0);
         list_remove(archivo->lista_espera_pcbs,0);
         list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
 
         pthread_mutex_unlock(&mutex_TGAA);
-        ejecutar_FOPEN(pcbRecibido, nombreArchivo);
-        moverProceso_BloqReady(pcbRecibido);
+        ejecutar_FOPEN(pcbRecibido2, nombreArchivo);
+        moverProceso_BloqReady(pcbRecibido2);
     }
 
 }
@@ -233,19 +236,21 @@ void ejecutar_FCLOSE_porNombreArchivo(t_pcb* pcbBuscado, char* nombreArchivo){
 
     log_info(info_logger, "PID: <%d> - Cerrar Archivo: <%s>", 
                 archivo->id_pcb_en_uso, nombreArchivo);
+    
+    enviar_paquete_pcb(pcbBuscado,fd_cpu,PCB,info_logger);
 
     if(list_is_empty(archivo->lista_espera_pcbs)){
         list_remove(tablaGlobal_ArchivosAbiertos,pos);
         pthread_mutex_unlock(&mutex_TGAA);
     }
     else{
-        t_pcb* pcbBuscado = list_get(archivo->lista_espera_pcbs,0);
+        t_pcb* pcbBuscado2 = list_get(archivo->lista_espera_pcbs,0);
         list_remove(archivo->lista_espera_pcbs,0);
         list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
 
         pthread_mutex_unlock(&mutex_TGAA);
-        ejecutar_FOPEN(pcbBuscado, nombreArchivo);
-        moverProceso_BloqReady(pcbBuscado);
+        ejecutar_FOPEN(pcbBuscado2, nombreArchivo);
+        moverProceso_BloqReady(pcbBuscado2);
     }
 
 }
@@ -279,6 +284,8 @@ void ejecutar_FSEEK(int socket_entrada){
 
     log_info(info_logger, "PID: <%d> - Actualizar puntero Archivo: <%s> - Puntero <%d>", 
                 archivo->id_pcb_en_uso, nombreArchivo, punteroRecibido);
+
+    enviar_paquete_pcb(pcbRecibido,fd_cpu,PCB,info_logger);
     
 }
 
@@ -464,7 +471,7 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
 
     t_pcb* pcbBuscado = buscarPcb_enTablaPeticionesFS(nomArch);
     t_TablaArchivos* archivo;
-    archivo->nombreArchivo = nomArch;
+    strcpy(archivo->nombreArchivo, nomArch);
     archivo->enUso = true;
     archivo->id_pcb_en_uso = pcbBuscado->id;
     archivo->ptro=0;
