@@ -70,6 +70,7 @@ void procesar_conexion(void *void_args) {
             case SEGMENTATION_FAULT:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbRecibida->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
+                eliminarPcb_TGAA_SEGFAULT(pcbRecibida);
                 moverProceso_ExecExit(pcbRecibida);
             }
             case EXIT:{
@@ -102,45 +103,39 @@ void procesar_conexion(void *void_args) {
             }
 
             case F_OPEN: {
-                //recibir pcb y nomrbre archivo --> averiguar
-                //Verificar como se reciben los paquetes --> Agregar campo a pcb o crear nuevo recibir (300lineas)
-                //ejecutar_FOPEN(pcbBuscado, nombreArchivo);
+                //recibe largoNombreArchivo /nombreArchivo / pcb
+                ejecutar_FOPEN_socket(cliente_socket);
                 break;
             }
 
             case F_CLOSE: {
-                //FCLOSE solo debe rerecibir el nombrearch
-                //pcb si es necesario se envia x separado
-                //ejecutar_FCLOSE(nombreArchivo);
+                //recibe largoNombreArchivo /nombreArchivo / pcb
+                ejecutar_FCLOSE(cliente_socket);
 
                 break;
             }
 
             case F_SEEK: {
-                //FCLOSE solo debe rerecibir el nombrearch y puntero
-                //pcb si es necesario se envia x separado
-                //ejecutar_FSEEK(nombreArchivo, puntero);
+                //recibe largoNombreArchivo /nombreArchivo / puntero / pcb
+                ejecutar_FSEEK(cliente_socket);
                 break;
             }
 
             case F_TRUNCATE: {
-                //FTRUNCATE solo debe rerecibir el nombrearch y tamaño
-                //pcb si es necesario se envia x separado
-                //ejecutar_FTRUNCATE(nombreArchivo, tamArch);
+                //recibe largoNombreArchivo /nombreArchivo / tamaño / pcb
+                ejecutar_FTRUNCATE(cliente_socket);
                 break;
             }
 
             case F_READ: {
-                //FREAD solo debe rerecibir el nombrearch largo y DL 
-                //pcb si es necesario se envia x separado
-                //ejecutar_FREAD(nombreArchivo, largo, dl);
+                //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
+                ejecutar_FREAD(cliente_socket);
                 break;
             }
 
             case F_WRITE: {
-                //FWRITE solo debe rerecibir el nombrearch largo y DF
-                //pcb si es necesario se envia x separado
-                //ejecutar_FWRITE(nombreArchivo, largo, df);
+                //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
+                ejecutar_FWRITE(cliente_socket);
                 break;
             }
 
@@ -166,16 +161,19 @@ void procesar_conexion(void *void_args) {
             
             case TRUNCACION_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
+                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
             case LECTURA_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
+                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
             case ESCRITURA_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
+                desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
