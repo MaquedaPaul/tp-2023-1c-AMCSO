@@ -14,8 +14,7 @@ testNro="$2"
 directorioConfig="$directorioTp/pruebas/configs/$test"
 directorioInstrucciones="$directorioTp/pruebas/instrucciones/$test/$1_$testNro"
 directorioBin="$directorioModulo/bin/"
-echo "$directorioInstrucciones"
-echo "$directorioConfig"
+
 
 # Cambiar al directorio
 cd "$directorioBin"

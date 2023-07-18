@@ -204,7 +204,7 @@ void procesar_conexion(void *void_args) {
             case FINALIZACION_PROCESO_TERMINADA:
             {
                 recibirOrden(cliente_socket);
-                log_info(info_logger,"Recibo Confimarcion de FINALIZACION DE PROCESO TERMINADA");
+                log_info(info_logger,"Recibo Confirmacion de FINALIZACION DE PROCESO TERMINADA");
                 decrementarGradoMP();
                 break;
             }
@@ -481,6 +481,7 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden){
         }else{
             log_info(info_logger,"Recurso <%s> solicitado INEXISTENTE", recursoSolicitado);
             moverProceso_ExecExit(unaPcb);
+
         }
         }
 }
