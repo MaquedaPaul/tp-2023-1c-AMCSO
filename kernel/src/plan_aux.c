@@ -171,7 +171,7 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
             archivo->ptro=0;
             list_replace(tablaGlobal_ArchivosAbiertos,pos, archivo);
            //TODO list_add(pcbRecibido->tablaArchivosAbiertos,nomArch); //VERIFICAR
-            //enviar_paquete_pcb(pcbRecibido,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
+            enviar_paquete_pcb(pcbRecibido,fd_cpu,APERTURA_ARCHIVO_EXITOSA,info_logger);
 
             log_info(info_logger, "PID: <%d> - Abrir Archivo: <%s>", 
                         archivo->id_pcb_en_uso, nomArch);
