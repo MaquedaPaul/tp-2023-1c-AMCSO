@@ -10,6 +10,12 @@
 #include <fcntl.h>
 #include <commons/bitarray.h>
 #include <sys/stat.h>
+typedef enum {
+    PATH_SUPERBLOQUE,
+    PATH_BITMAP,
+    PATH_BLOQUES,
+    PATH_FCB
+}tipo_path;
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;
@@ -24,7 +30,7 @@ extern char* path_config;
 int cargar_configuracion(char *path);
 extern t_bitarray* bitarrayBitmapDeBloques;
 extern t_bitmapBloques* bitmapDeBloques;
-
+void reasignarPathSiEsNecesario(tipo_path tipo);
 bool crearSemaforos();
 
 bool levantarSuperbloque();
@@ -36,7 +42,7 @@ bool crearSuperbloque();
 bool crearArchivoDeBloques();
 bool recorrerDirectorioFcb();
 
-bool existeArchivo(int fd, char *path);
+bool existeArchivo(int* fd, char *path);
 int obtener_tamanio_en_bytes();
 void inicializarBitmap(int tamaño_del_bitarray);
 bool iniciarFilesystem();

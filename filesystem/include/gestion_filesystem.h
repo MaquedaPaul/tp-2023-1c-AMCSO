@@ -21,6 +21,7 @@ typedef struct
 {
     void* archivo;
     int fd;
+    int tamanio;
 }t_bitmapBloques;
 
 typedef struct
