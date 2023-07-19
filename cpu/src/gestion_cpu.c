@@ -578,7 +578,7 @@ void  recibirPCB()  {
 
 		switch (cod_op) {
 		case PCB:
-             pcb_actual = recibir_pcb2(fd_kernel) ;
+             pcb_actual = recibir_pcb(fd_kernel) ;
 			 break;
         }
 }
