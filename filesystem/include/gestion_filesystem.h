@@ -43,6 +43,7 @@ typedef struct
     uint32_t TAMANIO_ARCHIVO;
     uint32_t PUNTERO_DIRECTO;
     uint32_t PUNTERO_INDIRECTO;
+    t_config* fcb_config;
 } t_config_fcb;
 
 

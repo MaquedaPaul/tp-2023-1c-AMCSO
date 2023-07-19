@@ -5,6 +5,11 @@
 #include <init.h>
 #include <sys/mman.h>
 
+void* bloques;
+void* puntero_al_bitmap;
+t_bitarray* bitmap;
+
+
 bool semaforosCreados = false;
 
 int cargar_configuracion(char *path) {
@@ -335,5 +340,114 @@ void crear_fcbs_del_directorio() {
 		}
 		closedir(d);
 	}
+
+}
+
+
+void iniciar_filesystem(char* nombre_path) {
+
+
+if (!esDirectorio(nombre_path)){
+    printf("crear directorio %s\n", nombre_path);
+
+	 	mkdir(nombre_path,0777);
+		crear_bitmap_de_bloques();
+		crear_archivo_de_bloques();
+
+	} else {
+
+		levantar_superbloque_existente();
+
+	}
+
+}
+
+
+
+int esDirectorio(const char* nombre){
+    DIR* directorio = opendir(nombre);
+
+    if(directorio != NULL){
+     closedir(directorio);
+     return 1;
+    } else {
+    	return 0;
+    }
+}
+
+
+
+void crear_bitmap_de_bloques(){
+
+    int tamanio_bitmap = obtener_tamanio_en_bytes();
+
+	int fd = open(cfg_filesystem->PATH_BITMAP, O_CREAT| O_RDWR, 0777);
+	if (fd < 0){
+		  printf("Error al abrir/crear el archivo");
+		  exit(1);
+	}
+
+	ftruncate(fd, tamanio_bitmap);
+
+	puntero_al_bitmap = mmap(NULL,tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0); 
+
+	 if(puntero_al_bitmap == MAP_FAILED)  {
+			printf("Error en el mmap del bitmap");
+			exit(1);
+		  }
+
+    bitmap =  bitarray_create_with_mode(puntero_al_bitmap, tamanio_bitmap , LSB_FIRST);
+
+        for (int i = 0; i < bLOCK_COUNT; i++) {
+        bitarray_clean_bit(bitmap, i); 
+    }
+
+    
+     msync(puntero_al_bitmap, tamanio_bitmap, MS_SYNC);
+
+}
+
+void crear_archivo_de_bloques(){
+
+    int tamanio_archivo_bloques = bLOCK_COUNT*bLOCK_SIZE;
+
+	int fd_bloques = open(cfg_filesystem->PATH_BLOQUES, O_CREAT| O_RDWR, 0777);
+	if (fd_bloques < 0){
+		  printf("Error al abrir/crear el archivo");
+		  exit(1);
+	}
+
+	ftruncate(fd_bloques, tamanio_archivo_bloques);
+
+	bloques = mmap(NULL,tamanio_archivo_bloques, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bloques, 0); 
+
+	 if(bloques == MAP_FAILED) {
+			printf("Error en el mmap del archivo de bloques");
+			exit(1);
+		  }
+
+     msync(bloques, tamanio_archivo_bloques, MS_SYNC);
+
+}
+
+
+
+void levantar_superbloque_existente() {
+
+	//--------------------------------------------------------------------------
+
+    int tamanio_bitmap = obtener_tamanio_en_bytes();
+
+	fd = open(cfg_filesystem->PATH_BITMAP,  O_RDWR, 0777);
+
+	puntero_al_bitmap = mmap(0,tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+
+	bitmap =  bitarray_create_with_mode(puntero_al_bitmap, tamanio_bitmap, LSB_FIRST);
+
+	//-------------------------BLOCKS-----------------------------------------
+
+	fd_bloques = open(cfg_filesystem->PATH_BLOQUES, O_RDWR , 0777);
+
+	bloques = mmap(NULL, cfg_superbloque->BLOCK_COUNT*cfg_superbloque->BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bloques, 0);
 
 }
