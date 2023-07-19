@@ -24,6 +24,45 @@ t_config_fcb* buscarFCBporNombre(char* nombre){
 
 void realizarCreacionArchivo(char* nombreArchivo){
 
+	char* path =string_new();
+	string_append(&path, punto_PATH_FCB);
+	string_append(&path, "/");
+	string_append(&path, nombre_de_archivo);
+	string_append(&path,".dat");
+
+	FILE* f = fopen(path,"wb");
+        fclose(f);
+
+	t_config* aux_config = config_create(path);
+
+	config_set_value(aux_config,"NOMBRE_ARCHIVO",nombre_de_archivo);
+	config_set_value(aux_config,"TAMANIO_ARCHIVO","0");
+	config_set_value(aux_config,"PUNTERO_DIRECTO", "0");
+	config_set_value(aux_config,"PUNTERO_INDIRECTO", "0");
+
+	config_save(aux_config);
+
+            t_config_fcb* aux_FCB = malloc(sizeof(t_config_fcb));
+
+            int tamanio_nombre_archivo = strlen(nombre_de_archivo);
+
+            aux_FCB->nombre_archivo = malloc( tamanio_nombre_archivo + 1  );
+            strcpy( aux_FCB->nombre_archivo, nombre_de_archivo );
+
+            aux_FCB->TAMANIO_ARCHIVO = 0;
+            aux_FCB->PUNTERO_DIRECTO = 0;
+            aux_FCB->PUNTERO_INDIRECTO = 0;
+
+            aux_FCB->fcb_config = aux_config;
+
+	  list_add(lista_fcbs,aux_FCB);
+
+	log_info(info_logger,"Se creo el archivo en: %s", path);
+	free(path);
+
+
+
+
 }
 void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_archivo){
 
