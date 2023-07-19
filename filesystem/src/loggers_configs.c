@@ -94,12 +94,11 @@ void accesoABitmap(uint32_t numeroBloque, uint8_t estado){
     log_info(info_logger,"Acceso a Bitmap - Bloque: <%d> - Estado: <%d>", numeroBloque,estado);
 }
 
-void lecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t direccionMemoria, uint32_t tamanioArchivo){
-    log_info(info_logger,"Leer Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamanio: <%d>", nombreArchivo,punteroArchivo, direccionMemoria,tamanioArchivo);
-}
+void lecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t direccionMemoria, uint32_t tamanioDatos){
+    log_info(info_logger,  "Leer Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamaño: <%d>", nombreArchivo, punteroArchivo, direccionMemoria, tamanioDatos);}
 
-void escrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t direccionMemoria, uint32_t tamanioArchivo){
-    log_info(info_logger,"Escribir Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamanio: <%d>", nombreArchivo,punteroArchivo, direccionMemoria,tamanioArchivo);
+void escrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t direccionMemoria, uint32_t tamanioDatos){
+    log_info(info_logger,"Escribir Archivo: <%s> - Puntero: <%d> - Memoria: <%d> - Tamanio: <%d>", nombreArchivo,punteroArchivo, direccionMemoria,tamanioDatos);
 }
 
 void accesoABloqueArchivo(char* nombreArchivo, uint32_t numeroBloqueArchivo, uint32_t numeroBloqueFs){
