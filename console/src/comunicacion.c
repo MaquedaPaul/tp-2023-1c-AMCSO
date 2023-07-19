@@ -21,6 +21,7 @@ void* procesar_conexion(void *void_args) {
             case DEBUG:
                 break;
             case PROCESO_TERMINADO:
+                recibirOrden(cliente_socket);
                 log_info(info_logger,"Proceso TERMINADO");
                 return;
             case -1:
