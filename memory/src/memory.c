@@ -149,7 +149,9 @@ void eliminarSegmento(int cliente_socket){
     pthread_mutex_unlock(&mutex_espacioDisponible);
     pthread_mutex_unlock(&tablasSegmentos);
     pthread_mutex_unlock(&espacio_contiguo);
-    enviarTablasSegmentos(tablaAEnviar,cliente_socket, info_logger,SEGMENTO_ELIMINADO);
+    t_list* listaConTabla = list_create();
+    list_add(listaConTabla, tablaAEnviar);
+    enviarTablasSegmentos(listaConTabla,cliente_socket, info_logger,SEGMENTO_ELIMINADO);
     //Deberia informar a kernel de la eliminacion? no dice nada en el tp //TODO
 }
 
