@@ -101,7 +101,7 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
         return -1;
     }
     if(huecoLibre->limite > tamanio){
-        segmentoParaAgregar= dividirEnDosYObtenerUtilizado(huecoLibre,tamanio);
+        segmentoParaAgregar= dividirEnDosYObtenerUtilizado(huecoLibre,tamanio, idSegmento);
     }
 
     espacioDisponible-=tamanio;
@@ -137,25 +137,28 @@ bool agregarAHuecosLibres(t_segmento* huecoLibre){
     return true;
 }
 
-t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre, uint32_t tamanio){
+t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre, uint32_t tamanio, uint32_t id){
     t_segmento* segmentoSobranteLibre = malloc(sizeof(t_segmento));
     t_segmento* segmentoUtilizado = malloc(sizeof(t_segmento));
     //El segmento que utilizamos tiene que tener su base igual a la del hueco libre
     //pero menor que su limite, por eso usamos el tamanio pasado por parámetro
     segmentoUtilizado->limite=tamanio;
     segmentoUtilizado->base=huecoLibre->base;
-    segmentoUtilizado->id= idDisponible;
-    idDisponible++;
+    segmentoUtilizado->id= id;
+
     //El segmento libre tiene que tener como base la misma que el hueco libre, pero sumando el tamanio
     //El limite es limite-tamanio
     uint32_t baseSobrante = huecoLibre->base+tamanio;
     uint32_t limiteSobrante = huecoLibre->limite - tamanio;
     segmentoSobranteLibre->base = baseSobrante;
     segmentoSobranteLibre->limite = limiteSobrante;
-    segmentoSobranteLibre->id= idDisponible;
-    idDisponible++;
+    segmentoSobranteLibre->id= -1;
+
     list_add(huecosUsados, segmentoUtilizado);
     list_add(huecosLibres, segmentoSobranteLibre);
+    //Elimino el hueco libre utilizado puesto que ahora se dividió en dos y el sobrante es el nuevo libre
+    removerDeHuecosLibres(huecoLibre);
+    free(huecoLibre);
 
     return segmentoUtilizado;
 }
@@ -222,9 +225,8 @@ t_segmento* buscarSegmentoLibreEnBaseADireccion(uint32_t direccion){
     bool coincideDireccion(t_segmento* segmento){
         return segmento->base == direccion;
     }
-    pthread_mutex_lock(&mutex_huecosDisponibles);
+
     t_segmento* segmentoEncontrado =list_find(huecosLibres,coincideDireccion);
-    pthread_mutex_unlock(&mutex_huecosDisponibles);
     return segmentoEncontrado;
 
 }
@@ -270,9 +272,7 @@ void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
 
 void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
     eliminacionSegmento(pid, segmento->id,segmento->base,segmento->limite);
-
     eliminarDatosSegmento(segmento);
-    espacioDisponible+=segmento->limite;
     t_tablaSegmentos* tablaEncontrada =buscarTablaConPid(pid);
 
     bool coincidenDirecciones(t_segmento* unSegmento){
@@ -281,7 +281,7 @@ void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
 
     list_remove_by_condition(tablaEncontrada->segmentos, coincidenDirecciones); //TODO LIBERAR Y CONTROLAR
 
-    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite+1);
+    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite);
     if(segmentoLibreSuperior != NULL){
         consolidarSegmentos(segmento, segmentoLibreSuperior);
         limpiarHueco(segmentoLibreSuperior);
@@ -298,7 +298,7 @@ void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
 void realizarEliminacionSegmentoSinPid(t_segmento* segmento){
 
     eliminarDatosSegmento(segmento);
-    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite+1);
+    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite);
     if(segmentoLibreSuperior != NULL){
         consolidarSegmentos(segmento, segmentoLibreSuperior);
         limpiarHueco(segmentoLibreSuperior);
@@ -337,7 +337,7 @@ bool intercambiarDatosSegmentosEnMp(t_segmento* unSegmento, t_segmento* otroSegm
 }
 bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
 
-    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmentoLibre->base+segmentoLibre->limite+1);
+    t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmentoLibre->base+segmentoLibre->limite);
     bool seConsolido= false;
     if(segmentoLibreSuperior != NULL){
         consolidarSegmentos(segmentoLibre, segmentoLibreSuperior);
@@ -360,7 +360,7 @@ bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
 
 void compactarSegmentos(){
     t_segmento* primerHuecoLibre = buscarPrimerHuecoLibre();
-    t_segmento* siguienteSegmentoUsado = buscarSegmentoEnBaseADireccion(primerHuecoLibre->base +primerHuecoLibre->limite+1);
+    t_segmento* siguienteSegmentoUsado = buscarSegmentoEnBaseADireccion(primerHuecoLibre->base +primerHuecoLibre->limite);
     uint32_t siguienteBase = primerHuecoLibre->base;
     uint32_t siguienteLimite = primerHuecoLibre->limite;
     intercambiarDatosSegmentosEnMp(primerHuecoLibre, siguienteSegmentoUsado);
@@ -382,7 +382,7 @@ bool hayHuecosIntercalados(){
     list_sort(huecosLibres, ordenarSegunBase);
 
     bool elLimiteNoCoincideConLaBaseDelSiguiente(t_segmento* unSegmento){
-        t_segmento* siguienteSegmento = buscarSegmentoLibreEnBaseADireccion(unSegmento->base +unSegmento->limite+1);
+        t_segmento* siguienteSegmento = buscarSegmentoLibreEnBaseADireccion(unSegmento->base +unSegmento->limite);
         if(siguienteSegmento == NULL){
             return false;
         }

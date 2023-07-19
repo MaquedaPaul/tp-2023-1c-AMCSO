@@ -43,7 +43,7 @@ bool agregarAHuecosUsados(t_segmento* huecoLibre);
 bool removerDeHuecosUsados(t_segmento* huecoUsado);
 
 
-t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre,uint32_t tamanio);
+t_segmento* dividirEnDosYObtenerUtilizado(t_segmento* huecoLibre, uint32_t tamanio, uint32_t id);
 t_tablaSegmentos* crearTablaSegmentos(uint32_t pid);
 t_tablaSegmentos* buscarTablaConPid(uint32_t pid);
 t_segmento* buscarSegmentoEnBaseADireccion(uint32_t direccion);
