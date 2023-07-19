@@ -116,6 +116,7 @@ typedef struct{
     uint32_t rafagaAnterior;
     uint32_t tiempoLlegadaReady;
     uint32_t tiempoEnvioExec;
+    uint32_t fd_consola;
     registros_cpu* registrosCpu;
     t_list* instr;
     t_tablaSegmentos* tablaSegmentos;

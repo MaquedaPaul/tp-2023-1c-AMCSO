@@ -932,6 +932,7 @@ void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb) {
     agregar_a_paquete(paquete, &(pcb->rafagaAnterior), sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb->tiempoLlegadaReady), sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb->tiempoEnvioExec), sizeof(uint32_t));
+    agregar_a_paquete(paquete, &(pcb->fd_consola), sizeof (uint32_t));
     //la parte de la PCB que no son uint32_t
     //PCB: REGISTROS CPU, INSTRUCCIONES, TABLA SEGMENTOS
     agregar_registros_a_paquete(paquete, pcb->registrosCpu);
@@ -988,7 +989,7 @@ t_pcb * recibir_pcb(int conexion) {
     t_list *segmentos = list_create();
 
     //Comienzo a consumir el buffer (EN ORDEN, MUY IMPORTANTE)
-    //PCB(UINTS_32T): ID, PROGRAMAM COUNTER, ESTIMACION RAFAGA, RAFAGA ANTERIOR, TIEMPO LLEGADA READY, TIEMPO ENVIO EXEC
+    //PCB(UINTS_32T): ID, PROGRAMAM COUNTER, ESTIMACION RAFAGA, RAFAGA ANTERIOR, TIEMPO LLEGADA READY, TIEMPO ENVIO EXEC, FD_CONSOLA
 
     //ID
     memcpy(&(unPcb->id), buffer + desplazamiento, sizeof(uint32_t));
@@ -1012,6 +1013,10 @@ t_pcb * recibir_pcb(int conexion) {
 
     //TIEMPO ENVIO EXEC
     memcpy(&(unPcb->tiempoEnvioExec), buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //FD_CONSOLA
+    memcpy(&(unPcb->fd_consola), buffer + desplazamiento, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
 
     //la parte de la PCB que no son uint32_t

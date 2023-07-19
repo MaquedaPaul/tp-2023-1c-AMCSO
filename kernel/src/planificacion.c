@@ -53,8 +53,10 @@ void liberar_procesos(){
         pthread_mutex_unlock(&mutex_colaExit);
 
         enviarValor_uint32(pcbALiberar->id,fd_memoria,FINALIZAR_PROCESO_MEMORIA,info_logger);
+        enviarOrden(PROCESO_TERMINADO,pcbALiberar->fd_consola,info_logger);
         liberarPcb(pcbALiberar);
-        //TODO FALTA NOTIFICAR A LA CONSOLA EL FIN DEL PROCESO
+        //TODO Esta bien notificar a la consola aca? pq pierdo el motivo del fin
+
         //El decremento del grado de MP se hace cuando recibo la confimacion de memoria de la finalizacion
     }
 }
@@ -177,16 +179,19 @@ void moverProceso_BloqReady(t_pcb* pcbBuscado){
 
     pthread_mutex_lock(&mutex_colaBloq);
     eliminarElementoLista(pcbBuscado, colaBloq);
-    pthread_mutex_lock(&mutex_ColaReady);
+    pthread_mutex_unlock(&mutex_colaBloq);
 
     //HHRN
     //pcbBuscado->tiempoLlegadaReady = time(NULL);
 
+    pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady, pcbBuscado);
-    log_info(info_logger, "PID: [%d] - Estado Anterior: BLOQ - Estado Actual: READY.", pcbBuscado->id);
-
     pthread_mutex_unlock(&mutex_ColaReady);
-    pthread_mutex_unlock(&mutex_colaBloq);
+    log_info(info_logger, "PID: [%d] - Estado Anterior: BLOQ - Estado Actual: READY.", pcbBuscado->id);
+    sem_post(&sem_procesosReady);
+
+
+
 
 }
 
@@ -209,13 +214,16 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
 void moverProceso_ExecReady(t_pcb* pcbBuscado){
     pthread_mutex_lock(&mutex_colaExec);
     eliminarElementoLista(pcbBuscado, colaExec);
-
-    log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
     pthread_mutex_unlock(&mutex_colaExec);
 
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady,pcbBuscado);
     pthread_mutex_unlock(&mutex_ColaReady);
+
+
+    log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
+    sem_post(&sem_procesosReady);
+
 
 
 }

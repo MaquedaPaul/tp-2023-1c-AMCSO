@@ -42,11 +42,13 @@ void procesar_conexion(void *void_args) {
             case WAIT:
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                actualizarPcbExec(pcbRecibida);
                 manejoDeRecursos(pcbRecibida,"WAIT");
                 break;
             }
             case SIGNAL:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                actualizarPcbExec(pcbRecibida);
                 manejoDeRecursos(pcbRecibida,"SIGNAL");
                 break;
             }
@@ -82,11 +84,13 @@ void procesar_conexion(void *void_args) {
             case CREATE_SEGMENT:
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                actualizarPcbExec(pcbRecibida);
                 solicitarCreacionSegmentoMemoria(pcbRecibida);
                 break;
             }
             case DELETE_SEGMENT: {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
+                actualizarPcbExec(pcbRecibida);
 
                 //Memoria necesita: PID, idSegmento
                 t_list* listaIntsMemoria = list_create();
@@ -202,7 +206,7 @@ void procesar_conexion(void *void_args) {
             case FINALIZACION_PROCESO_TERMINADA:
             {
                 recibirOrden(cliente_socket);
-                log_info(info_logger,"Recibo Confirmacion de FINALIZACION DE PROCESO TERMINADA");
+                log_info(info_logger,"Recibo Confimarcion de FINALIZACION DE PROCESO TERMINADA");
                 decrementarGradoMP();
                 break;
             }
@@ -479,7 +483,6 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden){
         }else{
             log_info(info_logger,"Recurso <%s> solicitado INEXISTENTE", recursoSolicitado);
             moverProceso_ExecExit(unaPcb);
-
         }
         }
 }
@@ -563,4 +566,12 @@ void solicitarCreacionSegmentoMemoria(t_pcb* pcb){
 
     log_info(info_logger,"PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcb->id,idSegmento,tamSegmento);
     enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,CREACION_SEGMENTOS);
+}
+
+void actualizarPcbExec(t_pcb* pcb){
+    pthread_mutex_lock(&mutex_colaExec);
+    t_pcb* pcbExec = list_remove(colaExec,0);
+    liberarPcb(pcbExec);
+    list_add(colaExec,pcb);
+    pthread_mutex_unlock(&mutex_colaExec);
 }
