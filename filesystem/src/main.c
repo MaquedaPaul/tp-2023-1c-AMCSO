@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, handle_sigint);
     if (!argumentosInvalidos(argc,argv,3) || !init_logs_configs(path_config) || !cargar_configuracion(path_config)) {
         //cerrar_programa();
-        printf("No se pudo inicializar kernel\n");
+        printf("No se pudo inicializar filesystem\n");
         return EXIT_FAILURE;
 
     }
