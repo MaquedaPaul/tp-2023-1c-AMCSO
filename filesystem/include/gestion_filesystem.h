@@ -45,6 +45,7 @@ typedef struct
     uint32_t PUNTERO_INDIRECTO;
 } t_config_fcb;
 
+
 bool existeFcbConNombre(char* nombreArchivo);
 t_config_fcb* buscarFCBporNombre(char* nombre);
 void realizarCreacionArchivo(char* nombreArchivo);

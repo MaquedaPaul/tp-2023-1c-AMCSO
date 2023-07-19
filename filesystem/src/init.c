@@ -200,6 +200,32 @@ bool existeArchivo(int* fd, char *path){
         return true;
     }
 }
+
+
+
+int existe_archivoFCB(char *nombre_archivo) {
+
+    int tamanio_lista_FCBs = list_size(lista_fcbs);
+
+    for (int i = 0; i < tamanio_lista_FCBs; i++)  {
+
+        t_config_fcb *aux_FCB = list_get(lista_fcbs, i);
+
+        if (strcmp(aux_FCB->nombre_archivo, nombre_archivo) == 0)  {
+
+            log_info(info_logger, "Abrir archivo: <%s>", nombre_archivo);
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
+
+
+
 int obtener_tamanio_en_bytes(){ //esto capaz va en otro archivo
 
     if(cfg_superbloque->BLOCK_COUNT%8 == 0){

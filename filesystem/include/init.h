@@ -42,6 +42,8 @@ bool crearSuperbloque();
 bool crearArchivoDeBloques();
 bool recorrerDirectorioFcb();
 
+int existe_archivoFCB(char *nombre_archivo) ;
+
 bool existeArchivo(int* fd, char *path);
 int obtener_tamanio_en_bytes();
 void inicializarBitmap(int tamaño_del_bitarray);
