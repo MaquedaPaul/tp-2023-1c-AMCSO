@@ -4,6 +4,7 @@
 
 #include <init.h>
 #include <sys/mman.h>
+#include <dirent.h>
 
 void* bloques;
 void* puntero_al_bitmap;
@@ -208,24 +209,6 @@ bool existeArchivo(int* fd, char *path){
 
 
 
-int existe_archivoFCB(char *nombre_archivo) {
-
-    int tamanio_lista_FCBs = list_size(lista_fcbs);
-
-    for (int i = 0; i < tamanio_lista_FCBs; i++)  {
-
-        t_config_fcb *aux_FCB = list_get(lista_fcbs, i);
-
-        if (strcmp(aux_FCB->nombre_archivo, nombre_archivo) == 0)  {
-
-            log_info(info_logger, "Abrir archivo: <%s>", nombre_archivo);
-
-            return 1;
-        }
-    }
-
-    return 0;
-}
 
 
 
@@ -305,7 +288,7 @@ void crear_fcbs_del_directorio() {
 
 	DIR *d;
 	struct dirent *dir;
-	d = opendir(punto_PATH_FCB);
+	d = opendir(cfg_filesystem->PATH_FCB);
 	if (d) {
 		while ((dir = readdir(d)) != NULL) {
 			if( strcmp( dir->d_name, "." ) != 0 && strcmp( dir->d_name, ".." ) != 0 ){
@@ -315,7 +298,7 @@ void crear_fcbs_del_directorio() {
             char* nombre =  string_duplicate(dir->d_name);
 
             char* path_fcb_config = string_new();
-            string_append(&path_fcb_config, punto_PATH_FCB);
+            string_append(&path_fcb_config, cfg_filesystem->PATH_FCB);
             string_append(&path_fcb_config, "/");
             string_append(&path_fcb_config, nombre);
 
@@ -334,7 +317,7 @@ void crear_fcbs_del_directorio() {
 
             free(path_fcb_config);
 
-			list_add(lista_fcbs,aux_FCB);
+			list_add(lista_FCBs,aux_FCB);
 
 			}
 		}
@@ -398,7 +381,7 @@ void crear_bitmap_de_bloques(){
 
     bitmap =  bitarray_create_with_mode(puntero_al_bitmap, tamanio_bitmap , LSB_FIRST);
 
-        for (int i = 0; i < bLOCK_COUNT; i++) {
+        for (int i = 0; i < cfg_superbloque->BLOCK_COUNT; i++) {
         bitarray_clean_bit(bitmap, i); 
     }
 
@@ -408,8 +391,9 @@ void crear_bitmap_de_bloques(){
 }
 
 void crear_archivo_de_bloques(){
-
-    int tamanio_archivo_bloques = bLOCK_COUNT*bLOCK_SIZE;
+    int blockCount = cfg_superbloque->BLOCK_COUNT;
+    int blockSize = cfg_superbloque->BLOCK_SIZE;
+    int tamanio_archivo_bloques = blockCount*blockSize;
 
 	int fd_bloques = open(cfg_filesystem->PATH_BLOQUES, O_CREAT| O_RDWR, 0777);
 	if (fd_bloques < 0){
@@ -438,16 +422,16 @@ void levantar_superbloque_existente() {
 
     int tamanio_bitmap = obtener_tamanio_en_bytes();
 
-	fd = open(cfg_filesystem->PATH_BITMAP,  O_RDWR, 0777);
+	//fd = open(cfg_filesystem->PATH_BITMAP,  O_RDWR, 0777);
 
-	puntero_al_bitmap = mmap(0,tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	//puntero_al_bitmap = mmap(0,tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
 	bitmap =  bitarray_create_with_mode(puntero_al_bitmap, tamanio_bitmap, LSB_FIRST);
 
 	//-------------------------BLOCKS-----------------------------------------
 
-	fd_bloques = open(cfg_filesystem->PATH_BLOQUES, O_RDWR , 0777);
+	//fd_bloques = open(cfg_filesystem->PATH_BLOQUES, O_RDWR , 0777);
 
-	bloques = mmap(NULL, cfg_superbloque->BLOCK_COUNT*cfg_superbloque->BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bloques, 0);
+	//bloques = mmap(NULL, cfg_superbloque->BLOCK_COUNT*cfg_superbloque->BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bloques, 0);
 
 }

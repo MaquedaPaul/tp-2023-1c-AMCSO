@@ -16,6 +16,7 @@ extern t_log* debug_logger;
 extern t_log* info_logger;
 extern t_log* warning_logger;
 extern t_log* error_logger;
+extern t_config_filesystem *cfg_filesystem;
 
 typedef struct
 {
@@ -48,6 +49,7 @@ typedef struct
 
 
 bool existeFcbConNombre(char* nombreArchivo);
+int existe_archivoFCB(char *nombre_archivo);
 t_config_fcb* buscarFCBporNombre(char* nombre);
 void realizarCreacionArchivo(char* nombreArchivo);
 void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_archivo);
@@ -64,5 +66,8 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
 uint32_t cantidadDisponibleDelBloque(uint32_t puntero);
 uint32_t cantidadBytesQueNoSePuedeLeerEnUnBloque(uint32_t nuevoTamanioALeer);
 uint32_t buscarNumeroDeBloqueDelArchivoDeBloque(int numero_bloque, t_config_fcb* fcb);
+
+
+
 
 #endif //FILESYSTEM_GESTION_FILESYSTEM_H

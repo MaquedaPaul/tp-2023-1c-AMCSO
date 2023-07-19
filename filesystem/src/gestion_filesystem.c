@@ -15,6 +15,26 @@ bool existeFcbConNombre(char* nombreArchivo){
     return true;
 }
 
+int existe_archivoFCB(char *nombre_archivo) {
+
+    int tamanio_lista_FCBs = list_size(lista_FCBs);
+
+    for (int i = 0; i < tamanio_lista_FCBs; i++)  {
+
+        t_config_fcb *aux_FCB = list_get(lista_FCBs, i);
+
+        if (strcmp(aux_FCB->NOMBRE_ARCHIVO, nombre_archivo) == 0)  {
+
+            log_info(info_logger, "Abrir archivo: <%s>", nombre_archivo);
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
 t_config_fcb* buscarFCBporNombre(char* nombre){
     t_config_fcb* fcb;
     //TODO
@@ -23,7 +43,8 @@ t_config_fcb* buscarFCBporNombre(char* nombre){
 
 
 void realizarCreacionArchivo(char* nombreArchivo){
-
+    char* punto_PATH_FCB = cfg_filesystem->PATH_FCB; //TODO DEFINIR
+    char* nombre_de_archivo = nombreArchivo; //TODO DEFINIR
 	char* path =string_new();
 	string_append(&path, punto_PATH_FCB);
 	string_append(&path, "/");
@@ -46,8 +67,8 @@ void realizarCreacionArchivo(char* nombreArchivo){
 
             int tamanio_nombre_archivo = strlen(nombre_de_archivo);
 
-            aux_FCB->nombre_archivo = malloc( tamanio_nombre_archivo + 1  );
-            strcpy( aux_FCB->nombre_archivo, nombre_de_archivo );
+            aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1  );
+            strcpy( aux_FCB->NOMBRE_ARCHIVO, nombre_de_archivo );
 
             aux_FCB->TAMANIO_ARCHIVO = 0;
             aux_FCB->PUNTERO_DIRECTO = 0;
@@ -55,7 +76,7 @@ void realizarCreacionArchivo(char* nombreArchivo){
 
             aux_FCB->fcb_config = aux_config;
 
-	  list_add(lista_fcbs,aux_FCB);
+	  list_add(lista_FCBs,aux_FCB);
 
 	log_info(info_logger,"Se creo el archivo en: %s", path);
 	free(path);
