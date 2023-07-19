@@ -34,6 +34,7 @@ void procesar_conexion(void *void_args) {
                 t_list* listaInstrucciones = recibirListaInstrucciones(cliente_socket);
                 establecerCantidadParametrosInstrucciones(listaInstrucciones);
                 t_pcb *pcbDispatch = crearPcb(listaInstrucciones);
+                pcbDispatch->fd_consola=cliente_socket;
                 agregarProceso_New(pcbDispatch);
                 break;
 
@@ -102,7 +103,6 @@ void procesar_conexion(void *void_args) {
 
                 log_info(info_logger,"PID: <%d> - Eliminar Segmento - Id Segmento: <%d>", pcbRecibida->id, idSegmento);
                 enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,ELIMINACION_SEGMENTOS);
-                list_destroy_and_destroy_elements(listaIntsMemoria,free);
                 break;
             }
 
