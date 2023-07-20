@@ -80,6 +80,7 @@ void procesar_conexion(void *void_args) {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SUCCESS>",pcbRecibida->id);
                 moverProceso_ExecExit(pcbRecibida);
+                break;
             }
 
             case CREATE_SEGMENT:
