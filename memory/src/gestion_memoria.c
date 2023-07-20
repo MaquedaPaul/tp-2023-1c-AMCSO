@@ -190,6 +190,17 @@ t_segmento* buscarSegmentoSegunId(uint32_t unId){
     }
     t_segmento *usado = list_find(huecosUsados,coincideId);
     t_segmento *libre = list_find(huecosLibres,coincideId);
+    void verContenidoUsado(t_segmento* unSegmento){
+        unSegmento;
+        log_info(info_logger,"USADO ID:%d BASE:%d LIMITE:%d", unSegmento->id,unSegmento->base, unSegmento->limite );
+    }
+    void verContenidoLibre(t_segmento* unSegmento){
+        unSegmento;
+        log_info(info_logger,"LIBRE ID:%d BASE:%d LIMITE:%d", unSegmento->id,unSegmento->base, unSegmento->limite );
+    }
+
+    list_iterate(huecosLibres, verContenidoLibre);
+    list_iterate(huecosUsados, verContenidoUsado);
     if(usado != NULL){
         return usado;
     }
@@ -248,8 +259,9 @@ bool limpiarSeccionDeMemoria(uint32_t direccion, uint32_t tamanio){
 void eliminarDatosSegmento(t_segmento* segmento){
     limpiarSeccionDeMemoria(segmento->base, segmento->limite);
 }
-void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
+t_segmento* consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
     t_segmento* nuevoSegmentoLibre = malloc(sizeof (t_segmento));
+    nuevoSegmentoLibre->id = -1;
     if(unSegmento->base < otroSegmento->base){
         nuevoSegmentoLibre->base = unSegmento->base;
     }else{
@@ -258,19 +270,28 @@ void consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento ){
     }
 
     nuevoSegmentoLibre->limite = unSegmento->limite + otroSegmento->limite;
-    if(!removerDeHuecosLibres(unSegmento)){
-        log_warning(warning_logger,"Se intento remover un segmento que no era libre");
-    }
-    if(!removerDeHuecosLibres(otroSegmento)){
-        log_warning(warning_logger,"Se intento remover un segmento que no era libre");
-    }
-
-
+    removerDeHuecosLibres(unSegmento);
+    removerDeHuecosLibres(otroSegmento);
+    removerDeHuecosUsados(unSegmento);
+    removerDeHuecosUsados(otroSegmento);
 
     agregarAHuecosLibres(nuevoSegmentoLibre);
+    return nuevoSegmentoLibre;
 }
 
 void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
+    void verContenidoUsado(t_segmento* unSegmento){
+        unSegmento;
+        log_debug(debug_logger,"USADO ID:%d BASE:%d LIMITE:%d", unSegmento->id,unSegmento->base, unSegmento->limite);
+    }
+    void verContenidoLibre(t_segmento* unSegmento){
+        unSegmento;
+        log_debug(debug_logger,"LIBRE ID:%d BASE:%d LIMITE:%d", unSegmento->id,unSegmento->base, unSegmento->limite);
+    }
+
+    list_iterate(huecosLibres, verContenidoLibre);
+    list_iterate(huecosUsados, verContenidoUsado);
+
     eliminacionSegmento(pid, segmento->id,segmento->base,segmento->limite);
     eliminarDatosSegmento(segmento);
     t_tablaSegmentos* tablaEncontrada =buscarTablaConPid(pid);
@@ -278,21 +299,28 @@ void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
     bool coincidenDirecciones(t_segmento* unSegmento){
         return unSegmento->base == segmento->base;
     }
-
+    bool seConsolidoSuperior = false;
+    t_segmento* huecoLibreConsolidado;
     list_remove_by_condition(tablaEncontrada->segmentos, coincidenDirecciones); //TODO LIBERAR Y CONTROLAR
-
     t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite);
     if(segmentoLibreSuperior != NULL){
-        consolidarSegmentos(segmento, segmentoLibreSuperior);
+        huecoLibreConsolidado = consolidarSegmentos(segmento, segmentoLibreSuperior);
         limpiarHueco(segmentoLibreSuperior);
+        seConsolidoSuperior = true;
     }
     t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmento);
     if(segmentoLibreInferior != NULL){
-        consolidarSegmentos(segmento, segmentoLibreInferior);
+        t_segmento* otroHuecoLibreConsolidado = consolidarSegmentos(segmento, segmentoLibreInferior);
         limpiarHueco(segmentoLibreInferior);
+        if(seConsolidoSuperior){
+            consolidarSegmentos(huecoLibreConsolidado, otroHuecoLibreConsolidado);
+        }
     }
     limpiarHueco(segmento);
 
+
+    list_iterate(huecosLibres, verContenidoLibre);
+    list_iterate(huecosUsados, verContenidoUsado);
 }
 
 void realizarEliminacionSegmentoSinPid(t_segmento* segmento){
