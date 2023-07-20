@@ -29,8 +29,8 @@ extern t_bloques* archivoBloques;
 extern char* path_config;
 int cargar_configuracion(char *path);
 extern t_bitarray* bitarrayBitmapDeBloques;
-extern t_bitmapBloques* bitmapDeBloques;
 extern t_list* lista_FCBs;
+extern t_bitarray* bitmap;
 void reasignarPathSiEsNecesario(tipo_path tipo);
 bool crearSemaforos();
 
@@ -44,15 +44,15 @@ bool crearArchivoDeBloques();
 bool recorrerDirectorioFcb();
 
 int existe_archivoFCB(char *nombre_archivo) ;
-
+bool crearEstructuras();
 bool existeArchivo(int* fd, char *path);
 
 int obtener_tamanio_en_bytes();
 void inicializarBitmap(int tamaño_del_bitarray);
 bool iniciarFilesystem();
 int esDirectorio(const char* nombre);
-void crear_bitmap_de_bloques();
-void crear_archivo_de_bloques();
-void levantar_superbloque_existente();
-
+bool crear_bitmap_de_bloques();
+bool crear_archivo_de_bloques();
+bool levantarArchivosExistentes();
+bool iniciarEstructurasAdministrativas(char* nombre_path);
 #endif //TEMPLATE_INIT_H
