@@ -7,14 +7,9 @@
 
 t_bitarray* bitmap;
 t_bloques* archivoBloques;
-t_bitarray* bitarrayBitmapDeBloques;
 t_config_superbloque* cfg_superbloque;
 t_list* lista_FCBs; //TODO DEFINIR
-
-
-t_bitarray* auxBitArray; //TODO DEFINIR
 t_list* lista_bloques; //TODO DEFINIR
-void* superbloque; // void* superbloque = archivoBloques->archivo; //TODO DEFINIR ?
 
 
 bool existeFcbConNombre(char* nombreArchivo){
@@ -121,7 +116,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
        for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
-          uint32_t bloque_libre = obtener_bloque_libre(auxBitArray) ;
+          uint32_t bloque_libre = obtener_bloque_libre(bitmap) ;
         uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t)); 
             *nuevo_bloque_libre = bloque_libre;                
           list_add(lista_bloques, nuevo_bloque_libre);
@@ -149,7 +144,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
              uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
 
-             memcpy(superbloque + posicion_del_puntero_indirecto, puntero_a_escribir, sizeof(uint32_t));
+             memcpy(archivoBloques->archivo + posicion_del_puntero_indirecto, puntero_a_escribir, sizeof(uint32_t));
              offset += sizeof(uint32_t);
 
        } 
@@ -170,7 +165,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
         else {   
 
-      uint32_t puntero_directo = obtener_bloque_libre(auxBitArray) ;
+      uint32_t puntero_directo = obtener_bloque_libre(bitmap) ;
       aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
       aux_FCB->PUNTERO_DIRECTO = puntero_directo;
 
@@ -198,7 +193,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
         uint32_t puntero_directo  = config_get_int_value(archivo_config, "PUNTERO_DIRECTO");
 
-        bitarray_clean_bit(auxBitArray,puntero_directo );
+        bitarray_clean_bit(bitmap,puntero_directo );
 
        aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
        aux_FCB->PUNTERO_DIRECTO = 0;
@@ -229,7 +224,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
           for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
-                  uint32_t bloque_libre = obtener_bloque_libre(auxBitArray) ;
+                  uint32_t bloque_libre = obtener_bloque_libre(bitmap) ;
 
             uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t)); 
             *nuevo_bloque_libre = bloque_libre;                
@@ -253,7 +248,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
              uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
 
-             memcpy(superbloque + posicion_del_puntero_indirecto, puntero_a_escribir, sizeof(uint32_t));
+             memcpy(archivoBloques->archivo + posicion_del_puntero_indirecto, puntero_a_escribir, sizeof(uint32_t));
              offset += sizeof(uint32_t);
 
        } 
@@ -286,8 +281,8 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
             uint32_t puntero_directo  = config_get_int_value(archivo_config, "PUNTERO_DIRECTO");
             uint32_t puntero_indirecto  = config_get_int_value(archivo_config, "PUNTERO_INDIRECTO");
 
-            bitarray_clean_bit(auxBitArray,puntero_directo );
-            bitarray_clean_bit(auxBitArray,puntero_indirecto );
+            bitarray_clean_bit(bitmap,puntero_directo );
+            bitarray_clean_bit(bitmap,puntero_indirecto );
 
             aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
             aux_FCB->PUNTERO_DIRECTO = 0;
@@ -300,10 +295,10 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
              uint32_t bloque_ocupado ;
              uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
 
-             memcpy(&bloque_ocupado, superbloque + posicion_del_puntero_indirecto, sizeof(uint32_t));
+             memcpy(&bloque_ocupado, archivoBloques->archivo + posicion_del_puntero_indirecto, sizeof(uint32_t));
              offset += sizeof(uint32_t);
 
-            bitarray_clean_bit(auxBitArray,bloque_ocupado );
+            bitarray_clean_bit(bitmap,bloque_ocupado );
             } 
 
             config_set_value(archivo_config, "TAMANIO_ARCHIVO", string_itoa(nuevo_tamanio) );
@@ -320,7 +315,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
             uint32_t puntero_indirecto  = config_get_int_value(archivo_config, "PUNTERO_INDIRECTO");
 
-            bitarray_clean_bit(auxBitArray,puntero_indirecto );
+            bitarray_clean_bit(bitmap,puntero_indirecto );
 
             aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
             aux_FCB->PUNTERO_INDIRECTO = 0;
@@ -332,10 +327,10 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
              uint32_t bloque_ocupado ;
              uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
 
-             memcpy(&bloque_ocupado, superbloque + posicion_del_puntero_indirecto, sizeof(uint32_t));
+             memcpy(&bloque_ocupado, archivoBloques->archivo + posicion_del_puntero_indirecto, sizeof(uint32_t));
              offset += sizeof(uint32_t);
 
-             bitarray_clean_bit(auxBitArray,bloque_ocupado );
+             bitarray_clean_bit(bitmap,bloque_ocupado );
             } 
             config_set_value(archivo_config, "TAMANIO_ARCHIVO", string_itoa(nuevo_tamanio) );
             config_set_value(archivo_config, "PUNTERO_INDIRECTO", string_itoa(0) );
@@ -354,7 +349,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
           for (uint32_t i = 0; i < cantidad_de_bloques; i++) {
 
-          uint32_t bloque_libre = obtener_bloque_libre(auxBitArray) ;
+          uint32_t bloque_libre = obtener_bloque_libre(bitmap) ;
           
         uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t)); 
             *nuevo_bloque_libre = bloque_libre;                
@@ -376,7 +371,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
             uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
 
-            memcpy(superbloque + posicion_del_puntero_indirecto, puntero_a_escribir, sizeof(uint32_t));
+            memcpy(archivoBloques->archivo + posicion_del_puntero_indirecto, puntero_a_escribir, sizeof(uint32_t));
 
             offset += sizeof(uint32_t);
 
@@ -405,10 +400,10 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
              uint32_t bloque_ocupado ;
              uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
 
-             memcpy(&bloque_ocupado, superbloque + posicion_del_puntero_indirecto, sizeof(uint32_t));
+             memcpy(&bloque_ocupado, archivoBloques->archivo + posicion_del_puntero_indirecto, sizeof(uint32_t));
              offset += sizeof(uint32_t);
 
-            bitarray_clean_bit(auxBitArray,bloque_ocupado );
+            bitarray_clean_bit(bitmap,bloque_ocupado );
             } 
 
             aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
@@ -435,13 +430,13 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 }
 
 
-uint32_t obtener_bloque_libre(t_bitarray* auxBitArray) {
+uint32_t obtener_bloque_libre(t_bitarray* bitmap) {
 
-    for (uint32_t i = 0; i < bitarray_get_max_bit(auxBitArray); i++) {
+    for (uint32_t i = 0; i < bitarray_get_max_bit(bitmap); i++) {
 
-        if (!bitarray_test_bit(auxBitArray, i)) {
+        if (!bitarray_test_bit(bitmap, i)) {
 
-            bitarray_set_bit(auxBitArray, i);
+            bitarray_set_bit(bitmap, i);
 
             return i;
         }
