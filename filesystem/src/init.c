@@ -226,7 +226,7 @@ bool crear_archivo_de_bloques(){
 	}
 
 	ftruncate(archivoBloques->fd, tamanio_archivo_bloques);
-    bitarraycontent = mmap(NULL,tamanio_archivo_bloques, PROT_READ | PROT_WRITE, MAP_SHARED, archivoBloques->fd , 0);
+    archivoBloques->archivo = mmap(NULL,tamanio_archivo_bloques, PROT_READ | PROT_WRITE, MAP_SHARED, archivoBloques->fd , 0);
 
     if(archivoBloques->archivo == MAP_FAILED) {
        printf("Error en el mmap del archivo de bloques");
@@ -268,9 +268,9 @@ bool levantarArchivoBloques(){
 
     archivoBloques->fd = open(cfg_filesystem->PATH_BLOQUES, O_RDWR , 0777);
     int tamanio = cfg_superbloque->BLOCK_COUNT*cfg_superbloque->BLOCK_SIZE;
-    archivoBloques->archivo= mmap(NULL, tamanio, PROT_WRITE|PROT_READ, MAP_SHARED, archivoBloques->fd, 0);
+    archivoBloques->archivo = mmap(NULL, tamanio, PROT_WRITE|PROT_READ, MAP_SHARED, archivoBloques->fd, 0);
 
-    if (bitarraycontent == MAP_FAILED) {
+    if (archivoBloques->archivo  == MAP_FAILED) {
         perror("Error al mapear el archivo en memoria\n");
         close( archivoBloques->fd);
         return false;
