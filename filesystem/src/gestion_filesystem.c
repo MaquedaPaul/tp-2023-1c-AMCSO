@@ -213,7 +213,8 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
          t_config* aux_config = aux_FCB->fcb_config;
 
        aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
-
+        //TODO es el aux FCB?
+        t_config* archivo_config = aux_FCB->fcb_config;
        config_set_value(archivo_config, "TAMANIO_ARCHIVO", string_itoa((int)nuevo_tamanio));
        config_save(archivo_config);
 
@@ -238,7 +239,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
         uint32_t* enteroAuxInd = list_remove(lista_bloques,0);
         aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
-        aux_FCB->PUNTERO_INDIRECTO = *enteroAuxInd
+        aux_FCB->PUNTERO_INDIRECTO = *enteroAuxInd;
 
         uint32_t puntero_indirecto = *enteroAuxInd;
 

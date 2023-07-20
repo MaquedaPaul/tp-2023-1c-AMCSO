@@ -239,7 +239,7 @@ bool crear_archivo_de_bloques(){
 }
 
 bool levantarArchivosExistentes() {
-    return levantarSuperbloque() && levantarArchivoBloques() &&  levantarArchivoBloques();
+    return levantarSuperbloque() && levantarArchivoBloques() &&  levantarBitmapBloques();
 }
 
 bool levantarSuperbloque(){
@@ -251,6 +251,7 @@ bool levantarSuperbloque(){
         cfg_superbloque = malloc(sizeof(t_config_superbloque));
         cfg_superbloque->BLOCK_COUNT=65536;
         cfg_superbloque->BLOCK_SIZE=64;
+        return true;
     }
     cfg_superbloque = malloc(sizeof(t_config_superbloque));
     if(cfg_superbloque == NULL){
@@ -265,7 +266,7 @@ bool levantarSuperbloque(){
 
 
 bool levantarArchivoBloques(){
-
+    archivoBloques = malloc(sizeof (t_bloques));
     archivoBloques->fd = open(cfg_filesystem->PATH_BLOQUES, O_RDWR , 0777);
     int tamanio = cfg_superbloque->BLOCK_COUNT*cfg_superbloque->BLOCK_SIZE;
     archivoBloques->archivo= mmap(NULL, tamanio, PROT_WRITE|PROT_READ, MAP_SHARED, archivoBloques->fd, 0);
