@@ -115,10 +115,7 @@ void ejecutar_FOPEN_socket(int socket_entrada){
 
     if(pos == -1){ // En caso de que no este en la TGAA
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
-        t_peticionesFS* peticion;
-        peticion->pcb=pcbRecibido;
-        strcpy(peticion->nombreArchivo, nomArch);
-        list_add(tabla_PeticionesFS,peticion);
+        list_add(tabla_PeticionesFS,pcbRecibido);
 
     }
     else{//Si esta en la TGAA
@@ -154,20 +151,9 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido){
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nomArch);
 
-
-            log_info(info_logger, "::::FOPEN::::1111 <%d> - Abrir Archivo: <%s>", pos, nomArch);
-
     if(pos == -1){ // En caso de que no este en la TGAA
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
-        t_peticionesFS* peticion;
-        peticion->pcb=pcbRecibido;
-
-
-            log_info(info_logger, "::::FOPEN::::2222 <%d> - Abrir Archivo: <%s>", pos, nomArch);
-        strcpy(peticion->nombreArchivo, nomArch);
-        list_add(tabla_PeticionesFS,peticion);
-
-            log_info(info_logger, "::::FOPEN::::3333 <%d> - Abrir Archivo: <%s>", pos, nomArch);
+        list_add(tabla_PeticionesFS,pcbRecibido);
 
     }
     else{//Si esta en la TGAA
@@ -175,7 +161,6 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido){
 
         if(archivo->enUso){ //Si esta en uso x otro pcb
             list_add(archivo->lista_espera_pcbs,pcbRecibido);
-
             moverProceso_ExecBloq(pcbRecibido);
         }
         else{//Si no esta en uso, se pasa al siguiente pcb
@@ -437,21 +422,22 @@ int buscarArch_TablaGlobalArchivo(char* nomArch){
 t_pcb* buscarPcb_enTablaPeticionesFS(char* nombreArchBuscado){
 
     int size = list_size(tabla_PeticionesFS);
-    t_peticionesFS* peticion;
     t_pcb* pcbEncontrado;
+    t_instr* instruccion;
 
     for (size_t i = 0; i < size ; i++)
     {
-        peticion = list_get(tabla_PeticionesFS,i);
-        if (strcmp(peticion->nombreArchivo, nombreArchBuscado) == 0)
+        pcbEncontrado = list_get(tabla_PeticionesFS,i);
+        instruccion = list_get(pcbEncontrado->instr,pcbEncontrado->programCounter-1);
+      
+        if (strcmp(instruccion->param1, nombreArchBuscado) == 0)
         {
             list_remove(tabla_PeticionesFS,i);
-            pcbEncontrado = peticion->pcb;
             return pcbEncontrado;
         }
     }
 
-    pcbEncontrado = peticion->pcb;
+    pcbEncontrado = list_get(tabla_PeticionesFS,0);
 
   return pcbEncontrado;
 }
@@ -497,7 +483,7 @@ void eliminarPcb_TGAA_SEGFAULT(t_pcb* pcbBuscado){
         archivo = list_get(tablaGlobal_ArchivosAbiertos,i);
 
         if(archivo->id_pcb_en_uso == id){//valido primero si esta en uso
-            ejecutar_FCLOSE_porNombreArchivo(pcbBuscado, archivo->nombreArchivo);
+            ejecutar_FCLOSE(pcbBuscado);
         }
         else{//valido la lista de espera para eliminarlo
             int count = list_size(archivo->lista_espera_pcbs);
