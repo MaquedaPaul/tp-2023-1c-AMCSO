@@ -137,13 +137,17 @@ void procesar_conexion(void *void_args) {
 
             case F_READ: {
                 //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
-                ejecutar_FREAD(cliente_socket);
+                u_int32_t direccion;
+                t_pcb* unPcb = recibir_pcb_direccion(cliente_socket, &direccion);
+                ejecutar_FREAD(unPcb, direccion);
                 break;
             }
 
             case F_WRITE: {
                 //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
-                ejecutar_FWRITE(cliente_socket);
+                u_int32_t direccion;
+                t_pcb* unPcb = recibir_pcb_direccion(cliente_socket, &direccion);
+                ejecutar_FWRITE(unPcb, direccion);
                 break;
             }
 
