@@ -124,7 +124,7 @@ bool crearEstructuras(){
 
     bool comp1 = crear_bitmap_de_bloques();
     bool comp2 = crear_archivo_de_bloques();
-    if(crear_bitmap_de_bloques && crear_archivo_de_bloques){
+    if(crear_bitmap_de_bloques() && crear_archivo_de_bloques()){
         return true;
     }else{
         return false;
@@ -211,6 +211,8 @@ bool crear_bitmap_de_bloques(){
     }
 
   msync(bitmap,  tamanio_bitmap, MS_SYNC);
+      return true;
+
 }
 
 bool crear_archivo_de_bloques(){
