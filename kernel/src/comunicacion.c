@@ -123,13 +123,15 @@ void procesar_conexion(void *void_args) {
 
             case F_SEEK: {
                 //recibe largoNombreArchivo /nombreArchivo / puntero / pcb
-                ejecutar_FSEEK(cliente_socket);
+                t_pcb* unPcb = recibir_pcb(cliente_socket);
+                ejecutar_FSEEK(unPcb);
                 break;
             }
 
             case F_TRUNCATE: {
                 //recibe largoNombreArchivo /nombreArchivo / tamaño / pcb
-                ejecutar_FTRUNCATE(cliente_socket);
+                t_pcb* unPcb = recibir_pcb(cliente_socket);
+                ejecutar_FTRUNCATE(unPcb);
                 break;
             }
 

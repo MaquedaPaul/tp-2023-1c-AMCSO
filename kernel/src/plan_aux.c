@@ -244,24 +244,13 @@ void ejecutar_FCLOSE_porNombreArchivo(t_pcb* pcbBuscado, char* nombreArchivo){
 }
 
 
-void ejecutar_FSEEK(int socket_entrada){
+void ejecutar_FSEEK(t_pcb* pcbRecibido){
 
-
-    int size;
-	void * buffer = recibir_buffer(&size, socket_entrada);
-    uint32_t *desplazamiento = 0;
-    
-    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
     char* nombreArchivo;
-    
-    memcpy(nombreArchivo, buffer + *desplazamiento, largoNomArch + 1);
-    desplazamiento += largoNomArch + 1;
+    strcpy(nombreArchivo, instruccion->param1);
 
-    uint32_t punteroRecibido = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
-   
-    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
-
-	free(buffer);
+    uint32_t punteroRecibido = instruccion->param2;
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nombreArchivo);
@@ -278,23 +267,13 @@ void ejecutar_FSEEK(int socket_entrada){
 }
 
 
-void ejecutar_FTRUNCATE(int socket_entrada){
+void ejecutar_FTRUNCATE(t_pcb* pcbRecibido){
 
-    int size;
-	void * buffer = recibir_buffer(&size, socket_entrada);
-    uint32_t *desplazamiento = 0;
-    
-    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+
+    t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
     char* nomArchivo;
-
-    memcpy(nomArchivo, buffer + *desplazamiento, largoNomArch + 1);
-    desplazamiento += largoNomArch + 1;
-
-    uint32_t tamanioArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
-    
-    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
-
-	free(buffer);
+    strcpy(nomArchivo, instruccion->param1);
+    uint32_t tamanioArch = instruccion->param2;
 
     uint32_t tamDatos = sizeof(int) + strlen(nomArchivo) + 1;
     void* datos = malloc(tamDatos);
