@@ -112,7 +112,6 @@ void ejecutar_FOPEN_socket(int socket_entrada){
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nomArch);
-    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
 
     if(pos == -1){ // En caso de que no este en la TGAA
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
@@ -123,6 +122,7 @@ void ejecutar_FOPEN_socket(int socket_entrada){
 
     }
     else{//Si esta en la TGAA
+        t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
         if(archivo->enUso){ //Si esta en uso x otro pcb
             list_add(archivo->lista_espera_pcbs,pcbRecibido);
 
@@ -145,21 +145,34 @@ void ejecutar_FOPEN_socket(int socket_entrada){
 
 }
 
-void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
+void ejecutar_FOPEN(t_pcb* pcbRecibido){
+
+    t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
+    char* nomArch;
+    strcpy(nomArch, instruccion->param1);
     
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nomArch);
-    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
+
+
+            log_info(info_logger, "::::FOPEN::::1111 <%d> - Abrir Archivo: <%s>", pos, nomArch);
 
     if(pos == -1){ // En caso de que no este en la TGAA
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
         t_peticionesFS* peticion;
         peticion->pcb=pcbRecibido;
+
+
+            log_info(info_logger, "::::FOPEN::::2222 <%d> - Abrir Archivo: <%s>", pos, nomArch);
         strcpy(peticion->nombreArchivo, nomArch);
         list_add(tabla_PeticionesFS,peticion);
 
+            log_info(info_logger, "::::FOPEN::::3333 <%d> - Abrir Archivo: <%s>", pos, nomArch);
+
     }
     else{//Si esta en la TGAA
+        t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
+
         if(archivo->enUso){ //Si esta en uso x otro pcb
             list_add(archivo->lista_espera_pcbs,pcbRecibido);
 
@@ -184,21 +197,11 @@ void ejecutar_FOPEN(t_pcb* pcbRecibido,char* nomArch){
 
 
 
-void ejecutar_FCLOSE(int socket_entrada){
+void ejecutar_FCLOSE(t_pcb*  pcbRecibido){
 
-    int size;
-	void * buffer = recibir_buffer(&size, socket_entrada);
-    uint32_t *desplazamiento = 0;
-    
-    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
     char* nombreArchivo;
-
-    memcpy(nombreArchivo, buffer + *desplazamiento, largoNomArch + 1);
-    desplazamiento += largoNomArch + 1;
-
-    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
-
-	free(buffer);
+    strcpy(nombreArchivo, instruccion->param1);
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nombreArchivo);
@@ -221,7 +224,7 @@ void ejecutar_FCLOSE(int socket_entrada){
         list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
 
         pthread_mutex_unlock(&mutex_TGAA);
-        ejecutar_FOPEN(pcbRecibido2, nombreArchivo);
+        ejecutar_FOPEN(pcbRecibido2);
         moverProceso_BloqReady(pcbRecibido2);
     }
 
@@ -249,7 +252,7 @@ void ejecutar_FCLOSE_porNombreArchivo(t_pcb* pcbBuscado, char* nombreArchivo){
         list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
 
         pthread_mutex_unlock(&mutex_TGAA);
-        ejecutar_FOPEN(pcbBuscado2, nombreArchivo);
+        ejecutar_FOPEN(pcbBuscado2);
         moverProceso_BloqReady(pcbBuscado2);
     }
 
