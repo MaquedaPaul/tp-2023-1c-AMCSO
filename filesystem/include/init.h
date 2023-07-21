@@ -17,6 +17,14 @@ typedef enum {
     PATH_FCB
 }tipo_path;
 
+typedef struct
+{
+    void* archivo;
+    int fd;
+    int tamanio;
+}t_bloques;
+
+
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;

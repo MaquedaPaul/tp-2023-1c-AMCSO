@@ -5,9 +5,6 @@
 #include <gestion_filesystem.h>
 #include <sys/mman.h>
 
-t_bitarray* bitmap;
-t_bloques* archivoBloques;
-t_config_superbloque* cfg_superbloque;
 t_list* lista_bloques; 
 
 

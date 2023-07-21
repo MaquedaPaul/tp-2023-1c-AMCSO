@@ -7,6 +7,9 @@
 #include <dirent.h>
 
 void* bitarraycontent;
+t_bitarray* bitmap;
+t_config_superbloque* cfg_superbloque;
+t_bloques* archivoBloques;
 
 bool semaforosCreados = false;
 
@@ -113,6 +116,9 @@ bool iniciarEstructurasAdministrativas(char* nombre_path) {
     if (!esDirectorio(nombre_path)){
         printf("crear directorio %s\n", nombre_path);
         mkdir(nombre_path,0777);
+       archivoBloques = malloc(sizeof(t_bloques));   
+
+        levantarSuperbloque()
 
         return crearEstructuras();
     } else {
@@ -219,7 +225,7 @@ bool crear_archivo_de_bloques(){
 
     int blockCount = cfg_superbloque->BLOCK_COUNT;
     int blockSize = cfg_superbloque->BLOCK_SIZE;
-    int tamanio_archivo_bloques = blockCount*blockSize;
+    archivoBloques->tamanio = blockCount*blockSize;
 
     archivoBloques->fd = open(cfg_filesystem->PATH_BLOQUES, O_CREAT| O_RDWR, 0777);
 	if (archivoBloques->fd < 0){
@@ -227,8 +233,8 @@ bool crear_archivo_de_bloques(){
         return false;
 	}
 
-	ftruncate(archivoBloques->fd, tamanio_archivo_bloques);
-    archivoBloques->archivo = mmap(NULL,tamanio_archivo_bloques, PROT_READ | PROT_WRITE, MAP_SHARED, archivoBloques->fd , 0);
+	ftruncate(archivoBloques->fd, archivoBloques->tamanio);
+    archivoBloques->archivo = mmap(NULL,archivoBloques->tamanio, PROT_READ | PROT_WRITE, MAP_SHARED, archivoBloques->fd , 0);
 
     if(archivoBloques->archivo == MAP_FAILED) {
        printf("Error en el mmap del archivo de bloques");
@@ -236,7 +242,7 @@ bool crear_archivo_de_bloques(){
        return false;
     }
 
-    msync(archivoBloques->archivo, tamanio_archivo_bloques, MS_SYNC);
+    msync(archivoBloques->archivo, archivoBloques->tamanio, MS_SYNC);
     return true;
 }
 
