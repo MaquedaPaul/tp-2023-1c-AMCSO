@@ -47,6 +47,8 @@ int existe_archivoFCB(char *nombre_archivo) ;
 bool crearEstructuras();
 bool existeArchivo(int* fd, char *path);
 
+void crear_fcbs_del_directorio() ;
+
 int obtener_tamanio_en_bytes();
 void inicializarBitmap(int tamaño_del_bitarray);
 bool iniciarFilesystem();

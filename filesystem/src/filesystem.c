@@ -10,7 +10,6 @@ uint32_t punteroPendiente;
 
 void abrirArchivo(int cliente_socket){
     char* nombreArchivo = recibirString(cliente_socket);
-   // bool existeFcb = existeFcbConNombre(nombreArchivo);
     if(existe_archivoFCB(nombreArchivo)){
         enviarOrden(APERTURA_ARCHIVO_EXITOSA, cliente_socket, info_logger);
     }else{

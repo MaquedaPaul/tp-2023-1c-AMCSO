@@ -8,49 +8,50 @@
 t_bitarray* bitmap;
 t_bloques* archivoBloques;
 t_config_superbloque* cfg_superbloque;
-t_list* lista_FCBs; //TODO DEFINIR
-t_list* lista_bloques; //TODO DEFINIR
+t_list* lista_bloques; 
 
 
-bool existeFcbConNombre(char* nombreArchivo){
-    //TODO
-    return true;
-}
+
 
 int existe_archivoFCB(char *nombre_archivo) {
 
     int tamanio_lista_FCBs = list_size(lista_FCBs);
-
     for (int i = 0; i < tamanio_lista_FCBs; i++)  {
 
         t_config_fcb *aux_FCB = list_get(lista_FCBs, i);
 
         if (strcmp(aux_FCB->NOMBRE_ARCHIVO, nombre_archivo) == 0)  {
 
-            log_info(info_logger, "Abrir archivo: <%s>", nombre_archivo);
 
+            aperturaArchivo(nombreArchivo);
             return 1;
         }
     }
-
     return 0;
 }
 
 
 t_config_fcb* buscarFCBporNombre(char* nombre){
-    t_config_fcb* fcb;
-    //TODO
-    return fcb;
+
+    int tamanio_lista_FCBs = list_size(lista_FCBs);
+    for (int i = 0; i < tamanio_lista_FCBs; i++)  {
+
+        t_config_fcb *aux_FCB = list_get(lista_FCBs, i);
+
+        if (strcmp(aux_FCB->NOMBRE_ARCHIVO, nombre) == 0)  {
+
+            return aux_FCB;
+        }
+    }
 }
 
 
 void realizarCreacionArchivo(char* nombreArchivo){
     char* punto_PATH_FCB = cfg_filesystem->PATH_FCB; //TODO DEFINIR
-    char* nombre_de_archivo = nombreArchivo; //TODO DEFINIR
 	char* path =string_new();
 	string_append(&path, punto_PATH_FCB);
 	string_append(&path, "/");
-	string_append(&path, nombre_de_archivo);
+	string_append(&path, nombreArchivo);
 	string_append(&path,".dat");
 
 	FILE* f = fopen(path,"wb");
@@ -58,7 +59,7 @@ void realizarCreacionArchivo(char* nombreArchivo){
 
 	t_config* aux_config = config_create(path);
 
-	config_set_value(aux_config,"NOMBRE_ARCHIVO",nombre_de_archivo);
+	config_set_value(aux_config,"NOMBRE_ARCHIVO",nombreArchivo);
 	config_set_value(aux_config,"TAMANIO_ARCHIVO","0");
 	config_set_value(aux_config,"PUNTERO_DIRECTO", "0");
 	config_set_value(aux_config,"PUNTERO_INDIRECTO", "0");
@@ -67,10 +68,10 @@ void realizarCreacionArchivo(char* nombreArchivo){
 
             t_config_fcb* aux_FCB = malloc(sizeof(t_config_fcb));
 
-            int tamanio_nombre_archivo = strlen(nombre_de_archivo);
+            int tamanio_nombre_archivo = strlen(nombreArchivo);
 
             aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1  );
-            strcpy( aux_FCB->NOMBRE_ARCHIVO, nombre_de_archivo );
+            strcpy( aux_FCB->NOMBRE_ARCHIVO, nombreArchivo );
 
             aux_FCB->TAMANIO_ARCHIVO = 0;
             aux_FCB->PUNTERO_DIRECTO = 0;

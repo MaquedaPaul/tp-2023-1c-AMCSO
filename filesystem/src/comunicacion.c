@@ -9,6 +9,8 @@ char* puerto_filesystem;
 pthread_t crear_server_filesystem;
 
 bool conexionesHechas = false;
+t_list* lista_FCBs; 
+
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -17,6 +19,11 @@ void procesar_conexion(void *void_args) {
     free(args);
 
     op_code cop;
+
+    lista_FCBs = list_create();
+
+    crear_fcbs_del_directorio();
+
     while (cliente_socket != -1) {
 
         if (recv(cliente_socket, &cop, sizeof(op_code), 0) != sizeof(op_code)) {

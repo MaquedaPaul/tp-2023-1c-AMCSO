@@ -17,6 +17,7 @@ extern t_log* info_logger;
 extern t_log* warning_logger;
 extern t_log* error_logger;
 extern t_config_filesystem *cfg_filesystem;
+extern t_list* lista_FCBs;
 
 typedef struct
 {
@@ -42,7 +43,6 @@ typedef struct
 } t_config_fcb;
 
 
-bool existeFcbConNombre(char* nombreArchivo);
 int existe_archivoFCB(char *nombre_archivo);
 t_config_fcb* buscarFCBporNombre(char* nombre);
 void realizarCreacionArchivo(char* nombreArchivo);
