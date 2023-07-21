@@ -250,7 +250,7 @@ void ejecutar_FSEEK(t_pcb* pcbRecibido){
     char* nombreArchivo;
     strcpy(nombreArchivo, instruccion->param1);
 
-    uint32_t punteroRecibido = instruccion->param2;
+    uint32_t punteroRecibido = atoi(instruccion->param2);
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nombreArchivo);
@@ -273,7 +273,7 @@ void ejecutar_FTRUNCATE(t_pcb* pcbRecibido){
     t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
     char* nomArchivo;
     strcpy(nomArchivo, instruccion->param1);
-    uint32_t tamanioArch = instruccion->param2;
+    uint32_t tamanioArch = atoi(instruccion->param2);
 
     uint32_t tamDatos = sizeof(int) + strlen(nomArchivo) + 1;
     void* datos = malloc(tamDatos);
