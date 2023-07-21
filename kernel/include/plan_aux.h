@@ -18,9 +18,9 @@ void actualizarTiempoRafaga(t_pcb*);
 
 
 //FILESYSTEM
-void ejecutar_FOPEN(t_pcb* ,char* );
+void ejecutar_FOPEN(t_pcb*);
 void ejecutar_FOPEN_socket(int);
-void ejecutar_FCLOSE(int);
+void ejecutar_FCLOSE(t_pcb*);
 void ejecutar_FCLOSE_porNombreArchivo(t_pcb* , char*);
 void ejecutar_FSEEK(int );
 void ejecutar_FTRUNCATE( int );

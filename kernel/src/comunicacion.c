@@ -109,14 +109,15 @@ void procesar_conexion(void *void_args) {
 
             case F_OPEN: {
                 //recibe largoNombreArchivo /nombreArchivo / pcb
-                ejecutar_FOPEN_socket(cliente_socket);
+                t_pcb* unPcb = recibir_pcb(cliente_socket);
+                ejecutar_FOPEN(unPcb);
                 break;
             }
 
             case F_CLOSE: {
                 //recibe largoNombreArchivo /nombreArchivo / pcb
-                ejecutar_FCLOSE(cliente_socket);
-
+                t_pcb* unPcb = recibir_pcb(cliente_socket);
+                ejecutar_FCLOSE(unPcb);
                 break;
             }
 

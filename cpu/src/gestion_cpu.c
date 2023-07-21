@@ -76,9 +76,11 @@ void ejecutar_F_OPEN(char* nombre_archivo) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(F_OPEN, info_logger);
+    /*
     uint32_t largo_nombre = strlen(nombre_archivo) + 1;
     agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_archivo, largo_nombre);
+    */
     agregar_PCB_a_paquete(paquete, pcb_actual);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
@@ -191,9 +193,11 @@ void ejecutar_F_CLOSE(char* nombre_archivo) {
     copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
     pcb_actual->programCounter++;
     t_paquete* paquete = crear_paquete(F_CLOSE,info_logger);
+    /*
     uint32_t largo_nombre = strlen(nombre_archivo) + 1;
     agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
     agregar_a_paquete(paquete, nombre_archivo, largo_nombre);
+    */
     agregar_PCB_a_paquete(paquete, pcb_actual);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
