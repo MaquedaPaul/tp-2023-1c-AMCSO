@@ -23,7 +23,7 @@ int existe_archivoFCB(char *nombre_archivo) {
         if (strcmp(aux_FCB->NOMBRE_ARCHIVO, nombre_archivo) == 0)  {
 
 
-            aperturaArchivo(nombreArchivo);
+            aperturaArchivo(nombre_archivo);
             return 1;
         }
     }
@@ -47,7 +47,7 @@ t_config_fcb* buscarFCBporNombre(char* nombre){
 
 
 void realizarCreacionArchivo(char* nombreArchivo){
-    char* punto_PATH_FCB = cfg_filesystem->PATH_FCB; //TODO DEFINIR
+    char* punto_PATH_FCB = cfg_filesystem->PATH_FCB; 
 	char* path =string_new();
 	string_append(&path, punto_PATH_FCB);
 	string_append(&path, "/");
@@ -81,7 +81,7 @@ void realizarCreacionArchivo(char* nombreArchivo){
 
 	  list_add(lista_FCBs,aux_FCB);
 
-	log_info(info_logger,"Se creo el archivo en: %s", path);
+	creacionArchivo(nombreArchivo);
 	free(path);
 
 
@@ -97,7 +97,13 @@ void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_a
 
             tamanio_del_archivo_a_truncar = aux_FCB->TAMANIO_ARCHIVO;
 
+            if(!(tamanio_del_archivo_a_truncar == nuevo_tamanio_del_archivo )) {  
+
             ampliar_o_reducir_tamanio(aux_FCB, nuevo_tamanio_del_archivo, tamanio_del_archivo_a_truncar);
+          truncacionArchivo(nombreArchivo, nuevo_tamanio_del_archivo);
+        }
+
+        break;
 
     }
          }
@@ -127,9 +133,13 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
      uint32_t* enteroAuxPuntero = list_remove(lista_bloques,0);
      aux_FCB->PUNTERO_DIRECTO = *enteroAuxPuntero;
+
+     accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, aux_FCB->PUNTERO_DIRECTO);
+
      uint32_t* enteroAuxIndPuntero = list_remove(lista_bloques,0);
      aux_FCB->PUNTERO_INDIRECTO = *enteroAuxIndPuntero;
 
+    log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, aux_FCB->PUNTERO_INDIRECTO);
 
      uint32_t  puntero_directo = *enteroAuxPuntero;
      uint32_t  puntero_indirecto = *enteroAuxIndPuntero;
@@ -170,6 +180,8 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
       aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
       aux_FCB->PUNTERO_DIRECTO = puntero_directo;
 
+      accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, aux_FCB->PUNTERO_DIRECTO);
+
         t_config* archivo_config = aux_FCB->fcb_config;
 
 
@@ -194,7 +206,10 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
         uint32_t puntero_directo  = config_get_int_value(archivo_config, "PUNTERO_DIRECTO");
 
+        accesoABitmap(puntero_directo, bitarray_test_bit(bitmap, puntero_directo));
         bitarray_clean_bit(bitmap,puntero_directo );
+        accesoABitmap(puntero_directo, bitarray_test_bit(bitmap, puntero_directo));
+        accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, puntero_directo  );
 
        aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
        aux_FCB->PUNTERO_DIRECTO = 0;
@@ -206,7 +221,6 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
          } else {
             
-         t_config* aux_config = aux_FCB->fcb_config;
 
        aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
         //TODO es el aux FCB?
@@ -239,6 +253,8 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
         uint32_t puntero_indirecto = *enteroAuxInd;
 
+       log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, aux_FCB->PUNTERO_INDIRECTO);
+
         uint32_t cantidad_de_punteros = list_size(lista_bloques);
 
          uint32_t  offset = 0;
@@ -246,6 +262,9 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
          for (int i = 0; i < cantidad_de_punteros; i++) {
 
              uint32_t* puntero_a_escribir = list_get(lista_bloques,i);
+
+        accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, i+1, *puntero_a_escribir);
+
 
              uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
 
@@ -281,8 +300,10 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
             uint32_t puntero_directo  = config_get_int_value(archivo_config, "PUNTERO_DIRECTO");
             uint32_t puntero_indirecto  = config_get_int_value(archivo_config, "PUNTERO_INDIRECTO");
-
+            accesoABitmap(puntero_directo, bitarray_test_bit(bitmap, puntero_directo));
             bitarray_clean_bit(bitmap,puntero_directo );
+            accesoABitmap(puntero_directo, bitarray_test_bit(bitmap, puntero_directo));
+
             bitarray_clean_bit(bitmap,puntero_indirecto );
 
             aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
