@@ -487,6 +487,7 @@ void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {
     if (recurso->instanciasRecurso < 0) {
         list_add(recurso->cola, unaPcb);
         log_info(info_logger,"PID: <%d> - Bloqueado por: <%s>",unaPcb->id,recurso->nombreRecurso);
+        moverProceso_ExecBloq(unaPcb);
     }else{
         enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
     }
