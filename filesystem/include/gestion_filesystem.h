@@ -11,18 +11,6 @@
 #include <commons/collections/list.h>
 #include <commons/bitarray.h>
 #include <loggers_configs.h>
-extern t_log* trace_logger;
-extern t_log* debug_logger;
-extern t_log* info_logger;
-extern t_log* warning_logger;
-extern t_log* error_logger;
-extern t_config_filesystem *cfg_filesystem;
-extern t_list* lista_FCBs;
-extern t_bloques* archivoBloques;
-extern t_bitarray* bitmap;
-extern t_config_superbloque* cfg_superbloque;
-
-
 typedef struct
 {
     uint32_t BLOCK_SIZE;
@@ -37,6 +25,26 @@ typedef struct
     uint32_t PUNTERO_INDIRECTO;
     t_config* fcb_config;
 } t_config_fcb;
+
+typedef struct
+{
+    void* archivo;
+    int fd;
+    int tamanio;
+}t_bloques;
+
+extern t_log* trace_logger;
+extern t_log* debug_logger;
+extern t_log* info_logger;
+extern t_log* warning_logger;
+extern t_log* error_logger;
+extern t_config_filesystem *cfg_filesystem;
+extern t_list* lista_FCBs;
+extern t_bloques* archivoBloques;
+extern t_bitarray* bitmap;
+extern t_config_superbloque* cfg_superbloque;
+
+
 
 
 int existe_archivoFCB(char *nombre_archivo);

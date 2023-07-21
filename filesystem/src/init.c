@@ -118,7 +118,7 @@ bool iniciarEstructurasAdministrativas(char* nombre_path) {
         mkdir(nombre_path,0777);
        archivoBloques = malloc(sizeof(t_bloques));   
 
-        levantarSuperbloque()
+        levantarSuperbloque();
 
         return crearEstructuras();
     } else {
@@ -130,11 +130,9 @@ bool crearEstructuras(){
 
     bool comp1 = crear_bitmap_de_bloques();
     bool comp2 = crear_archivo_de_bloques();
-    if(crear_bitmap_de_bloques() && crear_archivo_de_bloques()){
-        return true;
-    }else{
-        return false;
-    }
+    crear_fcbs_del_directorio();
+    return crear_bitmap_de_bloques() && crear_archivo_de_bloques();
+
 }
 
 void crear_fcbs_del_directorio() {

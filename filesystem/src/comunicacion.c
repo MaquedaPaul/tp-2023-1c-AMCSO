@@ -22,7 +22,7 @@ void procesar_conexion(void *void_args) {
 
     lista_FCBs = list_create();
 
-    crear_fcbs_del_directorio();
+
 
     while (cliente_socket != -1) {
 
