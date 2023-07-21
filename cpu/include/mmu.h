@@ -11,6 +11,7 @@
 
 extern t_pcb* pcb_actual;
 extern t_log* info_logger;
+extern t_log* debug_logger;
 extern bool cicloInstruccionesDebeEjecutarse; //nose si va aca
 
 
@@ -19,5 +20,5 @@ extern bool cicloInstruccionesDebeEjecutarse; //nose si va aca
 
 extern t_config_cpu *cfg_cpu;
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes);
-bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes);
+bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes, t_segmento* segmento);
 void copiar_registrosCPU_a_los_registroPCB(registros_cpu* registro);
