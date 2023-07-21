@@ -55,7 +55,7 @@ bool existeArchivo(int* fd, char *path);
 void crear_fcbs_del_directorio() ;
 
 int obtener_tamanio_en_bytes();
-void inicializarBitmap(int tamaño_del_bitarray);
+void inicializarBitmap(int tamanio_del_bitarray);
 bool iniciarFilesystem();
 int esDirectorio(const char* nombre);
 bool crear_bitmap_de_bloques();
