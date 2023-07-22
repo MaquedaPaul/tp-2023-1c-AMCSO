@@ -1,0 +1,42 @@
+La guia definitiva
+1.Crear Token: https://github.com/settings/tokens/new
+2.Utilizar putty -> (*)
+/////CON DEPLOY/////
+3.git clone https://github.com/sisoputnfrba/so-deploy.git
+4.cd so-deploy
+5. ./deploy.sh -l=mumuki/cspec -l=sisoputnfrba/so-commons-library -p=console -p=kernel -p=cpu -p=filesystem -p=memory tp-2023-1c-AMCSO
+
+
+////SIN DEPLOY/////
+3.git clone https://github.com/sisoputnfrba/tp-2023-1c-AMCSO
+4.git clone https://github.com/sisoputnfrba/so-commons-library.git
+5.cd so-commons-library -> make install -> cd ..
+6.git clone https://github.com/mumuki/cspec.git
+7.cd cspec -> make install -> cd ..
+
+LO QUE SIGUE
+--------------------------------------------------------------
+a. chmod -R +x tp-2023-1c-AMCSO -> cd tp-2023-1c-AMCSO
+b. Configurar ips modulos ./configurar.sh -> por cada módulo en una vm distinta haremos lo siguiente
+/////AUTO///// -> 1 o 2, donde X es 1 o 2
+->auto -> autoX -> escribiremos los distintos modulos
+-kernel
+-cpu
+-filesystem
+-memory
+/////MANUAL/////
+->manual -> puerto o ip -> modulo -> -> nuevo valor -> se repite el proceso para cada modulo con combinación ip/puerto
+
+LO QUE SIGUE
+--------------------------------------------------------------
+a.Ingresar al modulo -> cd modulo
+b.Ingresar al ejecutable -> cd ejecutable
+c.Usar el ejecutable en cuestión  -> ./modulo.sh PARAM1 PARAM2
+
+
+PuTTY
+https://www.putty.org/
+En la sección de Session, mantenemos el puerto en 22 y colocamos la IP de la VM server
+Para saber la IP de la VM, usamos ifconfig
+La VM tiene que estar configurada como adaptador puente en -> Máquina> Configuración> Red> Conectado a
+Con putty podremos facilitar los pasos subsiguientes
