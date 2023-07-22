@@ -40,3 +40,30 @@ En la sección de Session, mantenemos el puerto en 22 y colocamos la IP de la VM
 Para saber la IP de la VM, usamos ifconfig
 La VM tiene que estar configurada como adaptador puente en -> Máquina> Configuración> Red> Conectado a
 Con putty podremos facilitar los pasos subsiguientes
+
+
+ANEXOS
+
+ENUNCIADO https://docs.google.com/document/d/1orfThJsPmMx5uPzbY3wClGhqX8jASMOCUMlWnYAr7cA/edit#heading=h.40fif0e2tonq
+PRUEBAS https://docs.google.com/document/d/1MNalaTCB95qGO8q3rlR7VVCQqv3VLP3oeYxBgXgBy5g/edit
+
+RANIARI-DEPLOY https://raniagus.github.io/so-project-template/guia/deploy
+GUIA UTNSO DEPLOY https://docs.utnso.com.ar/guias/herramientas/deploy#objetivo
+
+COMMONS https://github.com/sisoputnfrba/so-commons-library
+CSPEC https://github.com/mumuki/cspec
+
+NUESTRO REPO https://github.com/sisoputnfrba/tp-2023-1c-AMCSO
+
+TOKENS https://github.com/settings/tokens
+
+
+INSTALACIÓN SI FUERA NECESARIA PARA SCRIPTS
+------------------------------
+sudo apt-get update
+sudo apt-get install gawk sed
+
+
+
+
+
