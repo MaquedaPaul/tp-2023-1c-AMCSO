@@ -301,18 +301,20 @@ void ejecutar_FREAD(t_pcb* pcbRecibido, u_int32_t dlArch){
     strcpy(nomArchivo, instruccion->param1);
     uint32_t cantBytes = atoi(instruccion->param3);
 
+    pthread_mutex_lock(&mutex_TGAA);
+    int pos = buscarArch_TablaGlobalArchivo(nomArchivo);
+    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
+    
         t_paquete* paquete = crear_paquete(ESCRITURA_ARCHIVO, info_logger);
         uint32_t largo_nombre = strlen(nomArchivo) + 1;
         agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
         agregar_a_paquete(paquete, nomArchivo, largo_nombre);
         agregar_a_paquete(paquete, &cantBytes, sizeof(uint32_t));
         agregar_a_paquete(paquete, &dlArch, sizeof(uint32_t));
+        agregar_a_paquete(paquete, archivo->ptro, sizeof(int));
         enviar_paquete(paquete, fd_filesystem);
         eliminar_paquete(paquete, info_logger);
 
-    pthread_mutex_lock(&mutex_TGAA);
-    int pos = buscarArch_TablaGlobalArchivo(nomArchivo);
-    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
     log_info(info_logger, "PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Direccion Memoria <%d> - Tamaño <%d>", 
                 archivo->id_pcb_en_uso, nomArchivo, archivo->ptro,dlArch,cantBytes);
     
@@ -332,18 +334,21 @@ void ejecutar_FWRITE(t_pcb* pcbRecibido, u_int32_t dfArch){
     strcpy(nomArchivo, instruccion->param1);
     uint32_t cantBytes = atoi(instruccion->param3);
    
+    pthread_mutex_lock(&mutex_TGAA);
+    int pos = buscarArch_TablaGlobalArchivo(nomArchivo);
+    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
+
+
         t_paquete* paquete = crear_paquete(ESCRITURA_ARCHIVO, info_logger);
         uint32_t largo_nombre = strlen(nomArchivo) + 1;
         agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
         agregar_a_paquete(paquete, nomArchivo, largo_nombre);
         agregar_a_paquete(paquete, &cantBytes, sizeof(uint32_t));
         agregar_a_paquete(paquete, &dfArch, sizeof(uint32_t));
+        agregar_a_paquete(paquete, archivo->ptro, sizeof(int));
         enviar_paquete(paquete, fd_filesystem);
         eliminar_paquete(paquete, info_logger);
 
-    pthread_mutex_lock(&mutex_TGAA);
-    int pos = buscarArch_TablaGlobalArchivo(nomArchivo);
-    t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
     log_info(info_logger, "PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Direccion Memoria <%d> - Tamaño <%d>", 
                 archivo->id_pcb_en_uso, nomArchivo, archivo->ptro,dfArch,cantBytes);
   
