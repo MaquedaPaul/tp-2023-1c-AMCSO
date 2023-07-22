@@ -244,24 +244,13 @@ void ejecutar_FCLOSE_porNombreArchivo(t_pcb* pcbBuscado, char* nombreArchivo){
 }
 
 
-void ejecutar_FSEEK(int socket_entrada){
+void ejecutar_FSEEK(t_pcb* pcbRecibido){
 
-
-    int size;
-	void * buffer = recibir_buffer(&size, socket_entrada);
-    uint32_t *desplazamiento = 0;
-    
-    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
     char* nombreArchivo;
-    
-    memcpy(nombreArchivo, buffer + *desplazamiento, largoNomArch + 1);
-    desplazamiento += largoNomArch + 1;
+    strcpy(nombreArchivo, instruccion->param1);
 
-    uint32_t punteroRecibido = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
-   
-    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
-
-	free(buffer);
+    uint32_t punteroRecibido = atoi(instruccion->param2);
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nombreArchivo);
@@ -278,23 +267,13 @@ void ejecutar_FSEEK(int socket_entrada){
 }
 
 
-void ejecutar_FTRUNCATE(int socket_entrada){
+void ejecutar_FTRUNCATE(t_pcb* pcbRecibido){
 
-    int size;
-	void * buffer = recibir_buffer(&size, socket_entrada);
-    uint32_t *desplazamiento = 0;
-    
-    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+
+    t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
     char* nomArchivo;
-
-    memcpy(nomArchivo, buffer + *desplazamiento, largoNomArch + 1);
-    desplazamiento += largoNomArch + 1;
-
-    uint32_t tamanioArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
-    
-    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
-
-	free(buffer);
+    strcpy(nomArchivo, instruccion->param1);
+    uint32_t tamanioArch = atoi(instruccion->param2);
 
     uint32_t tamDatos = sizeof(int) + strlen(nomArchivo) + 1;
     void* datos = malloc(tamDatos);
@@ -315,42 +294,30 @@ void ejecutar_FTRUNCATE(int socket_entrada){
 }
 
 
-void ejecutar_FREAD(int socket_entrada){
+void ejecutar_FREAD(t_pcb* pcbRecibido, u_int32_t dlArch){
 
-    int size;
-	void * buffer = recibir_buffer(&size, socket_entrada);
-    uint32_t *desplazamiento = 0;
-    
-    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
     char* nomArchivo;
+    strcpy(nomArchivo, instruccion->param1);
+    uint32_t cantBytes = atoi(instruccion->param3);
 
-    memcpy(nomArchivo, buffer + *desplazamiento, largoNomArch + 1);
-    desplazamiento += largoNomArch + 1;
-
-    uint32_t dlArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
-   
-    uint32_t largArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
-    
-    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
-
-	free(buffer);
-   
-    uint32_t tamDatos = sizeof(int) + sizeof(int) + strlen(nomArchivo) + 1;
-    void* datos = malloc(tamDatos);
-    memcpy(datos, &largArch, sizeof(int));
-    memcpy(datos + sizeof(int) , &dlArch, sizeof(int));
-    memcpy(datos + sizeof(int) + sizeof(int) , nomArchivo, strlen(nomArchivo) + 1);
-    enviarDatos(datos,tamDatos, LECTURA_ARCHIVO,fd_filesystem , info_logger);
-    free(datos);
+        t_paquete* paquete = crear_paquete(ESCRITURA_ARCHIVO, info_logger);
+        uint32_t largo_nombre = strlen(nomArchivo) + 1;
+        agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
+        agregar_a_paquete(paquete, nomArchivo, largo_nombre);
+        agregar_a_paquete(paquete, &cantBytes, sizeof(uint32_t));
+        agregar_a_paquete(paquete, &dlArch, sizeof(uint32_t));
+        enviar_paquete(paquete, fd_filesystem);
+        eliminar_paquete(paquete, info_logger);
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nomArchivo);
     t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
     log_info(info_logger, "PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Direccion Memoria <%d> - Tamaño <%d>", 
-                archivo->id_pcb_en_uso, nomArchivo, archivo->ptro,dlArch,largArch);
+                archivo->id_pcb_en_uso, nomArchivo, archivo->ptro,dlArch,cantBytes);
     
     //Se actualiza posicion del puntero
-    archivo->ptro += largArch;
+    archivo->ptro += cantBytes;
     list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
     pthread_mutex_unlock(&mutex_TGAA);
 
@@ -358,42 +325,30 @@ void ejecutar_FREAD(int socket_entrada){
   
 }
 
-void ejecutar_FWRITE(int socket_entrada){
+void ejecutar_FWRITE(t_pcb* pcbRecibido, u_int32_t dfArch){
 
-    int size;
-	void * buffer = recibir_buffer(&size, socket_entrada);
-    uint32_t *desplazamiento = 0;
-    
-    uint32_t largoNomArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
+    t_instr* instruccion = list_get(pcbRecibido->instr,pcbRecibido->programCounter-1);
     char* nomArchivo;
-
-    memcpy(nomArchivo, buffer + *desplazamiento, largoNomArch + 1);
-    desplazamiento += largoNomArch + 1;
-
-    uint32_t dfArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
-    
-    uint32_t largArch = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento);
-    
-    t_pcb *pcbRecibido = recibir_paquete_con_PCB(desplazamiento, buffer);
-
-	free(buffer);
+    strcpy(nomArchivo, instruccion->param1);
+    uint32_t cantBytes = atoi(instruccion->param3);
    
-    uint32_t tamDatos = sizeof(int) + sizeof(int) + strlen(nomArchivo) + 1;
-    void* datos = malloc(tamDatos);
-    memcpy(datos, &largArch, sizeof(int));
-    memcpy(datos + sizeof(int) , &dfArch, sizeof(int));
-    memcpy(datos + sizeof(int) + sizeof(int) , nomArchivo, strlen(nomArchivo) + 1);
-    enviarDatos(datos,tamDatos, ESCRITURA_ARCHIVO,fd_filesystem , info_logger);
-    free(datos);
+        t_paquete* paquete = crear_paquete(ESCRITURA_ARCHIVO, info_logger);
+        uint32_t largo_nombre = strlen(nomArchivo) + 1;
+        agregar_a_paquete(paquete, &largo_nombre, sizeof(uint32_t));
+        agregar_a_paquete(paquete, nomArchivo, largo_nombre);
+        agregar_a_paquete(paquete, &cantBytes, sizeof(uint32_t));
+        agregar_a_paquete(paquete, &dfArch, sizeof(uint32_t));
+        enviar_paquete(paquete, fd_filesystem);
+        eliminar_paquete(paquete, info_logger);
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nomArchivo);
     t_TablaArchivos* archivo = list_get(tablaGlobal_ArchivosAbiertos,pos);
     log_info(info_logger, "PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Direccion Memoria <%d> - Tamaño <%d>", 
-                archivo->id_pcb_en_uso, nomArchivo, archivo->ptro,dfArch,largArch);
+                archivo->id_pcb_en_uso, nomArchivo, archivo->ptro,dfArch,cantBytes);
   
     //Se actualiza posicion del puntero
-    archivo->ptro += largArch;
+    archivo->ptro += cantBytes;
     list_replace(tablaGlobal_ArchivosAbiertos,pos,archivo);
     pthread_mutex_unlock(&mutex_TGAA);
 

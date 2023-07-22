@@ -179,6 +179,7 @@ void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb);
 void enviar_paquete_pcb(t_pcb* pcbDelProceso, int conexion, op_code codigo, t_log* logger);
 void enviar_paquete_pcb2(t_pcb* pcb_actual,int fd_kernel,op_code YIELD,t_log* info_logger);
 t_pcb* recibir_pcb(int conexion);
+t_pcb*  recibir_pcb_direccion(int conexion,uint32_t* parametroDireccion);
 
 //////////////////////////////////////////////////////////
 

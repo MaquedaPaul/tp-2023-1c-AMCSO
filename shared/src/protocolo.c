@@ -1451,3 +1451,226 @@ void enviar_paquete_pcb2(t_pcb* pcb, int conexion, op_code codigo, t_log* info_l
     enviar_paquete(paquete, conexion);
     eliminar_paquete(paquete, info_logger);
 }
+
+
+t_pcb*  recibir_pcb_direccion(int conexion,uint32_t* parametroDireccion) {
+    //Pido el stream del buffer en el que viene serilizada la pcb
+    uint32_t tamanioBuffer;
+    uint32_t desplazamiento = 0;
+    void *buffer = recibir_stream(&tamanioBuffer, conexion);
+
+    //Inicializo todas las estructuras que necesito
+    t_pcb *unPcb = malloc(sizeof(t_pcb));
+    registros_cpu *registros = malloc(sizeof(registros_cpu));
+    t_list *instrucciones = list_create();
+    t_tablaSegmentos* tablaSegmentos = malloc(sizeof (t_tablaSegmentos));
+    t_list *segmentos = list_create();
+
+    //Comienzo a consumir el buffer (EN ORDEN, MUY IMPORTANTE)
+    //PCB(UINTS_32T): ID, PROGRAMAM COUNTER, ESTIMACION RAFAGA, RAFAGA ANTERIOR, TIEMPO LLEGADA READY, TIEMPO ENVIO EXEC, FD_CONSOLA
+
+    //ID
+    memcpy(&(unPcb->id), buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //PROGRAM COUNTER
+    memcpy(&(unPcb->programCounter), buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //ESTIMACION RAFAGA
+    memcpy(&(unPcb->estimacionRafaga), buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //RAFAGA ANTERIOR
+    memcpy(&(unPcb->rafagaAnterior), buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //TIEMPO LLEGADA READY
+    memcpy(&(unPcb->tiempoLlegadaReady), buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //TIEMPO ENVIO EXEC
+    memcpy(&(unPcb->tiempoEnvioExec), buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //FD_CONSOLA
+    memcpy(&(unPcb->fd_consola), buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //la parte de la PCB que no son uint32_t
+    //PCB: REGISTROS CPU, INSTRUCCIONES, TABLA SEGMENTOS
+
+    //REGISTROS CPU (primero tiene los 3 tamaños fijos y luego los datos)
+
+    uint32_t tamanioAx = 0;
+    uint32_t tamanioEax = 0;
+    uint32_t tamanioRax = 0;
+
+    memcpy(&tamanioAx, buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+    memcpy(&tamanioEax, buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+    memcpy(&tamanioRax, buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //Una vez obtenidos los tamaños, obtenemos los registros
+    memcpy(&(registros->registro_AX), buffer + desplazamiento, tamanioAx);
+    desplazamiento += tamanioAx;
+    memcpy(&(registros->registro_BX), buffer + desplazamiento, tamanioAx);
+    desplazamiento += tamanioAx;
+    memcpy(&(registros->registro_CX), buffer + desplazamiento, tamanioAx);
+    desplazamiento += tamanioAx;
+    memcpy(&(registros->registro_DX), buffer + desplazamiento, tamanioAx);
+    desplazamiento += tamanioAx;
+
+    memcpy(&(registros->registro_EAX), buffer + desplazamiento, tamanioEax);
+    desplazamiento += tamanioEax;
+    memcpy(&(registros->registro_EBX), buffer + desplazamiento, tamanioEax);
+    desplazamiento += tamanioEax;
+    memcpy(&(registros->registro_ECX), buffer + desplazamiento, tamanioEax);
+    desplazamiento += tamanioEax;
+    memcpy(&(registros->registro_EDX), buffer + desplazamiento, tamanioEax);
+    desplazamiento += tamanioEax;
+
+    memcpy(&(registros->registro_RAX), buffer + desplazamiento, tamanioRax);
+    desplazamiento += tamanioRax;
+    memcpy(&(registros->registro_RBX), buffer + desplazamiento, tamanioRax);
+    desplazamiento += tamanioRax;
+    memcpy(&(registros->registro_RCX), buffer + desplazamiento, tamanioRax);
+    desplazamiento += tamanioRax;
+    memcpy(&(registros->registro_RDX), buffer + desplazamiento, tamanioRax);
+    desplazamiento += tamanioRax;
+
+    unPcb->registrosCpu = registros;
+
+    //Instrucciones
+    //Al ser una lista primero recibimos el tamanio y luego la lista
+    uint32_t tamanioListaInstrucciones = 0;
+
+    memcpy(&tamanioListaInstrucciones, buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    for (int i = 0; i < tamanioListaInstrucciones; i++) {
+        t_instr *instruccion = malloc(sizeof(t_instr));
+
+        //INSTRUCCION: ID LENGTH, ID, CANTIDAD_PARAMETROS, PARAM 1 LENGTH, PARAM 1, ...
+
+        //CANTIDAD_PARAMETROS
+        memcpy(&(instruccion->cantidad_parametros), buffer + desplazamiento, sizeof(uint8_t));
+        desplazamiento += sizeof(uint8_t);
+
+        //ID LENGTH
+        memcpy(&(instruccion->idLength), buffer + desplazamiento, sizeof(uint8_t));
+        desplazamiento += sizeof(uint8_t);
+
+        //ID
+        instruccion->id = malloc(instruccion->idLength + 1);
+        memcpy(instruccion->id, buffer + desplazamiento, instruccion->idLength + 1);
+        desplazamiento += instruccion->idLength + 1;
+
+
+
+        if (instruccion->cantidad_parametros == 1) {
+            //PARAM 1 LENGTH
+            memcpy(&(instruccion->param1Length), buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento += sizeof(uint8_t);
+
+            //PARAM 1
+            instruccion->param1 = malloc(instruccion->param1Length + 1);
+            memcpy(instruccion->param1, buffer + desplazamiento, instruccion->param1Length + 1);
+            desplazamiento += instruccion->param1Length + 1;
+        }
+
+        if (instruccion->cantidad_parametros == 2) {
+            //PARAM 1 LENGTH
+            memcpy(&(instruccion->param1Length), buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento += sizeof(uint8_t);
+
+            //PARAM 1
+            instruccion->param1 = malloc(instruccion->param1Length + 1);
+            memcpy(instruccion->param1, buffer + desplazamiento, instruccion->param1Length + 1);
+            desplazamiento += instruccion->param1Length + 1;
+
+            //PARAM 2 LENGTH
+            memcpy(&(instruccion->param2Length), buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento += sizeof(uint8_t);
+
+            //PARAM 2
+            instruccion->param2 = malloc(instruccion->param2Length + 1);
+            memcpy(instruccion->param2, buffer + desplazamiento, instruccion->param2Length + 1);
+            desplazamiento += instruccion->param2Length + 1;
+        }
+
+        if (instruccion->cantidad_parametros == 3) {
+            //PARAM 1 LENGTH
+            memcpy(&(instruccion->param1Length), buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento += sizeof(uint8_t);
+
+            //PARAM 1
+            instruccion->param1 = malloc(instruccion->param1Length + 1);
+            memcpy(instruccion->param1, buffer + desplazamiento, instruccion->param1Length + 1);
+            desplazamiento += instruccion->param1Length + 1;
+
+            //PARAM 2 LENGTH
+            memcpy(&(instruccion->param2Length), buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento += sizeof(uint8_t);
+
+            //PARAM 2
+            instruccion->param2 = malloc(instruccion->param2Length + 1);
+            memcpy(instruccion->param2, buffer + desplazamiento, instruccion->param2Length + 1);
+            desplazamiento += instruccion->param2Length + 1;
+
+            //PARAM 3 LENGTH
+            memcpy(&(instruccion->param3Length), buffer + desplazamiento, sizeof(uint8_t));
+            desplazamiento += sizeof(uint8_t);
+
+            //PARAM 3
+            instruccion->param3 = malloc(instruccion->param3Length + 1);
+            memcpy(instruccion->param3, buffer + desplazamiento, instruccion->param3Length + 1);
+            desplazamiento += instruccion->param3Length + 1;
+        }
+        list_add(instrucciones,instruccion);
+    }
+    unPcb->instr = instrucciones;
+
+    //TABLA SEGMENTOS
+    //PID DEL PROCESO LIGADO A LA TDS
+    uint32_t pid = 0;
+
+    memcpy(&pid, buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    //Al ser una lista primero recibimos el tamanio
+
+    uint32_t tamanioListaSegmentos = 0;
+
+    memcpy(&tamanioListaSegmentos, buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    for(int i = 0 ; i<tamanioListaSegmentos; i++){
+        t_segmento* segmento = malloc(sizeof(t_segmento));
+
+        //El segmento esta compuesto por: Id,limite,base
+        //ID
+        memcpy(&(segmento->id), buffer + desplazamiento, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        //Limite
+        memcpy(&(segmento->limite), buffer + desplazamiento, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        //Base
+        memcpy(&(segmento->base), buffer + desplazamiento, sizeof(uint32_t));
+        desplazamiento += sizeof(uint32_t);
+
+        list_add(segmentos,segmento);
+    }
+    tablaSegmentos->segmentos = segmentos;
+    tablaSegmentos->pid = unPcb->id;
+    unPcb->tablaSegmentos = tablaSegmentos;
+
+    memcpy(parametroDireccion, buffer + desplazamiento, sizeof(uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    return unPcb;
+}
