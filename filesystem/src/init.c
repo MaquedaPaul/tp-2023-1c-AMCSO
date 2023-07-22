@@ -131,7 +131,8 @@ bool crearEstructuras(){
     bool comp1 = crear_bitmap_de_bloques();
     bool comp2 = crear_archivo_de_bloques();
     crear_fcbs_del_directorio();
-    return crear_bitmap_de_bloques() && crear_archivo_de_bloques();
+
+    return comp1 && comp2;
 
 }
 
@@ -144,31 +145,31 @@ void crear_fcbs_del_directorio() {
 		while ((dir = readdir(d)) != NULL) {
 			if( strcmp( dir->d_name, "." ) != 0 && strcmp( dir->d_name, ".." ) != 0 ){
 
-           t_config_fcb* aux_FCB = malloc(sizeof(t_config_fcb));
+                t_config_fcb* aux_FCB = malloc(sizeof(t_config_fcb));
 
-            char* nombre =  string_duplicate(dir->d_name);
+                char* nombre =  string_duplicate(dir->d_name);
 
-            char* path_fcb_config = string_new();
-            string_append(&path_fcb_config, cfg_filesystem->PATH_FCB);
-            string_append(&path_fcb_config, "/");
-            string_append(&path_fcb_config, nombre);
+                char* path_fcb_config = string_new();
+                string_append(&path_fcb_config, cfg_filesystem->PATH_FCB);
+                string_append(&path_fcb_config, "/");
+                string_append(&path_fcb_config, nombre);
 
-            t_config* aux_config = config_create(path_fcb_config);
+                t_config* aux_config = config_create(path_fcb_config);
 
-            int tamanio_nombre_archivo = strlen( config_get_string_value(aux_config, "NOMBRE_ARCHIVO") );
+                int tamanio_nombre_archivo = strlen( config_get_string_value(aux_config, "NOMBRE_ARCHIVO") );
 
-            aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1  );
-            strcpy( aux_FCB->NOMBRE_ARCHIVO, config_get_string_value(aux_config, "NOMBRE_ARCHIVO") );
+                aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1  );
+                strcpy( aux_FCB->NOMBRE_ARCHIVO, config_get_string_value(aux_config, "NOMBRE_ARCHIVO") );
 
-            aux_FCB->TAMANIO_ARCHIVO = config_get_int_value(aux_config, "TAMANIO_ARCHIVO");
-            aux_FCB->PUNTERO_DIRECTO = config_get_int_value(aux_config, "PUNTERO_DIRECTO");
-            aux_FCB->PUNTERO_INDIRECTO = config_get_int_value(aux_config, "PUNTERO_INDIRECTO");
+                aux_FCB->TAMANIO_ARCHIVO = config_get_int_value(aux_config, "TAMANIO_ARCHIVO");
+                aux_FCB->PUNTERO_DIRECTO = config_get_int_value(aux_config, "PUNTERO_DIRECTO");
+                aux_FCB->PUNTERO_INDIRECTO = config_get_int_value(aux_config, "PUNTERO_INDIRECTO");
 
-            aux_FCB->fcb_config = aux_config;
+                aux_FCB->fcb_config = aux_config;
 
-            free(path_fcb_config);
+                free(path_fcb_config);
 
-			list_add(lista_FCBs,aux_FCB);
+			    list_add(lista_FCBs,aux_FCB);
 
 			}
 		}
@@ -212,10 +213,11 @@ bool crear_bitmap_de_bloques(){
 
      for (int i = 0; i < cfg_superbloque->BLOCK_COUNT; i++) {
         bitarray_clean_bit(bitmap, i);
-    }
+     }
 
-  msync(bitmap,  tamanio_bitmap, MS_SYNC);
-      return true;
+    msync(bitmap,  tamanio_bitmap, MS_SYNC);
+
+    return true;
 
 }
 
@@ -272,6 +274,7 @@ bool levantarSuperbloque(){
 
 
 bool levantarArchivoBloques(){
+
     archivoBloques = malloc(sizeof (t_bloques));
     archivoBloques->fd = open(cfg_filesystem->PATH_BLOQUES, O_RDWR , 0777);
     int tamanio = cfg_superbloque->BLOCK_COUNT*cfg_superbloque->BLOCK_SIZE;
