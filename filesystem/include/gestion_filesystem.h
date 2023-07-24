@@ -11,6 +11,7 @@
 #include <commons/collections/list.h>
 #include <commons/bitarray.h>
 #include <loggers_configs.h>
+
 typedef struct
 {
     uint32_t BLOCK_SIZE;

@@ -14,16 +14,14 @@ extern t_log* info_logger;
 extern t_log* warning_logger;
 extern t_log* error_logger;
 
-void abrirArchivo(int cliente_socket);
+extern t_list* archivosUsados;
 
-void crearArchivo(int cliente_socket);
+void* abrirArchivo(void* cliente_socket);
+void* crearArchivo(void* cliente_socket);
+void* truncarArchivo(void*  cliente_socket);
+void* leerArchivo(void*  cliente_socket);
+void* escribirArchivo(void*  cliente_socket);
 
-void truncarArchivo(int cliente_socket);
-
-void leerArchivo(int cliente_socket);
-
-void escribirArchivo(int cliente_socket);
-
-void finalizarEscrituraArchivo(int cliente_socket);
-void  finalizarLecturaArchivo(int cliente);
+void* finalizarEscrituraArchivo(void*  cliente_socket);
+void* finalizarLecturaArchivo(void*  cliente);
 #endif //FILESYSTEM_FILESYSTEM_H

@@ -10,8 +10,11 @@ void* bitarraycontent;
 t_bitarray* bitmap;
 t_config_superbloque* cfg_superbloque;
 t_bloques* archivoBloques;
+t_list* lista_FCBs;
+t_list* archivosUsados;
 
 bool semaforosCreados = false;
+
 
 int cargar_configuracion(char *path) {
 
@@ -104,6 +107,8 @@ void reasignarPathSiEsNecesario(tipo_path tipo){
 bool iniciarFilesystem(){
     //TODO Si hiciera falta que exclusivamente tiene que generarse las conexiones antes que las estructuras, acá es donde hay que tocar.
     bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
+    lista_FCBs = list_create();
+    archivosUsados = list_create();
     if (!generar_conexiones()){
         //cerrar_programa();
         return false;

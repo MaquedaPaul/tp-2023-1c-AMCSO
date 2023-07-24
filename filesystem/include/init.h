@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <commons/bitarray.h>
 #include <sys/stat.h>
+
 typedef enum {
     PATH_SUPERBLOQUE,
     PATH_BITMAP,
