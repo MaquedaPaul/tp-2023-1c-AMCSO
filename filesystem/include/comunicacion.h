@@ -19,6 +19,7 @@ extern t_config* file_cfg_filesystem;
 extern t_config_filesystem *cfg_filesystem;
 extern char* path_config;
 extern int fd_memoria;
+extern int fd_kernel;
 
 bool generar_conexiones();
 void* crearServidor();

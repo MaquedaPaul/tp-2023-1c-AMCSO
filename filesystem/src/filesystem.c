@@ -4,13 +4,18 @@
 
 #include <filesystem.h>
 int fd_memoria;
+int fd_kernel;
 uint32_t punteroPendiente;
-
+bool kernelInicializado = false;
 
 void* abrirArchivo(void* cliente_socket){
+
     int conexion = *((int*) cliente_socket);
     char* nombreArchivo = recibirString(conexion);
-
+    if(kernelInicializado == false){
+        fd_kernel= conexion;
+        kernelInicializado = true;
+    }
     if(existe_archivoFCB(nombreArchivo)){
         enviarString(nombreArchivo,conexion,APERTURA_ARCHIVO_EXITOSA,info_logger);
     }else{
