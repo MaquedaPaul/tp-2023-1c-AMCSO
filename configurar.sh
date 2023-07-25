@@ -76,7 +76,7 @@ function filesystemIp() {
 }
 function memoryIp() {
       local ip=$1
-      echo "La IP que se cambiara sera $ip en kernel.config"
+      echo "La IP que se cambiara sera $ip en kernel.config, cpu.config y filesystem.config"
       reemplazo "$ip" "IP_MEMORIA" "kernel"
       reemplazo "$ip" "IP_MEMORIA" "cpu"
       reemplazo "$ip" "IP_MEMORIA" "filesystem"
