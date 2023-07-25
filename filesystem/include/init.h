@@ -34,6 +34,8 @@ int cargar_configuracion(char *path);
 extern t_bitarray* bitarrayBitmapDeBloques;
 extern t_list* lista_FCBs;
 extern t_bitarray* bitmap;
+
+extern pthread_mutex_t mutex_ArchivosUsados;
 void reasignarPathSiEsNecesario(tipo_path tipo);
 bool crearSemaforos();
 

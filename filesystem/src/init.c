@@ -318,6 +318,12 @@ int obtener_tamanio_en_bytes(){
 }
 
 bool crearSemaforos(){
+
+    int comprobacionArchivosUsados = pthread_mutex_init(&mutex_ArchivosUsados,NULL);
+    if(comprobacionArchivosUsados !=0){
+        log_error(error_logger, "No se pudieron inicializar los semaforos");
+        return false;
+    }
     semaforosCreados = true;
     return true;
 }
