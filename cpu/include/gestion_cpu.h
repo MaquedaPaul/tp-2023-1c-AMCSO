@@ -10,7 +10,6 @@
 #include <mmu.h>
 #include <string.h>
 #include <estructuras.h>
-extern int conexion_actual;
 
 extern t_pcb* pcb_actual;
 extern char* nombre_instruccion_actual;

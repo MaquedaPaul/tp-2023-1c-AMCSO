@@ -213,7 +213,6 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
          } else {
 
             aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
-            //TODO es el aux FCB?
             t_config* archivo_config = aux_FCB->fcb_config;
             config_set_value(archivo_config, "TAMANIO_ARCHIVO", string_itoa((int)nuevo_tamanio));
             config_save(archivo_config);

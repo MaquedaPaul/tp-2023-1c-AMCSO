@@ -3,7 +3,6 @@
 //
 
 #include <comunicacion.h>
-//int conexion_actual; //TODO fijarse si hace falta eliminar
 
 bool conexionesHechas = false;
 t_pcb* pcb_actual;
