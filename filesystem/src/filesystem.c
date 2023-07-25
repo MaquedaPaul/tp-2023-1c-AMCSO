@@ -3,15 +3,12 @@
 //
 
 #include <filesystem.h>
-#include <pthread.h>
 int fd_memoria;
 uint32_t punteroPendiente;
 
-char *obtenerUltimoArchivoUsado();
 
 void* abrirArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
-
     char* nombreArchivo = recibirString(conexion);
 
     if(existe_archivoFCB(nombreArchivo)){
@@ -37,6 +34,7 @@ void* truncarArchivo(void* cliente_socket){
     uint32_t tamanioNombreArchivo;
 
     //recibir: 1 tamanio a modificar, 2 tam nombre archivo, 3 nombre archivo
+    /*
     int tamanio;
     int desplazamiento = 0;
     void *buffer = recibir_stream(&tamanio, conexion);
@@ -48,7 +46,7 @@ void* truncarArchivo(void* cliente_socket){
     nombreArchivo= malloc(tamanioNombreArchivo);
     memcpy(nombreArchivo, buffer + desplazamiento, tamanioNombreArchivo);
     free(buffer);
-
+*/
     realizarTruncacionArchivo(nombreArchivo, nuevoTamanio);
     enviarOrden(TRUNCACION_ARCHIVO_EXITOSA,conexion, info_logger);
 }

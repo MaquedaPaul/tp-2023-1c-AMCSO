@@ -24,4 +24,5 @@ void* escribirArchivo(void*  cliente_socket);
 
 void* finalizarEscrituraArchivo(void*  cliente_socket);
 void* finalizarLecturaArchivo(void*  cliente);
+char* obtenerUltimoArchivoUsado();
 #endif //FILESYSTEM_FILESYSTEM_H

@@ -132,8 +132,6 @@ void* crearServidor(){
 }
 
 
-
-
 void* conectarConMemoria(){
     bool comprobacion = generarConexionesConMemoria();
     if(comprobacion){
@@ -143,7 +141,6 @@ void* conectarConMemoria(){
 
 
 }
-
 
 bool generarConexionesConMemoria(){
     char* ip;
