@@ -10,6 +10,7 @@ extern int fd_filesystem;
 extern int fd_cpu;
 
 
+
 void eliminarElementoLista(t_pcb* , t_list*);
 
 t_pcb *crearPcb (t_list* listaInstrucciones);
@@ -32,5 +33,9 @@ t_TablaArchivos* buscarEntrada_TablaGlobalArchivo(char* );
 void agregarEntrada_TablaGlobalArchivosAbiertos(char* );
 void eliminarPcb_TGAA_SEGFAULT(t_pcb*);
 void desbloquearPcb_porNombreArchivo (char*);
+
+
+
+
 
 #endif

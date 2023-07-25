@@ -36,6 +36,9 @@ pthread_mutex_t mutex_colaExit;
 pthread_mutex_t mutex_PlanLP;
 pthread_mutex_t mutex_MP;
 
+pthread_mutex_t mutex_debug_logger;
+
+
 //SEMAFOROS
 sem_t sem_procesosEnNew;
 sem_t sem_procesosReady;
@@ -145,6 +148,8 @@ void inicializar_kernel(){
     pthread_mutex_init(&mutex_colaExit, NULL);
     pthread_mutex_init(&mutex_PlanLP, NULL);
     pthread_mutex_init(&mutex_MP, NULL);
+
+    pthread_mutex_init(&mutex_debug_logger, NULL);
 
     //SEMAFOROS
     sem_init(&sem_procesosEnNew,0,0);

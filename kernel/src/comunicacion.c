@@ -31,11 +31,18 @@ void procesar_conexion(void *void_args) {
             //----------------------------------------CONSOLA-----------------------
             case GESTIONAR_CONSOLA_NUEVA:
             {
+
+                mostrarEstadoColas();
+
                 t_list* listaInstrucciones = recibirListaInstrucciones(cliente_socket);
                 establecerCantidadParametrosInstrucciones(listaInstrucciones);
                 t_pcb *pcbDispatch = crearPcb(listaInstrucciones);
                 pcbDispatch->fd_consola=cliente_socket;
                 agregarProceso_New(pcbDispatch);
+
+                mostrarEstadoColas();
+
+
                 break;
 
             }
@@ -478,21 +485,24 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden){
     int apunteProgramCounter = unaPcb->programCounter;
     t_instr * instruccion = list_get(unaPcb->instr,apunteProgramCounter-1);
     char* recursoSolicitado = instruccion->param1;
-    for(int i = 0 ; i < list_size(estadoBlockRecursos); i++){
-        t_recurso* recurso = list_get(estadoBlockRecursos,i);
-        if((strcmp(recurso->nombreRecurso,recursoSolicitado)) == 0){
-            if((strcmp(orden,"WAIT")) == 0){
-                waitRecursoPcb(recurso,unaPcb);
-                break;
-            }else{
-                signalRecursoPcb(recurso,unaPcb);
-                break;
-            }
-        }else{
-            log_info(info_logger,"Recurso <%s> solicitado INEXISTENTE", recursoSolicitado);
-            moverProceso_ExecExit(unaPcb);
-        }
-        }
+    mostrarEstadoRecursos();
+    bool coincideConSolicitado(t_recurso* unRecurso){
+        return strcmp(unRecurso->nombreRecurso,recursoSolicitado) == 0;
+    }
+    
+    t_recurso* recursoEncontrado = list_find(estadoBlockRecursos, coincideConSolicitado);
+    if(recursoEncontrado == NULL){
+        log_info(info_logger,"Recurso <%s> solicitado INEXISTENTE", recursoSolicitado);
+        moverProceso_ExecExit(unaPcb);
+    }
+    if(strcmp(orden,"WAIT") == 0){
+        waitRecursoPcb(recursoEncontrado, unaPcb);
+    } else{
+        signalRecursoPcb(recursoEncontrado, unaPcb);
+    }
+
+
+
 }
 
 void creacionSegmentoExitoso(uint32_t baseSegmento){

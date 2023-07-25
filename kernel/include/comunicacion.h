@@ -9,6 +9,7 @@
 #include <estructuras.h>
 #include <loggers_configs.h>
 #include <pthread.h>
+#include <debug_kernel.h>
 #include <init.h>
 #include <plan_aux.h>
 

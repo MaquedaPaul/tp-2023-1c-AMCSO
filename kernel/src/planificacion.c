@@ -72,6 +72,7 @@ void moverProceso_NewReady(t_tablaSegmentos* tablaDeSegmentosMemoria){
     list_add(colaReady,pcbAReady);
     pthread_mutex_unlock(&mutex_ColaReady);
     sem_post(&sem_procesosReady);
+    mostrarEstadoColas();
 }
 
 void moverProceso_BloqrecursoReady(t_recurso* recurso){
@@ -82,6 +83,7 @@ void moverProceso_BloqrecursoReady(t_recurso* recurso){
     list_add(colaReady,pcbLiberada);
     pthread_mutex_unlock(&mutex_ColaReady);
     log_info(info_logger,"PID: <%d> - Estado Anterior: <BLOCKED_RECURSO[%s]> - Estado Actual: <READY>",pcbLiberada->id,recurso->nombreRecurso);
+    mostrarEstadoColas();
 }
 
 
@@ -123,6 +125,7 @@ void moverProceso_readyExec(){
        
             enviar_paquete_pcb(pcbReady, fd_cpu,PCB, info_logger);
             log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
+            mostrarEstadoColas();
 
         }
         else{
@@ -135,7 +138,7 @@ void moverProceso_readyExec(){
        
             enviar_paquete_pcb(pcbReady, fd_cpu,PCB, info_logger);
             log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
-
+            mostrarEstadoColas();
         }
 
 }
@@ -152,6 +155,7 @@ void moverProceso_ExecBloq(t_pcb *pcbBuscado){
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: BLOQ.", pcbBuscado->id);
 
+    mostrarEstadoColas();
 }
 
 
@@ -189,6 +193,7 @@ void moverProceso_BloqReady(t_pcb* pcbBuscado){
     pthread_mutex_unlock(&mutex_ColaReady);
     log_info(info_logger, "PID: [%d] - Estado Anterior: BLOQ - Estado Actual: READY.", pcbBuscado->id);
     sem_post(&sem_procesosReady);
+    mostrarEstadoColas();
 
 
 
@@ -209,6 +214,8 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
 
     sem_post(&sem_procesosExit);
 
+
+    mostrarEstadoColas();
 }
 
 void moverProceso_ExecReady(t_pcb* pcbBuscado){
@@ -223,8 +230,7 @@ void moverProceso_ExecReady(t_pcb* pcbBuscado){
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
     sem_post(&sem_procesosReady);
-
-
+    mostrarEstadoColas();
 
 }
 
