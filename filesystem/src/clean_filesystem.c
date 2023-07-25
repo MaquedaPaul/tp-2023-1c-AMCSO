@@ -43,4 +43,5 @@ void destruirConexiones(){
 }
 
 void destruirSemaforos(){
+    pthread_mutex_destroy(&mutex_ArchivosUsados);
 }
