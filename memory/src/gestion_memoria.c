@@ -42,7 +42,7 @@ void escribirEnPosicion(uint32_t direccion, void* datos, uint32_t tamanio, uint3
     }
 
     memcpy(espacio_contiguo + direccion, datos, tamanio);
-
+    free(datos);
 }
 
 void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, bool esCpu){

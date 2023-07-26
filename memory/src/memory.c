@@ -90,7 +90,12 @@ void realizarPedidoEscritura(int cliente_socket){
     simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
     accesoEspacioUsuarioEscrituraRetardoConcedido();
     escribirEnPosicion(*posicion,unosDatos->datos, unosDatos->tamanio, *pid,esCpu);
-
+    free(unosDatos->datos);
+    free(unosDatos);
+    free(posicion);
+    free(pid);
+    list_clean(listaInts);
+    list_destroy(listaInts);
     pthread_mutex_unlock(&mutex_espacioContiguo);
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }

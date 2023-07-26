@@ -22,6 +22,7 @@ extern bool tablaSegmentosCreada;
 extern bool segmento0Creado;
 extern bool semaforosCreados;
 
+
 void cerrar_programa();
 
 void destruirLoggers();
@@ -34,4 +35,5 @@ void destruirUsados();
 void destruirTablaSegmentos();
 void destruirSegmento0();
 void destruirSemaforos();
+void destruirHilos();
 #endif //MEMORY_CLEAN_MEMORY_H

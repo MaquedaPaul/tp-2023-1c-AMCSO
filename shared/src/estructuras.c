@@ -56,6 +56,13 @@ void closure_mostrarListaInstrucciones(t_instr * element) //Es compartido con co
     printf(" %s\n",(char*) element->param3);
 }
 
+void liberarTablaSegmentos(t_tablaSegmentos* tablaSegmentos){
+    list_destroy_and_destroy_elements(tablaSegmentos->segmentos, liberarSegmento);
+    free(tablaSegmentos);
+}
+void liberarTablasDeSegmentos(t_list* tablasSegmentos){
+    list_destroy_and_destroy_elements(tablasSegmentos, liberarTablaSegmentos);
+}
 
 
 

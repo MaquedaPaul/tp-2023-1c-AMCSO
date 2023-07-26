@@ -42,11 +42,10 @@ uint32_t recibirValor_uint32(int socket, t_log *logger) {
 
     t_paquete *paquete = malloc(sizeof (t_paquete));
     paquete->buffer = malloc(sizeof(t_buffer));
-    int tamanio;
-    void* stream = recibir_stream(&tamanio, socket);
-    uint32_t valor;
-    memcpy(&valor, stream, sizeof(uint32_t));
-    free(stream);
+    paquete->buffer->size = 0;
+    paquete->buffer->stream =recibir_stream(&paquete->buffer->size, socket);
+    uint32_t valor = -1;
+    memcpy(&valor, paquete->buffer->stream, sizeof(uint32_t));
     eliminar_paquete(paquete, logger);
 
     return valor;
@@ -89,19 +88,10 @@ void* recibir_stream(int* size, uint32_t cliente_socket) { //En realidad devuelv
 
 
 void eliminar_paquete(t_paquete* paquete, t_log* logger) {
-    if(ALL_DETAILS){
-        log_info(logger, "SE LIBERA STREAM");
-        free(paquete->buffer->stream);
-        log_info(logger, "SE LIBERA BUFFER");
-        free(paquete->buffer);
-        log_info(logger, "SE LIBERA PAQUETE");
-        free(paquete);
-    }else{
-        free(paquete->buffer->stream);
-        free(paquete->buffer);
-        free(paquete);
-    }
 
+        free(paquete->buffer->stream);
+        free(paquete->buffer);
+        free(paquete);
 
 }
 
@@ -218,20 +208,21 @@ bool enviarDatos(void* datos, uint32_t tamanioDatos,op_code codigo, int socket_c
 bool agregarDatosAPaquete(void* datos, uint32_t tamanioDatos, t_paquete* paquete)
 {
 
+
     paquete->buffer->size+= tamanioDatos;
+    //Sumo el numero que me dice el tamanio de los datos al buffer
+    paquete->buffer->size += sizeof(uint32_t);
+
 
     void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
     int offset=0; //desplazamiento
 
-    //Sumo el numero que me dice el tamanio de los datos al buffer
-    paquete->buffer->size += sizeof(uint32_t);
 
     memcpy(stream + offset, &tamanioDatos, sizeof(uint32_t));
     offset += sizeof(uint32_t);
     memcpy(stream + offset, datos, tamanioDatos);
-
     paquete->buffer->stream = stream;
-    printf("SE AGREGO EL PAQUETE\n");
+    free(datos);
     return true;
 
 }
@@ -639,7 +630,9 @@ bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete)
 
     list_iterate(tablasSegmentos,copiarElementos);
     paquete->buffer->stream = stream;
-    printf("SE AGREGO EL PAQUETE\n");
+    list_clean(tablasSegmentos);
+    list_destroy(tablasSegmentos);
+
     return true;
 
 }

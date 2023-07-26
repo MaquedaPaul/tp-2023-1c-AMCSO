@@ -50,7 +50,10 @@ void destruirConfig(){
     config_destroy(file_cfg_memory);
 }
 void destruirCfg(){
+    free(cfg_memory->ALGORITMO_ASIGNACION);
+    free(cfg_memory->PUERTO_ESCUCHA);
     free(cfg_memory);
+
 }
 
 void destruirConexiones(){
@@ -69,11 +72,23 @@ void destruirUsados(){
 }
 
 void destruirTablaSegmentos(){
+
+    bool quitarSegmento0(t_segmento* unSegmento){
+        return unSegmento->id == 0;
+    }
+
+    void quitarSegmento0DeTablas(t_tablaSegmentos* unaTabla){
+        list_remove_by_condition(unaTabla->segmentos,quitarSegmento0);
+    }
+
     void destruirTablasSegmentos(t_tablaSegmentos* tablaSegmentos){
         list_iterate(tablaSegmentos->segmentos, limpiarHueco);
         free(tablaSegmentos);
     }
+    list_iterate(tablasSegmentos,quitarSegmento0DeTablas);
+
     list_clean_and_destroy_elements(tablasSegmentos, destruirTablasSegmentos);
+
     list_destroy(tablasSegmentos);
 }
 
@@ -87,4 +102,8 @@ void destruirSemaforos(){
     pthread_mutex_destroy(&mutex_espacioContiguo);
     pthread_mutex_destroy(&mutex_tablasSegmentos);
     pthread_mutex_destroy(&mutex_idSegmento);
+}
+
+void destruirHilos(){
+
 }
