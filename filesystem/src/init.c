@@ -119,9 +119,9 @@ bool iniciarFilesystem(){
 bool iniciarEstructurasAdministrativas(char* nombre_path) {
 
     if (!esDirectorio(nombre_path)){
-        printf("crear directorio %s\n", nombre_path);
+        log_info(info_logger, "crear directorio %s", nombre_path);
         mkdir(nombre_path,0777);
-       archivoBloques = malloc(sizeof(t_bloques));   
+        archivoBloques = malloc(sizeof(t_bloques));
 
         levantarSuperbloque();
 
@@ -201,7 +201,7 @@ bool crear_bitmap_de_bloques(){
 
     int fd = open(cfg_filesystem->PATH_BITMAP, O_CREAT| O_RDWR, 0777);
 	if (fd < 0){
-		  printf("Error al abrir/crear el archivo");
+        log_error(error_logger,"Error al abrir/crear el archivo bitmap de bloques");
         return false;
 	}
 
@@ -209,7 +209,7 @@ bool crear_bitmap_de_bloques(){
     bitarraycontent = mmap(NULL, tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
 	 if(bitarraycontent == MAP_FAILED)  {
-         printf("Error en el mmap del bitmap");
+         log_error(error_logger,"Error al mapear el archivo bitmap de bloques en memoria");
          close(fd);
          return false;
      }
@@ -234,7 +234,7 @@ bool crear_archivo_de_bloques(){
 
     archivoBloques->fd = open(cfg_filesystem->PATH_BLOQUES, O_CREAT| O_RDWR, 0777);
 	if (archivoBloques->fd < 0){
-        printf("Error al abrir/crear el archivo");
+        log_error(error_logger,"Error al abrir/crear el archivo de bloques");
         return false;
 	}
 
@@ -242,7 +242,7 @@ bool crear_archivo_de_bloques(){
     archivoBloques->archivo = mmap(NULL,archivoBloques->tamanio, PROT_READ | PROT_WRITE, MAP_SHARED, archivoBloques->fd , 0);
 
     if(archivoBloques->archivo == MAP_FAILED) {
-       printf("Error en el mmap del archivo de bloques");
+       log_error(error_logger,"Error al mapear el archivo en memoria");
        close(archivoBloques->fd);
        return false;
     }
@@ -286,7 +286,7 @@ bool levantarArchivoBloques(){
     archivoBloques->archivo = mmap(NULL, tamanio, PROT_WRITE|PROT_READ, MAP_SHARED, archivoBloques->fd, 0);
 
     if (archivoBloques->archivo  == MAP_FAILED) {
-        perror("Error al mapear el archivo en memoria\n");
+        perror("Error al mapear el archivo de bloques en memoria\n");
         close( archivoBloques->fd);
         return false;
     }
