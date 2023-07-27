@@ -143,17 +143,20 @@ void eliminarSegmento(int cliente_socket){
     pthread_mutex_lock(&mutex_huecosDisponibles);
     pthread_mutex_lock(&mutex_huecosUsados);
     pthread_mutex_lock(&mutex_espacioDisponible);
-    pthread_mutex_lock(&tablasSegmentos);
-    pthread_mutex_lock(&espacio_contiguo);
+    pthread_mutex_lock(&mutex_tablasSegmentos);
+    pthread_mutex_lock(&mutex_espacioContiguo);
 
     t_segmento* segmentoAEliminar = buscarSegmentoSegunId(*idSegmento);
     realizarEliminacionSegmento(segmentoAEliminar,*pid);
     t_tablaSegmentos* tablaAEnviar = buscarTablaConPid(*pid);
+
     pthread_mutex_unlock(&mutex_huecosDisponibles);
     pthread_mutex_unlock(&mutex_huecosUsados);
     pthread_mutex_unlock(&mutex_espacioDisponible);
-    pthread_mutex_unlock(&tablasSegmentos);
-    pthread_mutex_unlock(&espacio_contiguo);
+    pthread_mutex_unlock(&mutex_tablasSegmentos);
+    pthread_mutex_unlock(&mutex_espacioContiguo);
+
+
     t_list* listaConTabla = list_create();
     list_add(listaConTabla, tablaAEnviar);
     enviarTablasSegmentos(listaConTabla,cliente_socket, info_logger,SEGMENTO_ELIMINADO);
