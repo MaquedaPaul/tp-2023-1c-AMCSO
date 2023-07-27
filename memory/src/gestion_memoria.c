@@ -3,7 +3,7 @@
 //
 
 #include <gestion_memoria.h>
-
+#include <debug_memory.h>
 
 
 bool memoriaInicializada = false;
@@ -42,7 +42,7 @@ void escribirEnPosicion(uint32_t direccion, void* datos, uint32_t tamanio, uint3
     }
 
     memcpy(espacio_contiguo + direccion, datos, tamanio);
-    free(datos);
+
 }
 
 void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, bool esCpu){
@@ -280,17 +280,10 @@ t_segmento* consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento
 }
 
 void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
-    void verContenidoUsado(t_segmento* unSegmento){
-        unSegmento;
-        log_debug(debug_logger,"USADO ID:%d BASE:%d LIMITE:%d", unSegmento->id,unSegmento->base, unSegmento->limite);
-    }
-    void verContenidoLibre(t_segmento* unSegmento){
-        unSegmento;
-        log_debug(debug_logger,"LIBRE ID:%d BASE:%d LIMITE:%d", unSegmento->id,unSegmento->base, unSegmento->limite);
-    }
 
-    list_iterate(huecosLibres, verContenidoLibre);
-    list_iterate(huecosUsados, verContenidoUsado);
+    mostrarListaSegmentos(huecosLibres);
+    mostrarListaSegmentos(huecosUsados);
+
 
     eliminacionSegmento(pid, segmento->id,segmento->base,segmento->limite);
     eliminarDatosSegmento(segmento);
@@ -319,8 +312,6 @@ void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
     limpiarHueco(segmento);
 
 
-    list_iterate(huecosLibres, verContenidoLibre);
-    list_iterate(huecosUsados, verContenidoUsado);
 }
 
 void realizarEliminacionSegmentoSinPid(t_segmento* segmento){

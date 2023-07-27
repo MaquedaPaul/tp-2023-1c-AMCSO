@@ -15,7 +15,7 @@ void inicializarProceso(int cliente_socket){
     list_add(listaConUnElemento, nuevaTabla);
 
     enviarTablasSegmentos(listaConUnElemento, cliente_socket, info_logger,ESTRUCTURAS_INICALIZADAS);
-    //limpiarYEliminarListaAuxiliarPeroSinEliminarContenido(listaConUnElemento);
+    limpiarYEliminarListaAuxiliarPeroSinEliminarContenido(listaConUnElemento);
 }
 
 
@@ -73,6 +73,12 @@ void realizarPedidoLectura(int cliente_socket){
     accesoEspacioUsuarioLecturaRetardoConcedido();
     void* datos = buscarDatosEnPosicion(*pid, *posicion, *tamanio, esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
+    free(pid);
+    free(posicion);
+    list_clean(listaInts);
+    list_destroy(listaInts);
+    //TODO debería hacer free de datos?
+    mostrarMemoria();
     enviarDatos(datos,*tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
 }
 
@@ -92,11 +98,11 @@ void realizarPedidoEscritura(int cliente_socket){
     escribirEnPosicion(*posicion,unosDatos->datos, unosDatos->tamanio, *pid,esCpu);
     free(unosDatos->datos);
     free(unosDatos);
-    free(posicion);
-    free(pid);
-    list_clean(listaInts);
+    list_clean_and_destroy_elements(listaInts, free);
     list_destroy(listaInts);
     pthread_mutex_unlock(&mutex_espacioContiguo);
+    mostrarMemoria();
+    mostrarPosicionMemoria(12,4);
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
 
@@ -109,6 +115,10 @@ void crearSegmento(int cliente_socket) {
     if (!hayDisponibilidadDeEspacio(*tamanioSegmento)) {
         enviarOrden(SIN_ESPACIO_DISPONIBLE, cliente_socket, info_logger);
         pthread_mutex_unlock(&mutex_espacioDisponible);
+
+        list_clean_and_destroy_elements(listaInts, free);
+        list_destroy(listaInts);
+         
         return;
     }
     pthread_mutex_unlock(&mutex_espacioDisponible);
@@ -117,6 +127,10 @@ void crearSegmento(int cliente_socket) {
     if(elEspacioSeEncuentraEnDiferentesHuecos(*tamanioSegmento)){
         enviarOrden(SE_NECESITA_COMPACTACION,cliente_socket,info_logger);
         pthread_mutex_unlock(&mutex_huecosDisponibles);
+
+        list_clean_and_destroy_elements(listaInts, free);
+        list_destroy(listaInts);
+
         return;
     }
     pthread_mutex_lock(&mutex_huecosUsados);
@@ -132,6 +146,10 @@ void crearSegmento(int cliente_socket) {
     pthread_mutex_unlock(&mutex_huecosUsados);
     pthread_mutex_unlock(&mutex_idSegmento);
     pthread_mutex_unlock(&mutex_espacioDisponible);
+
+    list_clean_and_destroy_elements(listaInts, free);
+    list_destroy(listaInts);
+
     enviarValor_uint32(direccion,cliente_socket,CREACION_SEGMENTO_EXITOSO,info_logger);
 
 }
@@ -159,6 +177,11 @@ void eliminarSegmento(int cliente_socket){
 
     t_list* listaConTabla = list_create();
     list_add(listaConTabla, tablaAEnviar);
+
+
+    list_clean_and_destroy_elements(listaInts, free);
+    list_destroy(listaInts);
+
     enviarTablasSegmentos(listaConTabla,cliente_socket, info_logger,SEGMENTO_ELIMINADO);
     //Deberia informar a kernel de la eliminacion? no dice nada en el tp //TODO
 }

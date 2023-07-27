@@ -200,6 +200,7 @@ bool enviarDatos(void* datos, uint32_t tamanioDatos,op_code codigo, int socket_c
         return false;
     }
     enviar_paquete(paquete, socket_cliente);
+
     log_info(logger, "Se envio el paquete");
     eliminar_paquete(paquete, logger);
     return true;
@@ -222,7 +223,6 @@ bool agregarDatosAPaquete(void* datos, uint32_t tamanioDatos, t_paquete* paquete
     offset += sizeof(uint32_t);
     memcpy(stream + offset, datos, tamanioDatos);
     paquete->buffer->stream = stream;
-    free(datos);
     return true;
 
 }
@@ -629,8 +629,9 @@ bool agregarTablasAPaquete(t_list* tablasSegmentos, t_paquete* paquete)
 
     list_iterate(tablasSegmentos,copiarElementos);
     paquete->buffer->stream = stream;
-    list_clean(tablasSegmentos);
-    list_destroy(tablasSegmentos);
+    //list_clean(tablasSegmentos); //TODO
+    //list_destroy(tablasSegmentos);
+
 
     return true;
 

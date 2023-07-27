@@ -77,7 +77,7 @@ bool crearSemaforos(){
 bool crearEspacioContiguoDeMemoria(){
     espacio_contiguo = malloc(cfg_memory->TAM_MEMORIA);
     espacioDisponible = cfg_memory->TAM_MEMORIA;
-    memset(espacio_contiguo,0,sizeof (espacio_contiguo));
+    memset(espacio_contiguo,0,cfg_memory->TAM_MEMORIA);
     //Sin comprobación posible aparente
     memoriaInicializada = true;
     return true;
