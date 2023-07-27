@@ -109,6 +109,7 @@ bool iniciarFilesystem(){
     bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
     lista_FCBs = list_create();
     archivosUsados = list_create();
+
     if (!generar_conexiones()){
         //cerrar_programa();
         return false;
@@ -199,11 +200,13 @@ bool crear_bitmap_de_bloques(){
 
     int tamanio_bitmap = obtener_tamanio_en_bytes();
 
-    int fd = open(cfg_filesystem->PATH_BITMAP, O_CREAT| O_RDWR, 0777);
-	if (fd < 0){
+    int fd = open(cfg_filesystem->PATH_BITMAP, O_RDWR|O_CREAT,  S_IRUSR|S_IWUSR);
+	if (fd == -1){
         log_error(error_logger,"Error al abrir/crear el archivo bitmap de bloques");
         return false;
-	}
+	}else{
+        log_debug(debug_logger,"Se creo el archivo bitmap de bloques");
+    }
 
 	ftruncate( fd, tamanio_bitmap);
     bitarraycontent = mmap(NULL, tamanio_bitmap, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
@@ -232,11 +235,13 @@ bool crear_archivo_de_bloques(){
     int blockSize = cfg_superbloque->BLOCK_SIZE;
     archivoBloques->tamanio = blockCount*blockSize;
 
-    archivoBloques->fd = open(cfg_filesystem->PATH_BLOQUES, O_CREAT| O_RDWR, 0777);
-	if (archivoBloques->fd < 0){
+    archivoBloques->fd = open(cfg_filesystem->PATH_BLOQUES, O_CREAT| O_RDWR,  S_IRUSR|S_IWUSR);
+	if (archivoBloques->fd == -1){
         log_error(error_logger,"Error al abrir/crear el archivo de bloques");
         return false;
-	}
+	}else{
+        log_debug(debug_logger,"Se creo el archivo de bloques");
+    }
 
 	ftruncate(archivoBloques->fd, archivoBloques->tamanio);
     archivoBloques->archivo = mmap(NULL,archivoBloques->tamanio, PROT_READ | PROT_WRITE, MAP_SHARED, archivoBloques->fd , 0);
@@ -271,6 +276,7 @@ bool levantarSuperbloque(){
         log_error(error_logger,"No se pudo crear la cfg para el superbloque");
         return false;
     }
+
     cfg_superbloque->BLOCK_COUNT= config_get_int_value(superBloqueConfig,"BLOCK_COUNT");
     cfg_superbloque->BLOCK_SIZE= config_get_int_value(superBloqueConfig,"BLOCK_SIZE");
 
@@ -290,6 +296,7 @@ bool levantarArchivoBloques(){
         close( archivoBloques->fd);
         return false;
     }
+    log_debug(debug_logger,"Se levanto el archivo de bloques");
     return true;
 }
 
@@ -305,6 +312,8 @@ bool levantarBitmapBloques(){
             close(fd);
             return false;
     }
+
+    log_debug(debug_logger,"Se levanto el archivo bitmap de bloques");
     return true;
 }
 

@@ -82,7 +82,7 @@ void* leerArchivo(void* cliente_socket){
     list_add(archivosUsados, fcb);
     pthread_mutex_unlock(&mutex_ArchivosUsados);
 
-    enviarListaIntsYDatos(listaInts,datosAEnviar,conexion,info_logger,ACCESO_PEDIDO_ESCRITURA);
+    enviarListaIntsYDatos(listaInts,datosAEnviar,fd_memoria,info_logger,ACCESO_PEDIDO_ESCRITURA);
 }
 
 
@@ -106,7 +106,7 @@ void* escribirArchivo(void* cliente_socket){
     list_add(archivosUsados, fcb); //solo agrego a lista los archivos que se lee o escribe
     pthread_mutex_unlock(&mutex_ArchivosUsados);
 
-    enviarListaUint32_t(listaInts,conexion,info_logger, ACCESO_PEDIDO_LECTURA);
+    enviarListaUint32_t(listaInts,fd_memoria,info_logger, ACCESO_PEDIDO_LECTURA);
 }
 
 void* finalizarEscrituraArchivo(void* cliente_socket){
@@ -117,13 +117,13 @@ void* finalizarEscrituraArchivo(void* cliente_socket){
     char* nombreArchivo = obtenerPrimerArchivoUsado();
 
     realizarEscrituraArchivo(nombreArchivo,  puntero, datos, tamanioDatos);
-    enviarString(nombreArchivo,conexion,ESCRITURA_ARCHIVO_EXITOSA, info_logger);
+    enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger);
 }
 
 void* finalizarLecturaArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
     char* nombreArchivo = obtenerPrimerArchivoUsado();
-    enviarString(nombreArchivo, conexion, LECTURA_ARCHIVO_EXITOSA, info_logger);
+    enviarString(nombreArchivo, fd_kernel, LECTURA_ARCHIVO_EXITOSA, info_logger);
 }
 
 
