@@ -72,7 +72,7 @@ void execute() {
         int direccion_logica = atoi(instruccion->param1);
         char* registro = instruccion->param2;
         log_info(info_logger, "PID: <%d> - Ejecutando: <MOV_OUT> - <%d> - <%s>", pcb_actual->id, direccion_logica, registro );
-        
+
         ejecutar_MOV_OUT(direccion_logica, registro);
     }
 

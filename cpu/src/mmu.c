@@ -1,4 +1,5 @@
 #include <mmu.h>
+
 char* ip_cpu;
 char* puerto_cpu;
 int fd_memoria;
@@ -24,7 +25,13 @@ char registroCPU_RCX[16];
 char registroCPU_RDX[16];
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
-    num_segmento = floor(direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO);            
+    log_info(info_logger,"valor de dir fis : %d", direccion_logica);
+    log_info(info_logger,"tamaniomaxseg: %d", cfg_cpu->TAM_MAX_SEGMENTO);
+
+    num_segmento = direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO;
+
+    log_info(info_logger,"valor de num de seg devuelto por floor : %d", num_segmento);
+
     int desplazamiento_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
 
     if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes)) {
@@ -39,13 +46,16 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
 
         cicloInstruccionesDebeEjecutarse = false;
 
-
         log_info(info_logger, "PID: <%d> - Error SEG_FAULT- Segmento: <%d> - Offset: <%d> - Tamaño: <%d>", pcb_actual->id, num_segmento, desplazamiento_segmento, segmento->limite );
 
         return -1;
     }
 
+    segmento = list_get(pcb_actual->tablaSegmentos->segmentos, num_segmento);
+    log_info(info_logger,"segemento base: %d ", segmento->base);
     int direccion_fisica = segmento->base + desplazamiento_segmento;
+
+    log_info(info_logger, "direccion fisica: %d", direccion_fisica);
 
     return direccion_fisica;
 }
