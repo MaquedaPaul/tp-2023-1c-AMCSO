@@ -9,6 +9,7 @@
 #include <protocolo.h>
 #include <gestion_memoria.h>
 #include <algoritmos.h>
+#include <debug_memory.h>
 extern void* espacio_contiguo;
 extern t_list* tablasSegmentos;
 extern t_list* huecosUsados;
