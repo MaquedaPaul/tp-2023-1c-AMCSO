@@ -100,20 +100,19 @@ void reasignarPathSiEsNecesario(tipo_path tipo){
             break;
 
     }
-
-
 }
 
 bool iniciarFilesystem(){
     //TODO Si hiciera falta que exclusivamente tiene que generarse las conexiones antes que las estructuras, acá es donde hay que tocar.
-    bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
-    lista_FCBs = list_create();
-    archivosUsados = list_create();
-
     if (!generar_conexiones()){
         //cerrar_programa();
         return false;
     }
+
+    bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
+    lista_FCBs = list_create();
+    archivosUsados = list_create();
+
     return estructurasAdministrativas;
 }
 
