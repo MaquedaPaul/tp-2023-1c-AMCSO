@@ -453,15 +453,14 @@ bool enviarString(char* string, int socket_cliente, op_code codigoOperacion, t_l
 }
 
 bool agregarStringAPaquete(char* string, t_paquete* paquete){
-
     void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
     int offset=0; //desplazamiento
-    uint8_t tamanio = strlen(string);
+    uint8_t tamanio = strlen(string) + 1;
     memcpy(stream + offset, &tamanio, sizeof(uint8_t));
     offset += sizeof(uint8_t);
-    memcpy(stream + offset, string, tamanio+1);
+    memcpy(stream + offset, string, tamanio);
     paquete->buffer->stream = stream;
-    printf("SE AGREGO EL PAQUETE\n");
+    //log_info(logger, "Se agrego el paquete");
     return true;
 }
 char* recibirString(int socket_cliente){
