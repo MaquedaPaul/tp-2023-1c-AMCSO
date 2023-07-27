@@ -24,11 +24,12 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
 
 void ejecutar_MOV_OUT(int direccion_logica, char* registro ) {
     int cantidad_bytes = calcular_bytes_segun_registro(registro);
+    char* valorDelRegistro = obtener_valor_registroCPU(registro);
     int direccion_fisica = traducir_direccion_logica(direccion_logica, cantidad_bytes);
 
     if (!(direccion_fisica < 0)) {
-
-        escribir_valor_en_memoria(direccion_fisica,cantidad_bytes, registro);
+        log_debug(debug_logger, "el valor del registro AX: %s", registroCPU_AX);
+        escribir_valor_en_memoria(direccion_fisica,cantidad_bytes, valorDelRegistro);
         pcb_actual->programCounter++;
     }
 }
@@ -274,15 +275,15 @@ int calcular_bytes_segun_registro(char* registro)  {
 
 
 
-void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* registro) {
+void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* valor) {
 
     t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA, info_logger);
 
-    uint8_t catidad_enteros = 2;
+    uint8_t cantidad_enteros = 2;
     t_list* listaInts = list_create();
     t_datos* unosDatos = malloc(sizeof(t_datos));
     unosDatos->tamanio= cantidad_bytes;
-    unosDatos->datos = (void*) registro;
+    unosDatos->datos = (void*) valor;
     list_add(listaInts, &direccion_fisica);
     list_add(listaInts, &pcb_actual->id);
     enviarListaIntsYDatos(listaInts, unosDatos, fd_memoria, info_logger, ACCESO_PEDIDO_ESCRITURA);
@@ -296,10 +297,9 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* r
     enviar_paquete(paquete, fd_memoria);
     eliminar_paquete(paquete, info_logger);
 */
-    char* valor1  = obtener_valor_registroCPU(registro);
     char* valor2 = recibir_confirmacion_de_escritura() ;
     if (strcmp(valor2, "OK") == 0) {
-    log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor1);
+    log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
     }
  }
 
