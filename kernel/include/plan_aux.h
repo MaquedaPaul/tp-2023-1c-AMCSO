@@ -25,14 +25,15 @@ void ejecutar_FCLOSE(t_pcb*);
 void ejecutar_FCLOSE_porNombreArchivo(t_pcb* , char*);
 void ejecutar_FSEEK(t_pcb* );
 void ejecutar_FTRUNCATE( t_pcb* );
-void ejecutar_FREAD(t_pcb*, u_int32_t);
-void ejecutar_FWRITE(t_pcb*, u_int32_t);
+void ejecutar_FREAD(t_pcb*,uint32_t direccionFisica);
+void ejecutar_FWRITE(t_pcb*, uint32_t direccionFisica);
 int buscarArch_TablaGlobalArchivo(char* );
-t_pcb* buscarPcb_enTablaPeticionesFS(char* );
-t_TablaArchivos* buscarEntrada_TablaGlobalArchivo(char* );
 void agregarEntrada_TablaGlobalArchivosAbiertos(char* );
 void eliminarPcb_TGAA_SEGFAULT(t_pcb*);
 void desbloquearPcb_porNombreArchivo (char*);
+char* obtenerNombreArchivo(t_pcb* pcb);
+void actualizarDuenioTGAA(char* nombreArchivo, t_pcb* pcbNuevoDuenio);
+void eliminarArchivoTablaLocal(char* nombreArchivo, t_pcb* pcb);
 
 
 

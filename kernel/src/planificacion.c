@@ -33,7 +33,6 @@ void planificador_largo_plazo(){
             enviarValor_uint32(pcbAReady->id,fd_memoria,INICIALIZAR_PROCESO_MEMORIA,info_logger);
             log_info(info_logger,"PID <%d> Enviado a memoria para ser cargado", pcbAReady->id);
         }
-t_TablaArchivos archivo;
     }
 }
 

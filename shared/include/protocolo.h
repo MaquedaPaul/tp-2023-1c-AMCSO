@@ -196,5 +196,12 @@ void agregar_PCB_a_paquete2(t_paquete *,t_pcb* ) ;
 void agregar_registroPCB(char*,t_paquete* );
 
 
+void enviar_archivoTruncacion(t_archivoTruncate* archivoTruncate, int conexion, op_code codigo, t_log* logger);
+void agregar_archivoTruncacion_a_paquete(t_paquete* paquete, t_archivoTruncate* archivoTruncate);
+t_archivoTruncate* recibir_archivoTruncacion(int conexion);
+
+void enviar_archivoRW(t_archivoRW* archivoRW, int conexion, op_code codigo, t_log* logger);
+void agregar_archivoRW_a_paquete(t_paquete* paquete, t_archivoRW* archivoRw);
+t_archivoRW* recibir_archivoRW(int conexion);
 
 #endif
