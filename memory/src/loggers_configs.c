@@ -109,7 +109,7 @@ void accesoEspacioUsuarioLecturaFS(int pid, uint32_t direccionFisica, uint32_t t
 
 
 void accesoEspacioUsuarioEscrituraRetardoPrevio(uint32_t direccion, uint32_t pid){
-    log_info(info_logger,"Accediendo a Espacio de Usuario para Escritura en la Direccion: <%d> para el Proceso con PID: <%d>", pid, direccion);
+    log_info(info_logger,"Accediendo a Espacio de Usuario para Escritura en la Direccion: <%d> para el Proceso con PID: <%d>", direccion, pid);
 }
 
 void accesoEspacioUsuarioEscrituraRetardoConcedido(){
@@ -118,7 +118,7 @@ void accesoEspacioUsuarioEscrituraRetardoConcedido(){
 
 
 void accesoEspacioUsuarioLecturaRetardoPrevio(uint32_t direccion, uint32_t tamanio, uint32_t pid){
-    log_info(info_logger,"Accediendo a Espacio de Usuario para Lectura en la Direccion: <%d> de Tamanio: <%d> para el Proceso con PID: <%d>", pid, tamanio, direccion);
+    log_info(info_logger,"Accediendo a Espacio de Usuario para Lectura en la Direccion: <%d> de Tamanio: <%d> para el Proceso con PID: <%d>", tamanio, direccion, pid);
 }
 
 void accesoEspacioUsuarioLecturaRetardoConcedido(){

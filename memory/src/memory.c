@@ -78,7 +78,7 @@ void realizarPedidoLectura(int cliente_socket){
     list_clean(listaInts);
     list_destroy(listaInts);
     //TODO debería hacer free de datos?
-    mostrarMemoria();
+    //mostrarMemoria();
     enviarDatos(datos,*tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
 }
 
@@ -101,8 +101,8 @@ void realizarPedidoEscritura(int cliente_socket){
     list_clean_and_destroy_elements(listaInts, free);
     list_destroy(listaInts);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-    mostrarMemoria();
-    mostrarPosicionMemoria(12,4);
+    //mostrarMemoria();
+    //mostrarPosicionMemoria(12,4);
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
 
