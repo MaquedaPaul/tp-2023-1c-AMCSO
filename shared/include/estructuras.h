@@ -139,6 +139,7 @@ typedef struct {
 
 t_proceso *crearNuevoProceso();
 void closure_mostrarListaInstrucciones(t_instr * element);
+void liberarTablasDeSegmentos(t_list* tablasSegmentos);
 void liberarInstruccion(t_instr * instruccion);
 void liberarSegmento(t_segmento* segmento);
 void liberarPcb(t_pcb* pcb);

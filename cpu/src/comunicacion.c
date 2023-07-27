@@ -9,7 +9,7 @@ t_pcb* pcb_actual;
 int pid;
 
 void procesar_conexion(void *void_args) {
-    pid = 2000000000; //TODO no es una solución elegante utilizar números aleatorios grandes
+    pid = -1; //TODO no es una solución elegante utilizar números aleatorios grandes
     while (1) {
         op_code cop = recibir_operacion(fd_kernel);
 
