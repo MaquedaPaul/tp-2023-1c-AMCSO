@@ -76,6 +76,7 @@ void destruirDisponibles(){
 }
 void destruirUsados(){
     log_trace(trace_logger,"Se libera lista de huecos usados");
+    list_clean(huecosUsados);
     list_destroy(huecosUsados);
 }
 

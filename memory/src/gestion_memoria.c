@@ -171,7 +171,7 @@ t_tablaSegmentos* crearTablaSegmentos(uint32_t pid){
     nuevaTabla->segmentos = list_create();
     list_add(nuevaTabla->segmentos,segmento0);
     creacionProceso(pid);
-    mostrarTablasDeSegmentos();
+
     return nuevaTabla;
 }
 
@@ -243,8 +243,8 @@ t_segmento* buscarSegmentoLibreEnBaseADireccion(uint32_t direccion){
 
 }
 t_segmento* sinConocerLaBaseBuscarSegmentoLibreAnteriorA(t_segmento* segmento){
-    bool laSumaDeLaBaseYElLimiteEquivaleALaBaseDelSegmentoIngresado(t_segmento* segmento){
-        return (segmento->base + segmento->limite+1)== segmento->base;
+    bool laSumaDeLaBaseYElLimiteEquivaleALaBaseDelSegmentoIngresado(t_segmento* unSegmento){
+        return (unSegmento->base + unSegmento->limite)== segmento->base;
     }
     return list_find(huecosLibres,laSumaDeLaBaseYElLimiteEquivaleALaBaseDelSegmentoIngresado);
 }
@@ -282,35 +282,44 @@ t_segmento* consolidarSegmentos(t_segmento* unSegmento, t_segmento* otroSegmento
 
 void realizarEliminacionSegmento(t_segmento* segmento, uint32_t pid){
 
-    mostrarListaSegmentos(huecosLibres);
-    mostrarListaSegmentos(huecosUsados);
-
-
     eliminacionSegmento(pid, segmento->id,segmento->base,segmento->limite);
     eliminarDatosSegmento(segmento);
-    t_tablaSegmentos* tablaEncontrada =buscarTablaConPid(pid);
 
     bool coincidenDirecciones(t_segmento* unSegmento){
         return unSegmento->base == segmento->base;
     }
     bool seConsolidoSuperior = false;
+    bool noSeConsolido = true;
     t_segmento* huecoLibreConsolidado;
-    list_remove_by_condition(tablaEncontrada->segmentos, coincidenDirecciones); //TODO LIBERAR Y CONTROLAR
+
     t_segmento * segmentoLibreSuperior = buscarSegmentoLibreEnBaseADireccion(segmento->base+segmento->limite);
     if(segmentoLibreSuperior != NULL){
         huecoLibreConsolidado = consolidarSegmentos(segmento, segmentoLibreSuperior);
         limpiarHueco(segmentoLibreSuperior);
         seConsolidoSuperior = true;
+        noSeConsolido = false;
     }
     t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmento);
     if(segmentoLibreInferior != NULL){
-        t_segmento* otroHuecoLibreConsolidado = consolidarSegmentos(segmento, segmentoLibreInferior);
-        limpiarHueco(segmentoLibreInferior);
         if(seConsolidoSuperior){
-            consolidarSegmentos(huecoLibreConsolidado, otroHuecoLibreConsolidado);
+            consolidarSegmentos(huecoLibreConsolidado, segmentoLibreInferior);
+            limpiarHueco(segmentoLibreInferior);
+            limpiarHueco(huecoLibreConsolidado);
+        }else{
+            t_segmento* otroHuecoLibreConsolidado = consolidarSegmentos(segmento, segmentoLibreInferior);
+            limpiarHueco(segmentoLibreInferior);
         }
+
+        noSeConsolido = false;
     }
-    limpiarHueco(segmento);
+    if(noSeConsolido){
+        removerDeHuecosUsados(segmento);
+        agregarAHuecosLibres(segmento);
+        segmento->id = -1;
+    }else{
+        limpiarHueco(segmento);
+    }
+
 
 
 }

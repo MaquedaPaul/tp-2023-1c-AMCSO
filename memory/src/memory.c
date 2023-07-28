@@ -34,14 +34,17 @@ int finalizarProcesoConPid(uint32_t unPid){
 
 
     t_tablaSegmentos* tablaEncontrada = buscarTablaConPid(unPid);
+
     bool coincideId(t_segmento* unSegmento){
         return unSegmento->id == segmento0->id;
     }
-
     list_remove_by_condition(tablaEncontrada->segmentos, coincideId);
 
-    list_iterate(tablaEncontrada->segmentos,realizarEliminacionSegmentoSinPid);
-    list_clean(tablaEncontrada->segmentos);
+    void convertirASegmentoPidYEliminacion(t_segmento* unSegmento){
+            realizarEliminacionSegmento(unSegmento, unPid);
+    }
+
+    list_clean_and_destroy_elements(tablaEncontrada->segmentos,convertirASegmentoPidYEliminacion);
     list_destroy(tablaEncontrada->segmentos);
 
     bool coincidePid(t_tablaSegmentos* tablaEncontrada){
@@ -99,8 +102,8 @@ void realizarPedidoEscritura(int cliente_socket){
     list_clean_and_destroy_elements(listaInts, free);
     list_destroy(listaInts);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-    mostrarMemoria();
-    //mostrarPosicionMemoria(12,4);
+
+
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
 

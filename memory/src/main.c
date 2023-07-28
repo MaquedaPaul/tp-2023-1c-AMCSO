@@ -1,7 +1,7 @@
 #include <main.h>
 
 void handle_sigint(int sig){
-    //log_debug(debug_logger,"Mostrando estado actual antes de cerrar");
+    log_debug(debug_logger,"Mostrando estado actual antes de cerrar");
     //mostrarTablasDeSegmentos();
     //mostrarMemoria();
     //mostrarListaLibres();
