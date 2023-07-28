@@ -104,6 +104,7 @@ void ejecutar_FOPEN(t_pcb* pcb){
 
     if(pos == -1){ // En caso de que no este en la TGAA
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
+        free(nomArch);
     }
 
     else{//Si esta en la TGAA
@@ -151,8 +152,8 @@ pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
 */
 
 char* obtenerNombreArchivo(t_pcb* pcb){
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
-    char* nomArch;
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
+    char* nomArch = malloc(strlen(instruccion->param1) + 1);
     strcpy(nomArch, instruccion->param1);
     return nomArch;
 }
@@ -256,7 +257,7 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
 
 void ejecutar_FSEEK(t_pcb* pcb){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
     int ubiPuntero = atoi(instruccion->param2);
 
     for(int i = 0; i < list_size(pcb->tablaArchivosAbiertos); i++){
@@ -276,7 +277,7 @@ void ejecutar_FTRUNCATE(t_pcb* pcb){
     //yo te creo estructura con serializacion y desarilizacion
 
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
     int nuevoTamanio = atoi(instruccion->param2);
 
     t_archivoTruncate* archivoParaFs = malloc(sizeof(t_archivoTruncate));
@@ -315,7 +316,7 @@ void actualizarPunteroLocal(char* nombreArchivo, t_pcb* pcb, uint32_t cantidadBy
 
 void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
     int cantidadBytes = atoi(instruccion->param3);
 
     t_archivoRW* archivoParaFs = malloc(sizeof(t_archivoRW));
@@ -337,7 +338,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
 
 void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
     int cantidadBytes = atoi(instruccion->param3);
 
     t_archivoRW* archivoParaFs = malloc(sizeof(t_archivoRW));
