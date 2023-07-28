@@ -28,19 +28,12 @@ extern t_queue* colaExit;
 extern t_list* colaBloq;
 extern t_list* estadoBlockRecursos;
 extern t_list* colaReady; 
-extern t_list* listaEsperaMemoria;
-
 
 extern t_list* tablaGlobal_ArchivosAbiertos;
 extern t_list* listaPeticionesArchivos;
 
-extern pthread_mutex_t mutex_TGAA; //Mutex de la tabla global de archivos abiertos
-//TABLA PETICIONES A FS
-extern t_list* tabla_PeticionesFS;
-
-
 //CONTADORES Y MUTEX
-extern int procesosEnNew;
+
 extern int procesosTotales_MP; //contador de procesos totales en READY-EXEC-BLOQ
 extern int idProcesoGlobal; //generador de pid para pcbs
 extern pthread_mutex_t mutex_colaNew;
@@ -51,6 +44,7 @@ extern pthread_mutex_t mutex_colaExit;
 extern pthread_mutex_t mutex_MP; //Des/activa el grado de Multiprogramacion
 extern pthread_mutex_t mutex_PlanLP; //Activa el PL
 extern pthread_mutex_t mutex_listaPeticionesArchivos;
+extern pthread_mutex_t mutex_TGAA; //Mutex de la tabla global de archivos abiertos
 
 //SEMAFOROS
 extern sem_t sem_procesosEnNew;

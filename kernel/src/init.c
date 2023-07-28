@@ -15,18 +15,15 @@ t_list* colaBloq;
 t_list* estadoBlockRecursos;
 t_queue* colaReady_FIFO; //en caso de FIFO
 t_list* colaReady; //en caso de HRRN
-t_list* listaEsperaMemoria;
 
 
 //TABLA GLOBAL ARCHIVOS ABIERTOS
 t_list* tablaGlobal_ArchivosAbiertos; //Es una lista de t_archivoPeticion
 t_list* listaPeticionesArchivos; //Es una lista de t_archivoPeticion. Aca se encolan los procesos que esperan por un archivo
 pthread_mutex_t mutex_TGAA;
-//TABLA PETICIONES A FS
-t_list* tabla_PeticionesFS;
+
 
 //CONTADORES Y MUTEX
-int procesosEnNew;
 int procesosTotales_MP;
 int idProcesoGlobal;
 pthread_mutex_t mutex_colaNew;
@@ -127,7 +124,6 @@ void inicializar_kernel(){
     colaExec = list_create();
     colaBloq = list_create();
     colaExit = queue_create();
-    listaEsperaMemoria = list_create();
 
 
 //TABLA GLOBAL ARCHIVOS ABIERTOS
@@ -138,7 +134,6 @@ void inicializar_kernel(){
 
 //CONTADORES Y MUTEX
 
-    procesosEnNew = 0;
     procesosTotales_MP = 0;
     idProcesoGlobal = 0;
     pthread_mutex_init(&mutex_colaNew, NULL);

@@ -1,25 +1,5 @@
 #include <planificacion.h>
 
-/*
-void planificador_largo_plazo(){
-
-  log_info(info_logger, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");
-
-  while (1)
-  {
-    if(procesosEnNew > 0){
-    aumentarGradoMP();
-    pthread_mutex_lock(&mutex_PlanLP);
-    procesosEnNew--;
-
-    moverProceso_NewPreReady();
-    pthread_mutex_unlock(&mutex_PlanLP);
-    }
-  }
-  
-}
- */
-
 void planificador_largo_plazo(){
     log_info(info_logger, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");
     while(1){

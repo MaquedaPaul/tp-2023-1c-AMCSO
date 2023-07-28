@@ -8,8 +8,6 @@ void handle_sigint(int sig){
 //char* path_config;
 
 int main(int argc, char *argv[]) {
-//gol
-//boenasfdfd
     path_config = argv[1];
     ip_kernel = argv[2];
 
@@ -19,7 +17,6 @@ int main(int argc, char *argv[]) {
         cerrar_programa();
         printf("No se pudo inicializar kernel\n");
         return EXIT_FAILURE;
-
     }
 
     inicializar_kernel();
