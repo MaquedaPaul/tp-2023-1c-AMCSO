@@ -49,46 +49,50 @@ void procesar_conexion(void *void_args) {
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
-                manejoDeRecursos(pcbRecibida,"WAIT");
+                manejoDeRecursos("WAIT");
                 break;
             }
             case SIGNAL:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
-                manejoDeRecursos(pcbRecibida,"SIGNAL");
+                manejoDeRecursos("SIGNAL");
                 break;
             }
 
             case IO_BLOCK: {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
-                actualizarPcbExec(pcbRecibida);
                 actualizarTiempoRafaga(pcbRecibida);
-                moverProceso_ExecBloq(pcbRecibida);
-                log_info(info_logger,"PID: <%d> - Bloqueado por <IO>", pcbRecibida->id);
+                actualizarPcbExec(pcbRecibida);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                moverProceso_ExecBloq(pcbActualizada);
+                log_info(info_logger,"PID: <%d> - Bloqueado por <IO>", pcbActualizada->id);
                 pthread_t atenderIO;
-                pthread_create(&atenderIO,NULL,esperaIo,(void*)pcbRecibida);
+                pthread_create(&atenderIO,NULL,esperaIo,(void*)pcbActualizada);
                 pthread_detach(atenderIO);
                 break;
             }
             case YIELD:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
-                actualizarPcbExec(pcbRecibida);
                 actualizarTiempoRafaga(pcbRecibida);
-                moverProceso_ExecReady(pcbRecibida);
+                actualizarPcbExec(pcbRecibida);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                moverProceso_ExecReady(pcbActualizada);
                 break;
             }
             case SEGMENTATION_FAULT:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
-                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbRecibida->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
-                eliminarPcbTGAA_Y_actualizarTGAA(pcbRecibida);
-                moverProceso_ExecExit(pcbRecibida);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbActualizada->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
+                eliminarPcbTGAA_Y_actualizarTGAA(pcbActualizada);
+                moverProceso_ExecExit(pcbActualizada);
             }
             case EXIT:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
-                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SUCCESS>",pcbRecibida->id);
-                moverProceso_ExecExit(pcbRecibida);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SUCCESS>",pcbActualizada->id);
+                moverProceso_ExecExit(pcbActualizada);
                 break;
             }
 
@@ -96,22 +100,24 @@ void procesar_conexion(void *void_args) {
             {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
-                solicitarCreacionSegmentoMemoria(pcbRecibida);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                solicitarCreacionSegmentoMemoria(pcbActualizada);
                 break;
             }
             case DELETE_SEGMENT: {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
+                t_pcb* pcbActualizada = obtenerPcbExec();
 
                 //Memoria necesita: PID, idSegmento
                 t_list* listaIntsMemoria = list_create();
-                list_add(listaIntsMemoria,&pcbRecibida->id);
+                list_add(listaIntsMemoria,&pcbActualizada->id);
 
-                t_instr* instruccion = list_get(pcbRecibida->instr,pcbRecibida->programCounter-1);
+                t_instr* instruccion = list_get(pcbActualizada->instr,pcbActualizada->programCounter-1);
                 uint32_t idSegmento = atoi(instruccion->param1);
                 list_add(listaIntsMemoria,&idSegmento);
 
-                log_info(info_logger,"PID: <%d> - Eliminar Segmento - Id Segmento: <%d>", pcbRecibida->id, idSegmento);
+                log_info(info_logger,"PID: <%d> - Eliminar Segmento - Id Segmento: <%d>", pcbActualizada->id, idSegmento);
                 enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,ELIMINACION_SEGMENTOS);
                 break;
             }
@@ -120,7 +126,8 @@ void procesar_conexion(void *void_args) {
                 //recibe largoNombreArchivo /nombreArchivo / pcb
                 t_pcb* unPcb = recibir_pcb(cliente_socket);
                 actualizarPcbExec(unPcb);
-                ejecutar_FOPEN(unPcb);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                ejecutar_FOPEN(pcbActualizada);
                 break;
             }
 
@@ -128,7 +135,8 @@ void procesar_conexion(void *void_args) {
                 //recibe largoNombreArchivo /nombreArchivo / pcb
                 t_pcb* unPcb = recibir_pcb(cliente_socket);
                 actualizarPcbExec(unPcb);
-                ejecutar_FCLOSE(unPcb);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                ejecutar_FCLOSE(pcbActualizada);
                 break;
             }
 
@@ -136,7 +144,8 @@ void procesar_conexion(void *void_args) {
                 //recibe largoNombreArchivo /nombreArchivo / puntero / pcb
                 t_pcb* unPcb = recibir_pcb(cliente_socket);
                 actualizarPcbExec(unPcb);
-                ejecutar_FSEEK(unPcb);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                ejecutar_FSEEK(pcbActualizada);
                 break;
             }
 
@@ -144,7 +153,8 @@ void procesar_conexion(void *void_args) {
                 //recibe largoNombreArchivo /nombreArchivo / tamaño / pcb
                 t_pcb* unPcb = recibir_pcb(cliente_socket);
                 actualizarPcbExec(unPcb);
-                ejecutar_FTRUNCATE(unPcb);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                ejecutar_FTRUNCATE(pcbActualizada);
                 break;
             }
 
@@ -153,7 +163,8 @@ void procesar_conexion(void *void_args) {
                 u_int32_t direccionFisica;
                 t_pcb* unPcb = recibir_pcb_direccion(cliente_socket, &direccionFisica);
                 actualizarPcbExec(unPcb);
-                ejecutar_FREAD(unPcb,direccionFisica);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                ejecutar_FREAD(pcbActualizada,direccionFisica);
                 break;
             }
 
@@ -162,7 +173,8 @@ void procesar_conexion(void *void_args) {
                 u_int32_t direccionFisica;
                 t_pcb* unPcb = recibir_pcb_direccion(cliente_socket, &direccionFisica);
                 actualizarPcbExec(unPcb);
-                ejecutar_FWRITE(unPcb, direccionFisica);
+                t_pcb* pcbActualizada = obtenerPcbExec();
+                ejecutar_FWRITE(pcbActualizada, direccionFisica);
                 break;
             }
 
@@ -221,9 +233,9 @@ void procesar_conexion(void *void_args) {
             case SIN_ESPACIO_DISPONIBLE:
             {
                 recibirOrden(cliente_socket);
-                t_pcb* pcbRecibida = list_get(colaExec,0); //Ya que se elimina en moverProceso
-                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbRecibida->id);
-                moverProceso_ExecExit(pcbRecibida);
+                t_pcb* pcbExec = obtenerPcbExec(); //Ya que se elimina en moverProceso
+                log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>",pcbExec->id);
+                moverProceso_ExecExit(pcbExec);
                 break;
             }
             case FINALIZACION_PROCESO_TERMINADA:
@@ -242,7 +254,7 @@ void procesar_conexion(void *void_args) {
                 t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
                 actualizarTablasSegmentosProcesos(listaTablaSegmentosRecibida);
                 log_info(info_logger,"Se finalizó el proceso de compactación");
-                t_pcb* pcbExec = list_get(colaExec,0);
+                t_pcb* pcbExec = obtenerPcbExec();
                 solicitarCreacionSegmentoMemoria(pcbExec);
                 break;
             }
@@ -489,7 +501,11 @@ void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
      enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
 }
 
-void manejoDeRecursos(t_pcb* unaPcb,char* orden){
+void manejoDeRecursos(char* orden){
+    pthread_mutex_lock(&mutex_colaExec);
+    t_pcb* unaPcb = list_get(colaExec,0);
+    pthread_mutex_unlock(&mutex_colaExec);
+
     int apunteProgramCounter = unaPcb->programCounter;
     t_instr * instruccion = list_get(unaPcb->instr,apunteProgramCounter-1);
     char* recursoSolicitado = instruccion->param1;
@@ -601,8 +617,16 @@ void actualizarPcbExec(t_pcb* pcbRecibida){
     registros_cpu* registrosAux = pcbExec->registrosCpu;
     pcbExec->programCounter = pcbRecibida->programCounter;
     pcbExec->registrosCpu = pcbRecibida->registrosCpu;
+    pcbExec->tiempoLlegadaReady = pcbRecibida->tiempoLlegadaReady;
     pcbRecibida->registrosCpu = registrosAux;
     liberarPcb(pcbRecibida);
     pthread_mutex_unlock(&mutex_colaExec);
 
+}
+
+t_pcb* obtenerPcbExec(){
+    pthread_mutex_lock(&mutex_colaExec);
+    t_pcb* unaPcb = list_get(colaExec,0);
+    pthread_mutex_unlock(&mutex_colaExec);
+    return unaPcb;
 }
