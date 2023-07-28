@@ -3,7 +3,7 @@
 
 #include <planificacion.h>
 #include <init.h>
-#include <comunicacion.h>
+
 
 
 extern int fd_filesystem;

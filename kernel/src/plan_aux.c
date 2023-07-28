@@ -146,7 +146,7 @@ pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
 */
 
 char* obtenerNombreArchivo(t_pcb* pcb){
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter- 1);
     char* nomArch;
     strcpy(nomArch, instruccion->param1);
     return nomArch;
@@ -211,7 +211,7 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
 
 void ejecutar_FSEEK(t_pcb* pcb){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter- 1);
     int ubiPuntero = atoi(instruccion->param2);
 
     for(int i = 0; i < list_size(pcb->tablaArchivosAbiertos); i++){
@@ -231,7 +231,7 @@ void ejecutar_FTRUNCATE(t_pcb* pcb){
     //yo te creo estructura con serializacion y desarilizacion
 
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
     int nuevoTamanio = atoi(instruccion->param2);
 
     t_archivoTruncate* archivoParaFs = malloc(sizeof(t_archivoTruncate));
@@ -270,7 +270,7 @@ void actualizarPunteroLocal(char* nombreArchivo, t_pcb* pcb, uint32_t cantidadBy
 
 void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
     int cantidadBytes = atoi(instruccion->param3);
 
     t_archivoRW* archivoParaFs = malloc(sizeof(t_archivoRW));
@@ -280,7 +280,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->direcFisica = direccionFisica;
     archivoParaFs->cantidadBytes = cantidadBytes;
 
-    log_info(info_logger,"PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
+    log_info(info_logger,"PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,direccionFisica,cantidadBytes);
 
     actualizarPunteroLocal(nombreArchivo,pcb,cantidadBytes);
 
@@ -292,7 +292,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
 
 void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
+    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
     int cantidadBytes = atoi(instruccion->param3);
 
     t_archivoRW* archivoParaFs = malloc(sizeof(t_archivoRW));
@@ -302,7 +302,7 @@ void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->direcFisica = direccionFisica;
     archivoParaFs->cantidadBytes = cantidadBytes;
 
-    log_info(info_logger,"PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
+    log_info(info_logger,"PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,direccionFisica,cantidadBytes);
 
     actualizarPunteroLocal(nombreArchivo,pcb,cantidadBytes);
 
@@ -354,7 +354,9 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
 
 }
 //TODO eliminarPCB de TGAA cuando SISEGV?
+void eliminarPcb_TGAA_SEGFAULT(t_pcb*){
 
+}
 void desbloquearPcb_porNombreArchivo (char* nombArch) {
 
     pthread_mutex_lock(&mutex_TGAA);
