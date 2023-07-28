@@ -29,12 +29,12 @@ void ejecutar_FREAD(t_pcb*,uint32_t direccionFisica);
 void ejecutar_FWRITE(t_pcb*, uint32_t direccionFisica);
 int buscarArch_TablaGlobalArchivo(char* );
 void agregarEntrada_TablaGlobalArchivosAbiertos(char* );
-void eliminarPcb_TGAA_SEGFAULT(t_pcb*);
 void desbloquearPcb_porNombreArchivo (char*);
 char* obtenerNombreArchivo(t_pcb* pcb);
 void actualizarDuenioTGAA(char* nombreArchivo, t_pcb* pcbNuevoDuenio);
 void eliminarArchivoTablaLocal(char* nombreArchivo, t_pcb* pcb);
-
+void actualizarTGAALuegoDeLiberacionDeArchivo(char* nombreArchivo);
+void eliminarPcbTGAA_Y_actualizarTGAA(t_pcb* pcb);
 
 
 
