@@ -43,7 +43,7 @@ int finalizarProcesoConPid(uint32_t unPid){
     void convertirASegmentoPidYEliminacion(t_segmento* unSegmento){
             realizarEliminacionSegmento(unSegmento, unPid);
     }
-
+    //mostrarListaSegmentos(tablaEncontrada->segmentos);
     list_clean_and_destroy_elements(tablaEncontrada->segmentos,convertirASegmentoPidYEliminacion);
     list_destroy(tablaEncontrada->segmentos);
 
@@ -154,10 +154,18 @@ void crearSegmento(int cliente_socket) {
     enviarValor_uint32(direccion,cliente_socket,CREACION_SEGMENTO_EXITOSO,info_logger);
 
 }
+void quitarDeTabla(t_segmento* unSegmento, uint32_t pid){
+    t_tablaSegmentos* unaTabla =buscarTablaConPid(pid);
+    bool coincideId(t_segmento* otroSegmento){
+        return unSegmento-> id == otroSegmento->id;
+    }
+    list_remove_by_condition(unaTabla->segmentos,coincideId);
+}
+
 void eliminarSegmento(int cliente_socket){
     t_list *listaInts = recibirListaUint32_t(cliente_socket);
-    uint32_t* pid = list_get(listaInts, 0);
-    uint32_t* idSegmento = list_get(listaInts, 1);
+    uint32_t pid = *(uint32_t*)list_get(listaInts, 0);
+    uint32_t idSegmento = *(uint32_t*)list_get(listaInts, 1);
 
     pthread_mutex_lock(&mutex_huecosDisponibles);
     pthread_mutex_lock(&mutex_huecosUsados);
@@ -165,9 +173,10 @@ void eliminarSegmento(int cliente_socket){
     pthread_mutex_lock(&mutex_tablasSegmentos);
     pthread_mutex_lock(&mutex_espacioContiguo);
 
-    t_segmento* segmentoAEliminar = buscarSegmentoSegunId(*idSegmento);
-    realizarEliminacionSegmento(segmentoAEliminar,*pid);
-    t_tablaSegmentos* tablaAEnviar = buscarTablaConPid(*pid);
+    t_segmento* segmentoAEliminar = buscarSegmentoSegunId(idSegmento);
+    quitarDeTabla(segmentoAEliminar, pid);
+    realizarEliminacionSegmento(segmentoAEliminar,pid);
+    t_tablaSegmentos* tablaAEnviar = buscarTablaConPid(pid);
 
     pthread_mutex_unlock(&mutex_huecosDisponibles);
     pthread_mutex_unlock(&mutex_huecosUsados);

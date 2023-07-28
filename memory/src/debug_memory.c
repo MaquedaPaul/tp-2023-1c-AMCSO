@@ -45,43 +45,6 @@ void mostrarListaSegmentos(t_list* segmentos){
     free(nuevoString);
 }
 
-char* mem_decimalstring(const void* data, size_t size) {
-    const unsigned char* bytes = (const unsigned char*)data;
-    char* decstr = (char*)malloc(size * 3 + 1); // Tres dígitos decimales por byte + 1 para el terminador nulo
-    if (decstr == NULL) {
-        perror("Error en malloc");
-        exit(EXIT_FAILURE);
-    }
-
-    for (size_t i = 0; i < size; i++) {
-        sprintf(&decstr[i * 3], "%03d", bytes[i]);
-    }
-    decstr[size * 3] = '\0'; // Agregamos el terminador nulo al final de la cadena
-
-    return decstr;
-}
-
-void imprimir_void(void* data, size_t size) {
-    log_debug(debug_logger,"%.*s", (int)size, (char*)data);
-}
-
-void print_void_data(const void* data, size_t size) {
-    const char* bytes = (const char*)data;
-    size_t i = 0;
-    while (i < size) {
-        if (bytes[i] != 0) {
-            log_debug(debug_logger,"C:%zu %.*s ", size - i, (int)(size - i), &bytes[i]);
-            i += strlen(&bytes[i]) + 1; // Avanza el índice hasta el siguiente dato
-        } else {
-            size_t count_zeros = 0;
-            while (i < size && bytes[i] == 0) {
-                count_zeros++;
-                i++;
-            }
-            log_debug(debug_logger,"C:%zu ", count_zeros);
-        }
-    }
-}
 
 void imprimir_espacio_contiguo(void* espacio_contiguo, size_t tamanio) {
     char* datos = (char*)espacio_contiguo;
@@ -96,7 +59,7 @@ void imprimir_espacio_contiguo(void* espacio_contiguo, size_t tamanio) {
             log_debug(debug_logger, "CB:%zu ", bytes_contiguos);
             i += bytes_contiguos;
         } else {
-            char dato_actual[13] = {0}; // Máximo 4 caracteres + terminador nulo
+            char dato_actual[17] = {0}; // Máximo 4 caracteres + terminador nulo
             size_t j = 0;
             while (i < tamanio && datos[i] != 0) {
                 dato_actual[j] = datos[i];
