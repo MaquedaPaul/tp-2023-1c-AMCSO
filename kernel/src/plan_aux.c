@@ -116,8 +116,13 @@ void ejecutar_FOPEN(t_pcb* pcb){
         list_add(listaPeticionesArchivos,peticion);
         pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
         pthread_mutex_unlock(&(archivoPeticion->archivo->mutex));
+
+        t_archivoLocal* archivoLocal = malloc(sizeof (t_archivoLocal));
+        archivoLocal->archivo = archivoPeticion->archivo;
+        archivoLocal->ptro = 0;
+        list_add(pcb->tablaArchivosAbiertos,archivoLocal);
+
         moverProceso_ExecBloq(pcb);
-        //TODO falta agregar archivo en tabla local
     }
     pthread_mutex_unlock(&mutex_TGAA);
 
@@ -146,7 +151,7 @@ pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
 */
 
 char* obtenerNombreArchivo(t_pcb* pcb){
-    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter- 1);
+    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
     char* nomArch;
     strcpy(nomArch, instruccion->param1);
     return nomArch;
@@ -164,6 +169,42 @@ void eliminarArchivoTGAA(char* nombreArchivo){
         }
     }
     pthread_mutex_unlock(&mutex_TGAA);
+}
+
+void eliminarPcbTGAA_Y_actualizarTGAA(t_pcb* pcb){
+    for(int i = 0; i < list_size(tablaGlobal_ArchivosAbiertos); i++){
+        pthread_mutex_lock(&mutex_TGAA);
+        t_archivoPeticion* archivoPeticion = list_get(tablaGlobal_ArchivosAbiertos,i);
+        pthread_mutex_unlock(&mutex_TGAA);
+        if(archivoPeticion->pcb->id == pcb->id){
+            actualizarTGAALuegoDeLiberacionDeArchivo(archivoPeticion->archivo->nombreArchivo);
+        }
+    }
+}
+
+void actualizarTGAALuegoDeLiberacionDeArchivo(char* nombreArchivo){
+    //Esta funcion se llama luego de que un proceso libere el archivo, si fija si alguien lo esta solicitando:
+    //Si lo estan solicitando se lo asigna en la TGAA al primero en solicitarlo
+    //Si no lo estan solicitando eliminar el archivo de la TGAA
+
+    bool archivoNoSolicitado = true;
+
+    for(int i = 0; i < list_size(listaPeticionesArchivos); i++){
+        t_archivoPeticion* archivoPeticion = list_get(listaPeticionesArchivos,i);
+        if(strcmp(archivoPeticion->archivo->nombreArchivo, nombreArchivo) == 0){
+            actualizarDuenioTGAA(nombreArchivo,archivoPeticion->pcb);
+            archivoNoSolicitado = false;
+            break;
+        }
+    }
+    for(int i = 0; i < list_size(listaPeticionesArchivos); i++){
+        t_archivoPeticion* archivoPeticion = list_get(listaPeticionesArchivos,i);
+        if(strcmp(archivoPeticion->archivo->nombreArchivo, nombreArchivo) == 0 && archivoNoSolicitado){
+            eliminarArchivoTGAA(nombreArchivo);
+        }
+    }
+
+
 }
 
 void actualizarDuenioTGAA(char* nombreArchivo, t_pcb* pcbNuevoDuenio){
@@ -190,28 +231,32 @@ void eliminarArchivoTablaLocal(char* nombreArchivo, t_pcb* pcb){
 }
 
 void ejecutar_FCLOSE(t_pcb* pcb) {
-    char* nomArch = obtenerNombreArchivo(pcb);
-    eliminarArchivoTablaLocal(nomArch,pcb);
-
+    char *nomArch = obtenerNombreArchivo(pcb);
+    eliminarArchivoTablaLocal(nomArch, pcb);
+    bool hayProcesosEsperandoPorArchivo = false;
     pthread_mutex_lock(&mutex_listaPeticionesArchivos);
     for (int i = 0; i < list_size(listaPeticionesArchivos); i++) {
         t_archivoPeticion *archivoPeticion = list_get(listaPeticionesArchivos, i);
-        if(strcmp(archivoPeticion->archivo->nombreArchivo, nomArch) ==0) { //Si hay procesos blockeados esperando por ese archivo
+        if (strcmp(archivoPeticion->archivo->nombreArchivo, nomArch) ==
+            0) { //Si hay procesos blockeados esperando por ese archivo
             list_remove(listaPeticionesArchivos, i);
-            actualizarDuenioTGAA(archivoPeticion->archivo->nombreArchivo,archivoPeticion->pcb);
+            actualizarDuenioTGAA(archivoPeticion->archivo->nombreArchivo, archivoPeticion->pcb);
             moverProceso_BloqReady(archivoPeticion->pcb);
-        }else{ //Ningun proceso esperando por ese archivo //TODO corregir el else
-            eliminarArchivoTGAA(nomArch);
+            hayProcesosEsperandoPorArchivo = true;
+            break;
         }
-
+    }
+    if (!hayProcesosEsperandoPorArchivo) {
+        eliminarArchivoTGAA(nomArch);
     }
     pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
     //Por lo que entiendo y el enunciado no aclara Kernel replanifica al desbloquarse el proceso
 }
 
+
 void ejecutar_FSEEK(t_pcb* pcb){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter- 1);
+    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
     int ubiPuntero = atoi(instruccion->param2);
 
     for(int i = 0; i < list_size(pcb->tablaArchivosAbiertos); i++){
@@ -231,7 +276,7 @@ void ejecutar_FTRUNCATE(t_pcb* pcb){
     //yo te creo estructura con serializacion y desarilizacion
 
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
+    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
     int nuevoTamanio = atoi(instruccion->param2);
 
     t_archivoTruncate* archivoParaFs = malloc(sizeof(t_archivoTruncate));
@@ -270,7 +315,7 @@ void actualizarPunteroLocal(char* nombreArchivo, t_pcb* pcb, uint32_t cantidadBy
 
 void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
+    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
     int cantidadBytes = atoi(instruccion->param3);
 
     t_archivoRW* archivoParaFs = malloc(sizeof(t_archivoRW));
@@ -280,7 +325,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->direcFisica = direccionFisica;
     archivoParaFs->cantidadBytes = cantidadBytes;
 
-    log_info(info_logger,"PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,direccionFisica,cantidadBytes);
+    log_info(info_logger,"PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
 
     actualizarPunteroLocal(nombreArchivo,pcb,cantidadBytes);
 
@@ -292,7 +337,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
 
 void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     char* nombreArchivo = obtenerNombreArchivo(pcb);
-    t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
+    t_instr *instruccion = list_get(pcb->instr, &(pcb->programCounter) - 1);
     int cantidadBytes = atoi(instruccion->param3);
 
     t_archivoRW* archivoParaFs = malloc(sizeof(t_archivoRW));
@@ -302,7 +347,7 @@ void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->direcFisica = direccionFisica;
     archivoParaFs->cantidadBytes = cantidadBytes;
 
-    log_info(info_logger,"PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,direccionFisica,cantidadBytes);
+    log_info(info_logger,"PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
 
     actualizarPunteroLocal(nombreArchivo,pcb,cantidadBytes);
 
@@ -342,7 +387,6 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
             pthread_mutex_unlock(&mutex_TGAA);
 
             t_archivoLocal* archivoLocal = malloc(sizeof (t_archivoLocal));
-            //TODO creo que tengo que hacerlo en F_OPEN
             archivoLocal->archivo = archivoPeticion->archivo;
             archivoLocal->ptro = 0;
             list_add(archivoPeticion->pcb->tablaArchivosAbiertos,archivoLocal);
@@ -353,10 +397,8 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
     pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
 
 }
-//TODO eliminarPCB de TGAA cuando SISEGV?
-void eliminarPcb_TGAA_SEGFAULT(t_pcb*){
 
-}
+
 void desbloquearPcb_porNombreArchivo (char* nombArch) {
 
     pthread_mutex_lock(&mutex_TGAA);
