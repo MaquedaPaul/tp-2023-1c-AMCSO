@@ -10,6 +10,7 @@
 #include <loggers_configs.h>
 #include <pthread.h>
 #include <filesystem.h>
+extern pthread_mutex_t mutex_cliente_socket;
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;

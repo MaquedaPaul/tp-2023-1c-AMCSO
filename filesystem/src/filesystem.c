@@ -15,6 +15,7 @@ void* abrirArchivo(void* cliente_socket){
 
     int conexion = *((int*) cliente_socket);
     char* nombreArchivo = recibirString(conexion);
+
     if(kernelInicializado == false){
         fd_kernel= conexion;
         kernelInicializado = true;

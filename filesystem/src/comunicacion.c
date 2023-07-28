@@ -9,6 +9,7 @@ char* ip_filesystem;
 char* puerto_filesystem;
 pthread_t crear_server_filesystem;
 
+
 bool conexionesHechas = false;
 
 
@@ -20,7 +21,6 @@ void procesar_conexion(void *void_args) {
     op_code cop;
 
     while (cliente_socket != -1) {
-
         if (recv(cliente_socket, &cop, sizeof(op_code), 0) != sizeof(op_code)) {
             log_info(info_logger, "DISCONNECT!");
             return;
@@ -36,44 +36,48 @@ void procesar_conexion(void *void_args) {
                 break;
             case APERTURA_ARCHIVO: {
                 pthread_t abrirArchivoHilo;
+                //int clienteCopia = cliente_socket;
+
                 pthread_create(&abrirArchivoHilo, NULL, (void *) abrirArchivo, &cliente_socket);
-                pthread_detach(abrirArchivoHilo);
+
+                pthread_join(abrirArchivoHilo, NULL);
                 break;
             }
+            //     char* nombreArchivo = recibirString(cliente_socket);
             case CREACION_ARCHIVO:{
                 pthread_t crearArchivoHilo;
                 pthread_create(&crearArchivoHilo, NULL, (void *) crearArchivo, &cliente_socket);
-                pthread_detach(crearArchivoHilo);
+                pthread_join(crearArchivoHilo, NULL);
                 break;
             }
             case TRUNCACION_ARCHIVO: {
                 pthread_t truncarArchivoHilo;
                 pthread_create(&truncarArchivoHilo, NULL, (void *) truncarArchivo, &cliente_socket);
-                pthread_detach(truncarArchivoHilo);
+                pthread_join(truncarArchivoHilo, NULL);
                 break;
             }
             case LECTURA_ARCHIVO:{
                 pthread_t leerArchivoHilo;
                 pthread_create(&leerArchivoHilo, NULL, (void *) leerArchivo, &cliente_socket);
-                pthread_detach(leerArchivoHilo);
+                pthread_join(leerArchivoHilo,NULL);
                 break;
             }
             case LECTURA_REALIZADA: {
                 pthread_t finalizarEscrituraArchivoHilo;
                 pthread_create(&finalizarEscrituraArchivoHilo, NULL, (void *) finalizarEscrituraArchivo, &cliente_socket);
-                pthread_detach(finalizarEscrituraArchivoHilo);
+                pthread_join(finalizarEscrituraArchivoHilo,NULL);
                 break;
             }
             case ESCRITURA_ARCHIVO:{
                 pthread_t escribirArchivoHilo;
                 pthread_create(&escribirArchivoHilo, NULL, (void *) escribirArchivo, &cliente_socket);
-                pthread_detach(escribirArchivoHilo);
+                pthread_join(escribirArchivoHilo, NULL);
                 break;
             }
             case ESCRITURA_REALIZADA:{
                 pthread_t finalizarLecturaArchivoHilo;
                 pthread_create(&finalizarLecturaArchivoHilo, NULL, (void *) finalizarLecturaArchivo, &cliente_socket);
-                pthread_detach(finalizarLecturaArchivoHilo);
+                pthread_join(finalizarLecturaArchivoHilo, NULL);
             break;
             }
             case -1:

@@ -19,7 +19,7 @@ typedef enum {
 }tipo_path;
 
 
-
+extern pthread_mutex_t mutex_cliente_socket;
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;

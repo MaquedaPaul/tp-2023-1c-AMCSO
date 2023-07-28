@@ -5,8 +5,8 @@
 #include <gestion_filesystem.h>
 #include <sys/mman.h>
 
-t_list* lista_bloques; 
-
+t_list* lista_bloques;
+pthread_mutex_t mutex_cliente_socket;
 
 
 

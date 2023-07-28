@@ -110,6 +110,7 @@ bool iniciarFilesystem(){
     }
 
     bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
+    crearSemaforos();
     lista_FCBs = list_create();
     archivosUsados = list_create();
 
@@ -131,10 +132,13 @@ bool iniciarEstructurasAdministrativas(char* nombre_path) {
     }
 }
 
+
+
 bool crearEstructuras(){
 
     bool comp1 = crear_bitmap_de_bloques();
     bool comp2 = crear_archivo_de_bloques();
+
     crear_fcbs_del_directorio();
 
     return comp1 && comp2;
@@ -326,12 +330,13 @@ int obtener_tamanio_en_bytes(){
 }
 
 bool crearSemaforos(){
-
+    pthread_mutex_init(&mutex_cliente_socket,NULL);
     int comprobacionArchivosUsados = pthread_mutex_init(&mutex_ArchivosUsados,NULL);
     if(comprobacionArchivosUsados !=0){
         log_error(error_logger, "No se pudieron inicializar los semaforos");
         return false;
     }
+
     semaforosCreados = true;
     return true;
 }
