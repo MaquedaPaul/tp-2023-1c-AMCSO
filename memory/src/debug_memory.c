@@ -96,14 +96,14 @@ void imprimir_espacio_contiguo(void* espacio_contiguo, size_t tamanio) {
             log_debug(debug_logger, "CB:%zu ", bytes_contiguos);
             i += bytes_contiguos;
         } else {
-            char dato_actual[5] = {0}; // Máximo 4 caracteres + terminador nulo
+            char dato_actual[13] = {0}; // Máximo 4 caracteres + terminador nulo
             size_t j = 0;
             while (i < tamanio && datos[i] != 0) {
                 dato_actual[j] = datos[i];
                 i++;
                 j++;
             }
-            log_debug(debug_logger, "C:%s ", dato_actual);
+            log_debug(debug_logger, "Dato:%s ", dato_actual);
         }
     }
 }
@@ -127,6 +127,18 @@ void mostrarPosicionMemoria(uint32_t posicion, int cantidad){
     log_debug(debug_logger, "Dato concreto: %s",dato);
 
 }
+
+void mostrarTablaSegmentos(t_tablaSegmentos* tablaSegmentos){
+    log_debug(debug_logger, "Mostrando tabla de segmentos con PID: %d",tablaSegmentos->pid );
+    mostrarListaSegmentos(tablaSegmentos->segmentos);
+}
+
+void mostrarTablasDeSegmentos(){
+    log_debug(debug_logger, "Mostrando tablas de segmentos");
+    list_iterate(tablasSegmentos, mostrarTablaSegmentos);
+}
+
+
 
 
 
