@@ -63,23 +63,21 @@ int finalizarProcesoConPid(uint32_t unPid){
 
 void realizarPedidoLectura(int cliente_socket){
     t_list* listaInts = recibirListaUint32_t(cliente_socket);
-    uint32_t* posicion = list_get(listaInts,0);
+    uint32_t posicion = *(uint32_t*)list_get(listaInts,0);
     bool esCpu= cliente_socket == ipCpu;
-    uint32_t* tamanio = list_get(listaInts,1);
-    uint32_t* pid = list_get(listaInts,2);
+    uint32_t tamanio = *(uint32_t*)list_get(listaInts,1);
+    uint32_t pid = *(uint32_t*)list_get(listaInts,2);
     pthread_mutex_lock(&mutex_espacioContiguo);
-    accesoEspacioUsuarioLecturaRetardoPrevio(*posicion, *tamanio, *pid);
+    accesoEspacioUsuarioLecturaRetardoPrevio(posicion, tamanio, pid);
     simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
     accesoEspacioUsuarioLecturaRetardoConcedido();
-    void* datos = buscarDatosEnPosicion(*pid, *posicion, *tamanio, esCpu);
+    void* datos = buscarDatosEnPosicion(pid, posicion, tamanio, esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-    free(pid);
-    free(posicion);
-    list_clean(listaInts);
+
+    list_clean_and_destroy_elements(listaInts,free);
     list_destroy(listaInts);
-    //TODO debería hacer free de datos?
-    //mostrarMemoria();
-    enviarDatos(datos,*tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
+    enviarDatos(datos,tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
+
 }
 
 
@@ -101,7 +99,7 @@ void realizarPedidoEscritura(int cliente_socket){
     list_clean_and_destroy_elements(listaInts, free);
     list_destroy(listaInts);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-    //mostrarMemoria();
+    mostrarMemoria();
     //mostrarPosicionMemoria(12,4);
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }

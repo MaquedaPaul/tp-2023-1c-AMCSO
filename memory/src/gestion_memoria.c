@@ -171,6 +171,7 @@ t_tablaSegmentos* crearTablaSegmentos(uint32_t pid){
     nuevaTabla->segmentos = list_create();
     list_add(nuevaTabla->segmentos,segmento0);
     creacionProceso(pid);
+    mostrarTablasDeSegmentos();
     return nuevaTabla;
 }
 

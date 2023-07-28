@@ -71,6 +71,7 @@ void destruirMemoria(){
 
 void destruirDisponibles(){
     log_trace(trace_logger,"Se libera lista de huecos libres");
+    list_clean_and_destroy_elements(huecosLibres,free);
     list_destroy(huecosLibres);
 }
 void destruirUsados(){
@@ -89,7 +90,8 @@ void destruirTablaSegmentos(){
     }
 
     void destruirTablasSegmentos(t_tablaSegmentos* tablaSegmentos){
-        list_iterate(tablaSegmentos->segmentos, limpiarHueco);
+        list_clean_and_destroy_elements(tablaSegmentos->segmentos,free);
+        list_destroy(tablaSegmentos->segmentos);
         free(tablaSegmentos);
     }
     list_iterate(tablasSegmentos,quitarSegmento0DeTablas);
