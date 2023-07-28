@@ -25,14 +25,16 @@ char registroCPU_RCX[16];
 char registroCPU_RDX[16];
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
-    log_info(info_logger,"valor de dir fis : %d", direccion_logica);
+    log_info(info_logger,"valor de dir logica : %d", direccion_logica);
     log_info(info_logger,"tamaniomaxseg: %d", cfg_cpu->TAM_MAX_SEGMENTO);
 
     num_segmento = direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO;
 
-    log_info(info_logger,"valor de num de seg devuelto por floor : %d", num_segmento);
+    log_info(info_logger,"numero de segmento: %d", num_segmento);
 
     int desplazamiento_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
+
+    log_info(info_logger,"desplazamiento: %d", desplazamiento_segmento);
 
     if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes)) {
         copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
@@ -55,7 +57,7 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
     log_info(info_logger,"segemento base: %d ", segmento->base);
     int direccion_fisica = segmento->base + desplazamiento_segmento;
 
-    log_info(info_logger, "direccion fisica: %d", direccion_fisica);
+    log_info(info_logger, "direccion fisica = base + desplazamiento: %d", direccion_fisica);
 
     return direccion_fisica;
 }

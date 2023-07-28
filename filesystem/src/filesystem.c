@@ -37,50 +37,33 @@ void* crearArchivo(void* cliente_socket){
 
 void* truncarArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
-    char* nombreArchivo;
-    uint32_t nuevoTamanio;
-    uint32_t tamanioNombreArchivo;
 
-    //recibir: 1 tamanio a modificar, 2 tam nombre archivo, 3 nombre archivo
-    /*
-    int tamanio;
-    int desplazamiento = 0;
-    void *buffer = recibir_stream(&tamanio, conexion);
-    void* datos;
-    memcpy(&nuevoTamanio, buffer + desplazamiento, sizeof (uint32_t));
-    desplazamiento+=sizeof(uint32_t);
-    memcpy(&tamanioNombreArchivo, buffer + desplazamiento, sizeof(uint32_t));
-    desplazamiento+=sizeof(uint32_t);
-    nombreArchivo= malloc(tamanioNombreArchivo);
-    memcpy(nombreArchivo, buffer + desplazamiento, tamanioNombreArchivo);
-    free(buffer);
-*/
-    realizarTruncacionArchivo(nombreArchivo, nuevoTamanio);
-    enviarString(nombreArchivo,conexion,TRUNCACION_ARCHIVO_EXITOSA,info_logger);
+    t_archivoTruncate* archivoTruncacion = recibir_archivoTruncacion(conexion);
+    realizarTruncacionArchivo(archivoTruncacion->nombreArchivo, archivoTruncacion-> nuevoTamanio);
+    enviarString(archivoTruncacion->nombreArchivo,conexion,TRUNCACION_ARCHIVO_EXITOSA,info_logger);
 }
 
 void* leerArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
-    char* nombreArchivo;
-    uint32_t puntero;
-    uint32_t tamanio;
-    uint32_t direccionFisica;
-    uint32_t pid;
-    recibirParamsParaLecturaEscrituraArchivo(nombreArchivo, puntero, tamanio, direccionFisica, pid, conexion);
-    t_datos* datosAEnviar = malloc(sizeof(t_datos));
-    datosAEnviar->tamanio = tamanio;
-    datosAEnviar->datos = realizarLecturaArchivo(nombreArchivo, puntero, tamanio);
-    t_list* listaInts = list_create();
-    list_add(listaInts, &direccionFisica);
-    list_add(listaInts, &pid);
 
-    lecturaArchivo(nombreArchivo,puntero,direccionFisica, tamanio);
+    t_archivoRW* archivo = recibir_archivoRW(conexion);
+    lecturaArchivo(archivo->nombreArchivo,archivo->posPuntero,archivo->direcFisica, archivo->cantidadBytes);
 
-    t_config_fcb* fcb = buscarFCBporNombre(nombreArchivo); //solo agrego a lista los archivos que se lee o escribe
+    t_config_fcb* fcb = buscarFCBporNombre(archivo->nombreArchivo); //solo agrego a lista los archivos que se lee o escribe
 
     pthread_mutex_lock(&mutex_ArchivosUsados);
     list_add(archivosUsados, fcb);
     pthread_mutex_unlock(&mutex_ArchivosUsados);
+
+
+    uint32_t pid=0;
+    t_datos* datosAEnviar = malloc(sizeof(t_datos));
+    datosAEnviar->tamanio = archivo->cantidadBytes;
+    datosAEnviar->datos = realizarLecturaArchivo(archivo->nombreArchivo, archivo->posPuntero, archivo->cantidadBytes);
+    t_list* listaInts = list_create();
+    list_add(listaInts, &archivo->direcFisica);
+    list_add(listaInts, &pid);
+
 
     enviarListaIntsYDatos(listaInts,datosAEnviar,fd_memoria,info_logger,ACCESO_PEDIDO_ESCRITURA);
 }
@@ -88,23 +71,21 @@ void* leerArchivo(void* cliente_socket){
 
 void* escribirArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
-    char* nombreArchivo;
-    uint32_t puntero;
-    uint32_t tamanio;
-    uint32_t pid;
-    uint32_t direccion;
-    recibirParamsParaLecturaEscrituraArchivo(nombreArchivo, punteroPendiente, tamanio, pid, direccion, conexion);
-    t_list* listaInts = list_create();
-    list_add(listaInts,  &direccion);
-    list_add(listaInts,  &tamanio);
-    list_add(listaInts, &pid);
+    t_archivoRW* archivo = recibir_archivoRW(conexion);
+    escrituraArchivo(archivo->nombreArchivo, archivo->posPuntero, archivo->direcFisica, archivo->cantidadBytes);
 
-    escrituraArchivo(nombreArchivo, puntero, direccion, tamanio);
-
-    t_config_fcb* fcb =buscarFCBporNombre(nombreArchivo);
+    t_config_fcb* fcb =buscarFCBporNombre(archivo->nombreArchivo);
     pthread_mutex_lock(&mutex_ArchivosUsados);
     list_add(archivosUsados, fcb); //solo agrego a lista los archivos que se lee o escribe
     pthread_mutex_unlock(&mutex_ArchivosUsados);
+
+
+    uint32_t pid=0;
+
+    t_list* listaInts = list_create();
+    list_add(listaInts,  &archivo->direcFisica);
+    list_add(listaInts,  &archivo->cantidadBytes);
+    list_add(listaInts, &pid);
 
     enviarListaUint32_t(listaInts,fd_memoria,info_logger, ACCESO_PEDIDO_LECTURA);
 }

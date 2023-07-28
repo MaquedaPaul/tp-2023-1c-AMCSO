@@ -15,7 +15,7 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
     if (!(direccion_fisica < 0)) {
            char* valor = leer_valor_de_memoria(direccion_fisica, cantidad_bytes);
            cambiar_valor_del_registroCPU(registro,valor);
-           pcb_actual->programCounter++;
+           pcb_actual->programCounter++;    
     }
 }
 
