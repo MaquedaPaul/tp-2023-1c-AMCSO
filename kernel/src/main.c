@@ -9,6 +9,7 @@ void handle_sigint(int sig){
 
 int main(int argc, char *argv[]) {
 //gol
+//boenasfdfd
     path_config = argv[1];
     ip_kernel = argv[2];
 
