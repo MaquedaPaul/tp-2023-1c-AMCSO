@@ -91,8 +91,6 @@ typedef struct
     void* datos;
 } t_datos;
 
-
-
 typedef struct {
     int fd;
     char *server_name;
@@ -104,9 +102,6 @@ typedef struct {
     int indiceSemaforo;
     int instanciasRecurso;
 } t_recurso;
-
-
-
 
 //Estructura del pcb
 typedef struct{
@@ -120,26 +115,42 @@ typedef struct{
     registros_cpu* registrosCpu;
     t_list* instr;
     t_tablaSegmentos* tablaSegmentos;
-    //t_list* tablaArchivosAbiertos; //TODO AGREGAR A LA PCB CUANDO LO USEMOS
+    t_list* tablaArchivosAbiertos;//Seria una t_list de archivoLocal. No la serializamos
 } t_pcb;
 
 
 typedef struct {
     char* nombreArchivo;
-    bool enUso;
-    int id_pcb_en_uso;
-    int ptro;
-    t_list* lista_espera_pcbs;
-} t_TablaArchivos;
+    pthread_mutex_t mutex; // Mutex para proteger el acceso concurrente al archivo
+} t_archivo;
 
 typedef struct {
-    char* nombreArchivo;
+    t_archivo* archivo;
+    uint32_t ptro; //La pos del puntero es local de cada Proceso, no del archivo
+}t_archivoLocal;
+
+typedef struct {
+    t_archivo* archivo;
     t_pcb* pcb;
-} t_peticionesFS;
+} t_archivoPeticion;
+
+typedef struct {
+    //length nombreArchivo,nombreArchivo,tamNew
+    uint32_t nombreArchivoLength;
+    char* nombreArchivo;
+    uint32_t nuevoTamanio;
+}t_archivoTruncate;
+
+typedef struct {
+    uint32_t nombreArchivoLength;
+    char* nombreArchivo;
+    uint32_t posPuntero;
+    uint32_t direcFisica;
+    uint32_t cantidadBytes;
+}t_archivoRW; //Se usa para F_READ Y F_WRITE. Estructura aux para mandarselo a FS la info
 
 t_proceso *crearNuevoProceso();
 void closure_mostrarListaInstrucciones(t_instr * element);
-void liberarTablasDeSegmentos(t_list* tablasSegmentos);
 void liberarInstruccion(t_instr * instruccion);
 void liberarSegmento(t_segmento* segmento);
 void liberarPcb(t_pcb* pcb);

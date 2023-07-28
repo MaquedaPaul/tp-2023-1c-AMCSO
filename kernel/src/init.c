@@ -19,7 +19,8 @@ t_list* listaEsperaMemoria;
 
 
 //TABLA GLOBAL ARCHIVOS ABIERTOS
-t_list* tablaGlobal_ArchivosAbiertos;
+t_list* tablaGlobal_ArchivosAbiertos; //Es una lista de t_archivoPeticion
+t_list* listaPeticionesArchivos; //Es una lista de t_archivoPeticion. Aca se encolan los procesos que esperan por un archivo
 pthread_mutex_t mutex_TGAA;
 //TABLA PETICIONES A FS
 t_list* tabla_PeticionesFS;
@@ -35,9 +36,7 @@ pthread_mutex_t mutex_colaBloq;
 pthread_mutex_t mutex_colaExit;
 pthread_mutex_t mutex_PlanLP;
 pthread_mutex_t mutex_MP;
-
-pthread_mutex_t mutex_debug_logger;
-
+pthread_mutex_t mutex_listaPeticionesArchivos;
 
 //SEMAFOROS
 sem_t sem_procesosEnNew;
@@ -132,9 +131,9 @@ void inicializar_kernel(){
 
 //TABLA GLOBAL ARCHIVOS ABIERTOS
     tablaGlobal_ArchivosAbiertos = list_create();
-    tabla_PeticionesFS = list_create();
+    listaPeticionesArchivos = list_create();
     pthread_mutex_init(&mutex_TGAA, NULL);//Mutex de la tabla global de archivos abiertos
-
+    pthread_mutex_init(&mutex_listaPeticionesArchivos,NULL);
 
 //CONTADORES Y MUTEX
 
@@ -148,8 +147,6 @@ void inicializar_kernel(){
     pthread_mutex_init(&mutex_colaExit, NULL);
     pthread_mutex_init(&mutex_PlanLP, NULL);
     pthread_mutex_init(&mutex_MP, NULL);
-
-    pthread_mutex_init(&mutex_debug_logger, NULL);
 
     //SEMAFOROS
     sem_init(&sem_procesosEnNew,0,0);

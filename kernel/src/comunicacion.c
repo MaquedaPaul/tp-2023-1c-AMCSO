@@ -41,8 +41,6 @@ void procesar_conexion(void *void_args) {
                 agregarProceso_New(pcbDispatch);
 
                 mostrarEstadoColas();
-
-
                 break;
 
             }
@@ -144,17 +142,17 @@ void procesar_conexion(void *void_args) {
 
             case F_READ: {
                 //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
-                u_int32_t direccion;
-                t_pcb* unPcb = recibir_pcb_direccion(cliente_socket, &direccion);
-                ejecutar_FREAD(unPcb, direccion);
+                u_int32_t direccionFisica;
+                t_pcb* unPcb = recibir_pcb_direccion(cliente_socket, &direccionFisica);
+                ejecutar_FREAD(unPcb,direccionFisica);
                 break;
             }
 
             case F_WRITE: {
                 //recibe largoNombreArchivo /nombreArchivo / direccion / largoDireccion / pcb
-                u_int32_t direccion;
-                t_pcb* unPcb = recibir_pcb_direccion(cliente_socket, &direccion);
-                ejecutar_FWRITE(unPcb, direccion);
+                u_int32_t direccionFisica;
+                t_pcb* unPcb = recibir_pcb_direccion(cliente_socket, &direccionFisica);
+                ejecutar_FWRITE(unPcb, direccionFisica);
                 break;
             }
 
@@ -489,7 +487,6 @@ void manejoDeRecursos(t_pcb* unaPcb,char* orden){
     bool coincideConSolicitado(t_recurso* unRecurso){
         return strcmp(unRecurso->nombreRecurso,recursoSolicitado) == 0;
     }
-    
     t_recurso* recursoEncontrado = list_find(estadoBlockRecursos, coincideConSolicitado);
     if(recursoEncontrado == NULL){
         log_info(info_logger,"Recurso <%s> solicitado INEXISTENTE", recursoSolicitado);

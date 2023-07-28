@@ -10,8 +10,6 @@ void ejecutar_SET(char* registro, char* valor){
 void ejecutar_MOV_IN(char* registro, int direccion_logica) {
     int cantidad_bytes = calcular_bytes_segun_registro(registro);
 
-    //if( calcular_bytes_segun_registro(registro) < 0 )
-
     int direccion_fisica = traducir_direccion_logica(direccion_logica,cantidad_bytes);
 
     if (!(direccion_fisica < 0)) {

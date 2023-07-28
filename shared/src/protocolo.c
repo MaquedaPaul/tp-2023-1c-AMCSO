@@ -1670,3 +1670,82 @@ t_pcb*  recibir_pcb_direccion(int conexion,uint32_t* parametroDireccion) {
 
     return unPcb;
 }
+
+void enviar_archivoTruncacion(t_archivoTruncate* archivoTruncate, int conexion, op_code codigo, t_log* logger){
+    t_paquete* paquete= crear_paquete(codigo, logger);
+    agregar_archivoTruncacion_a_paquete(paquete,archivoTruncate);
+    enviar_paquete(paquete, conexion);
+    free(archivoTruncate->nombreArchivo);
+    free(archivoTruncate);
+    eliminar_paquete(paquete, logger);
+}
+
+void agregar_archivoTruncacion_a_paquete(t_paquete* paquete, t_archivoTruncate* archivoTruncate){
+    agregar_a_paquete(paquete, &(archivoTruncate->nombreArchivoLength), sizeof(uint32_t));
+    agregar_a_paquete(paquete, &(archivoTruncate->nombreArchivo), sizeof(archivoTruncate->nombreArchivoLength + 1));
+    agregar_a_paquete(paquete,&(archivoTruncate->nuevoTamanio), sizeof (uint32_t));
+}
+
+t_archivoTruncate* recibir_archivoTruncacion(int conexion){
+    //Pido el stream del buffer en el que viene serilizada la pcb
+    uint32_t tamanioBuffer;
+    uint32_t desplazamiento = 0;
+    void *buffer = recibir_stream(&tamanioBuffer, conexion);
+
+    t_archivoTruncate* archivoTruncacion = malloc(sizeof(t_archivoTruncate));
+
+    memcpy(&(archivoTruncacion->nombreArchivoLength), buffer + desplazamiento, sizeof (uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    archivoTruncacion->nombreArchivo = malloc(sizeof (archivoTruncacion->nombreArchivoLength + 1));
+    memcpy(&(archivoTruncacion->nombreArchivo), buffer + desplazamiento, sizeof (archivoTruncacion->nombreArchivoLength+1));
+    desplazamiento += sizeof (archivoTruncacion->nombreArchivoLength+1);
+
+    memcpy(&(archivoTruncacion->nuevoTamanio), buffer + desplazamiento, sizeof (uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    return archivoTruncacion;
+}
+
+void enviar_archivoRW(t_archivoRW* archivoRW, int conexion, op_code codigo, t_log* logger){
+    t_paquete* paquete= crear_paquete(codigo, logger);
+    agregar_archivoRW_a_paquete(paquete,archivoRW);
+    enviar_paquete(paquete, conexion);
+    free(archivoRW->nombreArchivo);
+    free(archivoRW);
+    eliminar_paquete(paquete, logger);
+}
+
+void agregar_archivoRW_a_paquete(t_paquete* paquete, t_archivoRW* archivoRw){
+    agregar_a_paquete(paquete, &(archivoRw->nombreArchivoLength), sizeof(uint32_t));
+    agregar_a_paquete(paquete, &(archivoRw->nombreArchivo), sizeof(archivoRw->nombreArchivoLength + 1));
+    agregar_a_paquete(paquete,&(archivoRw->posPuntero),sizeof (uint32_t));
+    agregar_a_paquete(paquete,&(archivoRw->direcFisica), sizeof (uint32_t));
+    agregar_a_paquete(paquete,&(archivoRw->cantidadBytes), sizeof (uint32_t));
+}
+
+t_archivoRW* recibir_archivoRW(int conexion){
+    uint32_t tamanioBuffer;
+    uint32_t desplazamiento = 0;
+    void *buffer = recibir_stream(&tamanioBuffer, conexion);
+
+    t_archivoRW* archivoRw = malloc(sizeof(t_archivoRW));
+
+    memcpy(&(archivoRw->nombreArchivoLength), buffer + desplazamiento, sizeof (uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    archivoRw->nombreArchivo = malloc(sizeof (archivoRw->nombreArchivoLength + 1));
+    memcpy(&(archivoRw->nombreArchivo), buffer + desplazamiento, sizeof (archivoRw->nombreArchivoLength+1));
+    desplazamiento += sizeof (archivoRw->nombreArchivoLength+1);
+
+    memcpy(&(archivoRw->posPuntero), buffer + desplazamiento, sizeof (uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&(archivoRw->direcFisica), buffer + desplazamiento, sizeof (uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&(archivoRw->cantidadBytes), buffer + desplazamiento, sizeof (uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    return archivoRw;
+}

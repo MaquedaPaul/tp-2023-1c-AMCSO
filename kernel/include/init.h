@@ -30,8 +30,10 @@ extern t_list* estadoBlockRecursos;
 extern t_list* colaReady; 
 extern t_list* listaEsperaMemoria;
 
-//TABLA GLOBAL ARCHIVOS ABIERTOS
+
 extern t_list* tablaGlobal_ArchivosAbiertos;
+extern t_list* listaPeticionesArchivos;
+
 extern pthread_mutex_t mutex_TGAA; //Mutex de la tabla global de archivos abiertos
 //TABLA PETICIONES A FS
 extern t_list* tabla_PeticionesFS;
@@ -48,6 +50,7 @@ extern pthread_mutex_t mutex_colaBloq;
 extern pthread_mutex_t mutex_colaExit;
 extern pthread_mutex_t mutex_MP; //Des/activa el grado de Multiprogramacion
 extern pthread_mutex_t mutex_PlanLP; //Activa el PL
+extern pthread_mutex_t mutex_listaPeticionesArchivos;
 
 //SEMAFOROS
 extern sem_t sem_procesosEnNew;
