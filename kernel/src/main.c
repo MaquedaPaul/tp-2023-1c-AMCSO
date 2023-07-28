@@ -8,7 +8,7 @@ void handle_sigint(int sig){
 //char* path_config;
 
 int main(int argc, char *argv[]) {
-//hola
+//boenas
     path_config = argv[1];
     ip_kernel = argv[2];
 
