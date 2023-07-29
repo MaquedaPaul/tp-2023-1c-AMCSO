@@ -25,18 +25,25 @@ char registroCPU_RCX[16];
 char registroCPU_RDX[16];
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
-    log_info(info_logger,"valor de dir logica : %d", direccion_logica);
-    log_info(info_logger,"tamaniomaxseg: %d", cfg_cpu->TAM_MAX_SEGMENTO);
+    log_debug(debug_logger,"valor de dir logica : %d", direccion_logica);
+    log_debug(debug_logger,"tamaniomaxseg: %d", cfg_cpu->TAM_MAX_SEGMENTO);
 
     num_segmento = direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO;
 
-    log_info(info_logger,"numero de segmento: %d", num_segmento);
+    log_debug(debug_logger,"numero de segmento: %d", num_segmento);
 
     int desplazamiento_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
 
-    log_info(info_logger,"desplazamiento: %d", desplazamiento_segmento);
+    log_debug(debug_logger,"desplazamiento: %d", desplazamiento_segmento);
 
-    if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes)) {
+    bool esMismoId(t_segmento* segmento){
+        return segmento->id == num_segmento;
+    }
+
+    segmento = list_find(pcb_actual->tablaSegmentos->segmentos,esMismoId);
+    log_debug(debug_logger,"segemento base: %d ", segmento->base);
+
+    if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes, segmento)) {
         copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
 /*
         t_paquete* paquete = crear_paquete(SEGMENTATION_FAULT, info_logger);
@@ -53,8 +60,6 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
         return -1;
     }
 
-    segmento = list_get(pcb_actual->tablaSegmentos->segmentos, num_segmento);
-    log_info(info_logger,"segemento base: %d ", segmento->base);
     int direccion_fisica = segmento->base + desplazamiento_segmento;
 
     log_info(info_logger, "direccion fisica = base + desplazamiento: %d", direccion_fisica);
@@ -62,32 +67,13 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
     return direccion_fisica;
 }
 
-bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes) {
 
-    //if (numero_segmento >= list_size(pcb_actual->tabla_segmentos))  return true;
-
-    segmento = list_get(pcb_actual->tablaSegmentos->segmentos, num_segmento);
-
-/* 
-int i;
-for (i = 0; i < list_size(pcb_actual->tablaSegmentos); i++) {
-
-        t_segmento*  segmento_aux = list_get(pcb_actual->tablaSegmentos, i);
-
-             if(segmento_aux->id == num_segmento){
-
-                      segmento = segmento_aux;
-
-                      break;             
-                }
-
-}
-
- */
-
-
+bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes, t_segmento * segmento) {
+    log_debug(debug_logger, "limite segmento: %d",  segmento->limite);
     return ((desplazamiento_segmento + cantidad_bytes) > segmento->limite);
 }
+
+
 void copiar_registrosCPU_a_los_registroPCB(registros_cpu* registro) {
     memcpy(registro->registro_AX,registroCPU_AX,4);
     memcpy(registro->registro_BX,registroCPU_BX,4);

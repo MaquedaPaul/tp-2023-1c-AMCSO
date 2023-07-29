@@ -51,12 +51,16 @@ char* decode(){
 
 void execute() {
     if (strcmp(nombre_instruccion_actual , "SET") == 0) {
-        char* registro = instruccion->param1;    //  list_get(instruccion->parametros, 0); si quiero hacer una lista de parametros
+        char* registro = instruccion->param1;
         char* valor = instruccion->param2;
+
+        //log_info(info_logger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%s>", pcb_actual->id, registro, valor2);
         log_info(info_logger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%s>", pcb_actual->id, registro, valor);
 
+        log_debug(debug_logger,"tamanio del nombre del registro: %ld", strlen(registro));
+
         ejecutar_SET(registro, valor);
-        log_debug(debug_logger, "el valor del registro AX: %s", registroCPU_AX);
+
     }
 
     else if (strcmp(nombre_instruccion_actual, "MOV_IN") == 0) {
@@ -71,7 +75,10 @@ void execute() {
 
         int direccion_logica = atoi(instruccion->param1);
         char* registro = instruccion->param2;
-        log_info(info_logger, "PID: <%d> - Ejecutando: <MOV_OUT> - <%d> - <%s>", pcb_actual->id, direccion_logica, registro );
+
+        log_debug(debug_logger,"tam registro: %ld", strlen(registro));
+
+        log_info(info_logger, "PID: <%d> - Ejecutando: <MOV_OUT> - <%d> - <%s>", pcb_actual->id, direccion_logica, registro);
 
         ejecutar_MOV_OUT(direccion_logica, registro);
     }
@@ -155,7 +162,6 @@ void execute() {
 
         ejecutar_YIELD();
     }
-
     else if (strcmp(nombre_instruccion_actual, "EXIT") == 0) {
         log_info(info_logger, "PID: <%d> - Ejecutando: <EXIT> -", pcb_actual->id);
 
