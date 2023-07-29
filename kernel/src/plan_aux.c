@@ -334,6 +334,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->posPuntero = buscarPosPunteroTablaLocal(nombreArchivo,pcb);
     archivoParaFs->direcFisica = direccionFisica;
     archivoParaFs->cantidadBytes = cantidadBytes;
+    archivoParaFs->pid = pcb->id;
 
     log_info(info_logger,"PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
 
@@ -356,6 +357,7 @@ void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->posPuntero = buscarPosPunteroTablaLocal(nombreArchivo,pcb);
     archivoParaFs->direcFisica = direccionFisica;
     archivoParaFs->cantidadBytes = cantidadBytes;
+    archivoParaFs->pid = pcb->id;
 
     log_info(info_logger,"PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
 
