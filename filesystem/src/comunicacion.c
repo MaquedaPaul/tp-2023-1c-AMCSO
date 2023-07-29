@@ -30,13 +30,13 @@ void procesar_conexion(void *void_args) {
             case DEBUG:
                 log_info(info_logger, "debug");
                 break;
-            case HANDSHAKE_FS:
+            case HANDSHAKE_FS: {
                 recibirOrden(cliente_socket);
                 fd_memoria = cliente_socket;
                 break;
+            }
             case APERTURA_ARCHIVO: {
                 pthread_t abrirArchivoHilo;
-                //int clienteCopia = cliente_socket;
 
                 pthread_create(&abrirArchivoHilo, NULL, (void *) abrirArchivo, &cliente_socket);
 

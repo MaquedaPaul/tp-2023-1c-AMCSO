@@ -103,8 +103,17 @@ void ejecutar_FOPEN(t_pcb* pcb){
     int pos = buscarArch_TablaGlobalArchivo(nomArch);
 
     if(pos == -1){ // En caso de que no este en la TGAA
+        t_archivoPeticion* archivoPeticion = malloc(sizeof(t_archivoPeticion));
+        t_archivo* archivo = malloc(sizeof(t_archivo));
+        archivo->nombreArchivo = nomArch;
+        pthread_mutex_init(&archivo->mutex,NULL);
+        archivoPeticion->archivo = archivo;
+        archivoPeticion->pcb = pcb;
+        pthread_mutex_lock(&mutex_listaPeticionesArchivos);
+        list_add(listaPeticionesArchivos,archivoPeticion);
+        pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
+
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
-        free(nomArch);
     }
 
     else{//Si esta en la TGAA
@@ -331,7 +340,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     actualizarPunteroLocal(nombreArchivo,pcb,cantidadBytes);
 
     moverProceso_ExecBloq(pcb);
-    enviar_archivoRW(archivoParaFs,fd_filesystem,F_READ,info_logger);
+    enviar_archivoRW(archivoParaFs,fd_filesystem,LECTURA_ARCHIVO,info_logger);
 
 
 }

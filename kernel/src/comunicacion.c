@@ -86,6 +86,7 @@ void procesar_conexion(void *void_args) {
                 log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbActualizada->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
                 eliminarPcbTGAA_Y_actualizarTGAA(pcbActualizada);
                 moverProceso_ExecExit(pcbActualizada);
+                break;
             }
             case EXIT:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
