@@ -95,7 +95,7 @@ void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_a
 
             tamanio_del_archivo_a_truncar = aux_FCB->TAMANIO_ARCHIVO;
 
-            if(!(tamanio_del_archivo_a_truncar == nuevo_tamanio_del_archivo )) {  
+            if(tamanio_del_archivo_a_truncar != nuevo_tamanio_del_archivo ) {
 
             ampliar_o_reducir_tamanio(aux_FCB, nuevo_tamanio_del_archivo, tamanio_del_archivo_a_truncar);
           truncacionArchivo(nombreArchivo, nuevo_tamanio_del_archivo);
@@ -109,7 +109,7 @@ void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_a
 
 void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, uint32_t tamanio_archivo) {
 
-    lista_bloques = list_create();
+    lista_bloques = list_create(); //TODO porque si es global se hace la creacion aca?
 
     if(tamanio_archivo == 0){ 
 
