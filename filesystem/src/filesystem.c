@@ -7,7 +7,6 @@
 
 int fd_memoria;
 int fd_kernel;
-uint32_t punteroPendiente;
 bool kernelInicializado = false;
 pthread_mutex_t mutex_ArchivosUsados;
 
@@ -50,21 +49,18 @@ void* leerArchivo(void* cliente_socket){
     t_archivoRW* archivo = recibir_archivoRW(conexion);
     lecturaArchivo(archivo->nombreArchivo,archivo->posPuntero,archivo->direcFisica, archivo->cantidadBytes);
 
-    t_config_fcb* fcb = buscarFCBporNombre(archivo->nombreArchivo); //solo agrego a lista los archivos que se lee o escribe
-
     pthread_mutex_lock(&mutex_ArchivosUsados);
+    t_config_fcb* fcb = buscarFCBporNombre(archivo->nombreArchivo); //solo agrego a lista los archivos que se lee o escribe
     list_add(archivosUsados, fcb);
     pthread_mutex_unlock(&mutex_ArchivosUsados);
 
-
-    uint32_t pid=0;
+    uint32_t pid = archivo->pid;
     t_datos* datosAEnviar = malloc(sizeof(t_datos));
     datosAEnviar->tamanio = archivo->cantidadBytes;
     datosAEnviar->datos = realizarLecturaArchivo(archivo->nombreArchivo, archivo->posPuntero, archivo->cantidadBytes);
     t_list* listaInts = list_create();
     list_add(listaInts, &archivo->direcFisica);
     list_add(listaInts, &pid);
-
 
     enviarListaIntsYDatos(listaInts,datosAEnviar,fd_memoria,info_logger,ACCESO_PEDIDO_ESCRITURA);
 }
@@ -75,14 +71,12 @@ void* escribirArchivo(void* cliente_socket){
     t_archivoRW* archivo = recibir_archivoRW(conexion);
     escrituraArchivo(archivo->nombreArchivo, archivo->posPuntero, archivo->direcFisica, archivo->cantidadBytes);
 
-    t_config_fcb* fcb =buscarFCBporNombre(archivo->nombreArchivo);
     pthread_mutex_lock(&mutex_ArchivosUsados);
+    t_config_fcb* fcb =buscarFCBporNombre(archivo->nombreArchivo);
     list_add(archivosUsados, fcb); //solo agrego a lista los archivos que se lee o escribe
     pthread_mutex_unlock(&mutex_ArchivosUsados);
 
-
-    uint32_t pid=0;
-
+    uint32_t pid = archivo->pid;
     t_list* listaInts = list_create();
     list_add(listaInts,  &archivo->direcFisica);
     list_add(listaInts,  &archivo->cantidadBytes);

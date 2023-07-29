@@ -544,7 +544,8 @@ void creacionSegmentoExitoso(uint32_t baseSegmento){
     segmento->limite = baseSegmento + tamSegmento;
 
     list_add(pcbExec->tablaSegmentos->segmentos,segmento);
-
+    log_debug(debug_logger,"base del segmento: %d", segmento->base);
+    log_debug(debug_logger,"limite del segmento: %d", segmento->limite);
     enviar_paquete_pcb(pcbExec,fd_cpu,PCB,info_logger);
 }
 

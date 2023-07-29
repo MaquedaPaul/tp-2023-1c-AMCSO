@@ -1725,6 +1725,7 @@ void agregar_archivoRW_a_paquete(t_paquete* paquete, t_archivoRW* archivoRw){
     agregar_a_paquete(paquete,&(archivoRw->posPuntero),sizeof (uint32_t));
     agregar_a_paquete(paquete,&(archivoRw->direcFisica), sizeof (uint32_t));
     agregar_a_paquete(paquete,&(archivoRw->cantidadBytes), sizeof (uint32_t));
+    agregar_a_paquete(paquete,&(archivoRw->pid), sizeof (uint32_t));
 }
 
 t_archivoRW* recibir_archivoRW(int conexion){
@@ -1748,6 +1749,9 @@ t_archivoRW* recibir_archivoRW(int conexion){
     desplazamiento += sizeof(uint32_t);
 
     memcpy(&(archivoRw->cantidadBytes), buffer + desplazamiento, sizeof (uint32_t));
+    desplazamiento += sizeof(uint32_t);
+
+    memcpy(&(archivoRw->pid), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
 
     return archivoRw;

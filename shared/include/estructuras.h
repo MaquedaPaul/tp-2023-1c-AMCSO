@@ -147,6 +147,7 @@ typedef struct {
     uint32_t posPuntero;
     uint32_t direcFisica;
     uint32_t cantidadBytes;
+    uint32_t pid;
 }t_archivoRW; //Se usa para F_READ Y F_WRITE. Estructura aux para mandarselo a FS la info
 
 t_proceso *crearNuevoProceso();

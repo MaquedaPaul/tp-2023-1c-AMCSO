@@ -92,7 +92,7 @@ FALTA
     8. COORDINAR CON COMPACTACION
 
 */
-
+//TODO habria que hacer free de archivo,t_archivoPeticion y t_archivoLocal
 
 void ejecutar_FOPEN(t_pcb* pcb){
     //F_OPEN ARCHIVO
@@ -114,6 +114,7 @@ void ejecutar_FOPEN(t_pcb* pcb){
         pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
 
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
+
     }
 
     else{//Si esta en la TGAA
@@ -334,6 +335,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->posPuntero = buscarPosPunteroTablaLocal(nombreArchivo,pcb);
     archivoParaFs->direcFisica = direccionFisica;
     archivoParaFs->cantidadBytes = cantidadBytes;
+    archivoParaFs->pid = pcb->id;
 
     log_info(info_logger,"PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
 
@@ -356,6 +358,7 @@ void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->posPuntero = buscarPosPunteroTablaLocal(nombreArchivo,pcb);
     archivoParaFs->direcFisica = direccionFisica;
     archivoParaFs->cantidadBytes = cantidadBytes;
+    archivoParaFs->pid = pcb->id;
 
     log_info(info_logger,"PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
 
