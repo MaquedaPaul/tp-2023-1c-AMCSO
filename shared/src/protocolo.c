@@ -1721,7 +1721,7 @@ void enviar_archivoRW(t_archivoRW* archivoRW, int conexion, op_code codigo, t_lo
 
 void agregar_archivoRW_a_paquete(t_paquete* paquete, t_archivoRW* archivoRw){
     agregar_a_paquete(paquete, &(archivoRw->nombreArchivoLength), sizeof(uint32_t));
-    agregar_a_paquete(paquete, archivoRw->nombreArchivo, archivoRw->nombreArchivoLength + 1);
+    agregar_a_paquete(paquete, archivoRw->nombreArchivo, archivoRw->nombreArchivoLength);
     agregar_a_paquete(paquete,&(archivoRw->posPuntero),sizeof (uint32_t));
     agregar_a_paquete(paquete,&(archivoRw->direcFisica), sizeof (uint32_t));
     agregar_a_paquete(paquete,&(archivoRw->cantidadBytes), sizeof (uint32_t));
@@ -1737,9 +1737,9 @@ t_archivoRW* recibir_archivoRW(int conexion){
     memcpy(&(archivoRw->nombreArchivoLength), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
 
-    archivoRw->nombreArchivo = malloc(sizeof (archivoRw->nombreArchivoLength + 1));
-    memcpy(archivoRw->nombreArchivo, buffer + desplazamiento, archivoRw->nombreArchivoLength+1);
-    desplazamiento += sizeof (archivoRw->nombreArchivoLength+1);
+    archivoRw->nombreArchivo = malloc(archivoRw->nombreArchivoLength);
+    memcpy(archivoRw->nombreArchivo, buffer + desplazamiento, archivoRw->nombreArchivoLength);
+    desplazamiento += archivoRw->nombreArchivoLength;
 
     memcpy(&(archivoRw->posPuntero), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);

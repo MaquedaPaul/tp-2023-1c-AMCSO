@@ -105,6 +105,7 @@ void* finalizarEscrituraArchivo(void* cliente_socket){
 void* finalizarLecturaArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
     char* nombreArchivo = obtenerPrimerArchivoUsado();
+    recibirOrden(conexion);
     enviarString(nombreArchivo, fd_kernel, LECTURA_ARCHIVO_EXITOSA, info_logger);
 }
 
