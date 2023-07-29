@@ -283,11 +283,12 @@ bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete
         paquete->buffer->size+= id + idLength + params + param1Length + param2Length + param3Length;
     }
     list_iterate(listaInstrucciones,sumarTamaniosInstrucciones);
+    paquete->buffer->size += sizeof(uint8_t);
     void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
     int offset=0; //desplazamiento
 
     //Sumo la cantidad de instrucciones al buffer
-    paquete->buffer->size += sizeof(uint8_t);
+
 
     void copiarElementos(t_instr *instruccion){ //Copia
         if(esInstruccionSinParametros(instruccion)){
@@ -447,9 +448,11 @@ bool enviarString(char* string, int socket_cliente, op_code codigoOperacion, t_l
 }
 
 bool agregarStringAPaquete(char* string, t_paquete* paquete){
-    void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
+
     int offset=0; //desplazamiento
     uint8_t tamanio = strlen(string) + 1;
+    paquete->buffer->size+= tamanio + sizeof(uint8_t);
+    void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
     memcpy(stream + offset, &tamanio, sizeof(uint8_t));
     offset += sizeof(uint8_t);
     memcpy(stream + offset, string, tamanio);
@@ -1718,7 +1721,7 @@ void enviar_archivoRW(t_archivoRW* archivoRW, int conexion, op_code codigo, t_lo
 
 void agregar_archivoRW_a_paquete(t_paquete* paquete, t_archivoRW* archivoRw){
     agregar_a_paquete(paquete, &(archivoRw->nombreArchivoLength), sizeof(uint32_t));
-    agregar_a_paquete(paquete, &(archivoRw->nombreArchivo), sizeof(archivoRw->nombreArchivoLength + 1));
+    agregar_a_paquete(paquete, archivoRw->nombreArchivo, archivoRw->nombreArchivoLength + 1);
     agregar_a_paquete(paquete,&(archivoRw->posPuntero),sizeof (uint32_t));
     agregar_a_paquete(paquete,&(archivoRw->direcFisica), sizeof (uint32_t));
     agregar_a_paquete(paquete,&(archivoRw->cantidadBytes), sizeof (uint32_t));
@@ -1735,7 +1738,7 @@ t_archivoRW* recibir_archivoRW(int conexion){
     desplazamiento += sizeof(uint32_t);
 
     archivoRw->nombreArchivo = malloc(sizeof (archivoRw->nombreArchivoLength + 1));
-    memcpy(&(archivoRw->nombreArchivo), buffer + desplazamiento, sizeof (archivoRw->nombreArchivoLength+1));
+    memcpy(archivoRw->nombreArchivo, buffer + desplazamiento, archivoRw->nombreArchivoLength+1);
     desplazamiento += sizeof (archivoRw->nombreArchivoLength+1);
 
     memcpy(&(archivoRw->posPuntero), buffer + desplazamiento, sizeof (uint32_t));
