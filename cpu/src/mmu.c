@@ -44,18 +44,11 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
     log_debug(debug_logger,"segemento base: %d ", segmento->base);
 
     if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes, segmento)) {
+
         copiar_registrosCPU_a_los_registroPCB(pcb_actual->registrosCpu);
-/*
-        t_paquete* paquete = crear_paquete(SEGMENTATION_FAULT, info_logger);
-        agregar_PCB_a_paquete(paquete, pcb_actual);
-        enviar_paquete(paquete, fd_kernel);
-        eliminar_paquete(paquete, info_logger);
-*/
-        enviar_paquete_pcb2(pcb_actual, fd_kernel,SEGMENTATION_FAULT, info_logger);
-
+        enviar_paquete_pcb(pcb_actual, fd_kernel,SEGMENTATION_FAULT, info_logger);
         cicloInstruccionesDebeEjecutarse = false;
-
-        log_info(info_logger, "PID: <%d> - Error SEG_FAULT- Segmento: <%d> - Offset: <%d> - Tamaño: <%d>", pcb_actual->id, num_segmento, desplazamiento_segmento, segmento->limite );
+        log_info(info_logger, "PID: <%d> - Error SEG_FAULT- Segmento: <%d> - Offset: <%d> - Tamaño: <%d>", pcb_actual->id, num_segmento, desplazamiento_segmento, segmento->limite);
 
         return -1;
     }
