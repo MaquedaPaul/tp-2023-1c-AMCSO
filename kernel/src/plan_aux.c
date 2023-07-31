@@ -367,7 +367,7 @@ void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     actualizarPunteroLocal(nombreArchivo,pcb,cantidadBytes);
 
     moverProceso_ExecBloq(pcb);
-    enviar_archivoRW(archivoParaFs,fd_filesystem,F_READ,info_logger);
+    enviar_archivoRW(archivoParaFs,fd_filesystem,ESCRITURA_ARCHIVO,info_logger);
 
 }
 
