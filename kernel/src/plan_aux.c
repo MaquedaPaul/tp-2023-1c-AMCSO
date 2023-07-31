@@ -260,6 +260,8 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
     if (!hayProcesosEsperandoPorArchivo) {
         eliminarArchivoTGAA(nomArch);
     }
+
+    log_info(info_logger,"PID: <%d> - Cerrar Archivo: <%s>",pcb->id, nomArch);
     pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
     //Por lo que entiendo y el enunciado no aclara Kernel replanifica al desbloquarse el proceso
 }
@@ -337,7 +339,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->cantidadBytes = cantidadBytes;
     archivoParaFs->pid = pcb->id;
 
-    log_info(info_logger,"PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
+    log_info(info_logger,"PID: <%d> - Leer Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero, direccionFisica, cantidadBytes);
 
     actualizarPunteroLocal(nombreArchivo,pcb,cantidadBytes);
 
@@ -360,7 +362,7 @@ void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
     archivoParaFs->cantidadBytes = cantidadBytes;
     archivoParaFs->pid = pcb->id;
 
-    log_info(info_logger,"PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero,cantidadBytes);
+    log_info(info_logger,"PID: <%d> - Escribir Archivo: <%s> - Puntero <%d> - Dirección Memoria <%d> - Tamanio <%d>",pcb->id,nombreArchivo,archivoParaFs->posPuntero, direccionFisica,cantidadBytes);
 
     actualizarPunteroLocal(nombreArchivo,pcb,cantidadBytes);
 
