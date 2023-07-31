@@ -62,6 +62,7 @@ void* leerArchivo(void* cliente_socket){
     list_add(listaInts, &archivo->direcFisica);
     list_add(listaInts, &pid);
 
+    log_debug(debug_logger, "se solcita a memoria escrbir en df");
     enviarListaIntsYDatos(listaInts,datosAEnviar,fd_memoria,info_logger,ACCESO_PEDIDO_ESCRITURA);
 }
 
@@ -69,7 +70,6 @@ void* leerArchivo(void* cliente_socket){
 void* escribirArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
     t_archivoRW* archivo = recibir_archivoRW(conexion);
-    escrituraArchivo(archivo->nombreArchivo, archivo->posPuntero, archivo->direcFisica, archivo->cantidadBytes);
 
     pthread_mutex_lock(&mutex_ArchivosUsados);
     t_config_fcb* fcb =buscarFCBporNombre(archivo->nombreArchivo);
@@ -82,16 +82,19 @@ void* escribirArchivo(void* cliente_socket){
     list_add(listaInts,  &archivo->cantidadBytes);
     list_add(listaInts, &pid);
 
+    log_debug(debug_logger, "se solcita a memoria leer en df");
     enviarListaUint32_t(listaInts,fd_memoria,info_logger, ACCESO_PEDIDO_LECTURA);
 }
 
 void* finalizarEscrituraArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
-    uint32_t tamanioDatos;
-    uint32_t puntero;
+    uint32_t tamanioDatos = 16;
+    uint32_t puntero=0;
+    int df=16;
     void* datos = recibirDatos(conexion, tamanioDatos);
     char* nombreArchivo = obtenerPrimerArchivoUsado();
 
+    escrituraArchivo(nombreArchivo, puntero, df, tamanioDatos);
     realizarEscrituraArchivo(nombreArchivo,  puntero, datos, tamanioDatos);
     enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger);
 }

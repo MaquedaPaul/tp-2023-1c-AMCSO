@@ -473,8 +473,11 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
     uint32_t numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
     if (bytesQueSePuedenEscrbirEnUnBloque >= tamanioAEscrbir) {
-
+        char* datoLeidoDeMemoria = malloc(tamanioAEscrbir +1);
+        datoLeidoDeMemoria = (char*) datos;
+        log_debug(debug_logger,"dato a escrbir en el archivo: %s", datoLeidoDeMemoria);
         memcpy(archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque, datos, tamanioAEscrbir);
+
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
     }else{
@@ -533,9 +536,11 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
     uint32_t numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
     if (loQueSePuedeLeerEnUnBloque >= tamanioALeer) {
-
-        datoLeido = malloc(tamanioALeer);
+        datoLeido = malloc(tamanioALeer + 1);
         memcpy(datoLeido, archivoBloques->archivo + (posicionBloque * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  tamanioALeer);
+
+        char* dato = (char*) datoLeido;
+        log_debug(debug_logger, "Dato leido: %s", dato);
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
     }else{
