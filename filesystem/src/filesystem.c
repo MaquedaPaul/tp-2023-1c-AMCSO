@@ -89,7 +89,7 @@ void* escribirArchivo(void* cliente_socket){
 void* finalizarEscrituraArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
     uint32_t tamanioDatos = 16;
-    uint32_t puntero=0;
+    uint32_t puntero=60;
     int df=16;
     void* datos = recibirDatos(conexion, tamanioDatos);
     char* nombreArchivo = obtenerPrimerArchivoUsado();
