@@ -54,6 +54,22 @@ void moverProceso_NewReady(t_tablaSegmentos* tablaDeSegmentosMemoria){
     mostrarEstadoColas();
 }
 
+void bloquearProcesoPorRecurso(t_recurso* recurso){
+    pthread_mutex_lock(&mutex_colaExec);
+    t_pcb* pcbABlockedRecurso = list_remove(colaExec,0);
+    pthread_mutex_unlock(&mutex_colaExec);
+
+    pthread_mutex_lock(&semaforos_io[recurso->indiceSemaforo]);
+    list_add(recurso->cola,pcbABlockedRecurso);
+    pthread_mutex_unlock(&semaforos_io[recurso->indiceSemaforo]);
+
+    pthread_mutex_lock(&mutex_colaBloq);
+    list_add(estadoBlockRecursos,pcbABlockedRecurso);
+    pthread_mutex_unlock(&mutex_colaBloq);
+
+    log_info(info_logger,"PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <BLOCKED_RECURSO[%s]>", pcbABlockedRecurso->id, recurso->nombreRecurso);
+}
+
 void moverProceso_BloqrecursoReady(t_recurso* recurso){
     pthread_mutex_lock(&semaforos_io[recurso->indiceSemaforo]);
     t_pcb* pcbLiberada = list_remove(recurso->cola,0);
@@ -175,8 +191,18 @@ void moverProceso_BloqReady(t_pcb* pcbBuscado){
     mostrarEstadoColas();
 
 
+}
 
-
+void liberarRecursosTomados(t_pcb* pcb){
+    for(int i = 0; i < list_size(pcb->recursosTomados); i++){
+        t_recurso* recursoTomado = list_get(pcb->recursosTomados,i);
+        pthread_mutex_lock(&semaforos_io[recursoTomado->indiceSemaforo]);
+        recursoTomado->instanciasRecurso++;
+        pthread_mutex_unlock(&semaforos_io[recursoTomado->indiceSemaforo]);
+        log_info(info_logger,"PID:<%d> - libera Recurso:<%s> - Instancias <%d>", pcb->id, recursoTomado->nombreRecurso, recursoTomado->instanciasRecurso);
+    }
+    list_destroy(pcb->recursosTomados); //No se hace la liberacion ya que no es correcto, los recursos pertenecen al sistema
+    //la liberacion de los recursos se tiene que hacer en liberarPrograma
 }
 
 void moverProceso_ExecExit(t_pcb *pcbBuscado){
@@ -190,6 +216,10 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
     pthread_mutex_lock(&mutex_colaExit);
     queue_push(colaExit,pcbBuscado);
     pthread_mutex_unlock(&mutex_colaExit);
+
+    if(!list_is_empty(pcbBuscado->recursosTomados)){
+        liberarRecursosTomados(pcbBuscado);
+    }
 
     sem_post(&sem_procesosExit);
 

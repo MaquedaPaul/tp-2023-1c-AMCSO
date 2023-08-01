@@ -30,7 +30,7 @@ void* crearArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
 
     char* nombreArchivo = recibirString(conexion);
-    realizarCreacionArchivo(nombreArchivo);
+   // realizarCreacionArchivo(nombreArchivo); //TODO ACA ARROJA SISEGV
     enviarString(nombreArchivo,conexion,CREACION_ARCHIVO_EXITOSA,info_logger);
 }
 
