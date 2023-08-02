@@ -1701,13 +1701,13 @@ t_archivoTruncate* recibir_archivoTruncacion(int conexion){
     memcpy(&(archivoTruncacion->nombreArchivoLength), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
 
-    archivoTruncacion->nombreArchivo = malloc(sizeof (archivoTruncacion->nombreArchivoLength + 1));
-    memcpy(&(archivoTruncacion->nombreArchivo), buffer + desplazamiento, sizeof (archivoTruncacion->nombreArchivoLength+1));
-    desplazamiento += sizeof (archivoTruncacion->nombreArchivoLength+1);
+    archivoTruncacion->nombreArchivo = malloc(archivoTruncacion->nombreArchivoLength + 1);
+    memcpy(archivoTruncacion->nombreArchivo, buffer + desplazamiento, archivoTruncacion->nombreArchivoLength+1);
+    desplazamiento += archivoTruncacion->nombreArchivoLength+1;
 
     memcpy(&(archivoTruncacion->nuevoTamanio), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
-
+    free(buffer);
     return archivoTruncacion;
 }
 
