@@ -1754,6 +1754,6 @@ t_archivoRW* recibir_archivoRW(int conexion){
 
     memcpy(&(archivoRw->pid), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
-
+    free(buffer);
     return archivoRw;
 }
