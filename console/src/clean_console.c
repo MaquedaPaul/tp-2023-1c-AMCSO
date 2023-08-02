@@ -5,18 +5,24 @@
 #include <clean_console.h>
 
 void cerrar_programa(){
-    if(logsCreados){
-        destruirLoggers();
-    }
+    log_trace(trace_logger, "Cerrando programa");
+
     if(configCreado){
         destruirConfig();
+        log_trace(trace_logger, "Liberando configs");
     }
     if(cfgCreado){
+        log_trace(trace_logger, "Liberando cfgs");
         destruirCfg();
+    }
+    if(logsCreados){
+        log_trace(trace_logger, "Liberando loggers");
+        destruirLoggers();
     }
     if(conexionesHechas){
         //Nada que hacer, se hace detach
     }
+    printf("Cierre exitoso");
 
 }
 void destruirLoggers(){

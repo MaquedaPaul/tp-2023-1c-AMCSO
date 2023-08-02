@@ -284,7 +284,8 @@ bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete
     }
     list_iterate(listaInstrucciones,sumarTamaniosInstrucciones);
     paquete->buffer->size += sizeof(uint8_t);
-    void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
+    paquete->buffer->stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
+    void* stream = paquete->buffer->stream;
     int offset=0; //desplazamiento
 
     //Sumo la cantidad de instrucciones al buffer
@@ -340,8 +341,8 @@ bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete
             offset += instruccion->param3Length +1;
         }
         else {
-            return false;
             printf("Es una instruccion invalida\n");
+            return false;
         }
 
     }
@@ -350,7 +351,7 @@ bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete
     offset += sizeof(uint8_t);
 
     list_iterate(listaInstrucciones,copiarElementos);
-    paquete->buffer->stream = stream;
+    //paquete->buffer->stream = stream;
     printf("SE AGREGO EL PAQUETE\n");
     return true;
 

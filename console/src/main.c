@@ -29,6 +29,10 @@ int main(int argc, char* argv[])
         scanf("%d", &a);
     }
     t_list* lista = crear_lista_de_instrucciones(path_pseudo);
+    if(lista == NULL){
+        cerrar_programa();
+        return EXIT_FAILURE;
+    }
     list_iterate(lista, (void*)closure_mostrarListaInstrucciones);
     enviarListaInstrucciones(lista, fd_kernel, info_logger);
     list_clean_and_destroy_elements(lista, (void*)liberarInstruccion);
