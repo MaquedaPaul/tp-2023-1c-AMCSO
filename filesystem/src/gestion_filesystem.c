@@ -7,7 +7,7 @@
 
 pthread_mutex_t mutex_cliente_socket;
 
-
+t_list* lista_bloques;
 
 int existe_archivoFCB(char *nombre_archivo) {
 

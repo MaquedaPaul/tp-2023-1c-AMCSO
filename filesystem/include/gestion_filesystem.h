@@ -35,7 +35,7 @@ typedef struct
     int tamanio;
 }t_bloques;
 
-extern t_list* lista_bloques;
+
 extern t_log* trace_logger;
 extern t_log* debug_logger;
 extern t_log* info_logger;
