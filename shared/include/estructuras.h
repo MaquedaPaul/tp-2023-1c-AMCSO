@@ -116,6 +116,7 @@ typedef struct{
     t_list* instr;
     t_tablaSegmentos* tablaSegmentos;
     t_list* tablaArchivosAbiertos;//Seria una t_list de archivoLocal. No la serializamos
+    t_list* recursosTomados; //seria una t_list de t_recurso. No lo serializamos
 } t_pcb;
 
 

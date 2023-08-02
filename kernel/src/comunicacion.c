@@ -31,9 +31,6 @@ void procesar_conexion(void *void_args) {
             //----------------------------------------CONSOLA-----------------------
             case GESTIONAR_CONSOLA_NUEVA:
             {
-
-                mostrarEstadoColas();
-
                 t_list* listaInstrucciones = recibirListaInstrucciones(cliente_socket);
                 establecerCantidadParametrosInstrucciones(listaInstrucciones);
                 t_pcb *pcbDispatch = crearPcb(listaInstrucciones);
@@ -483,19 +480,29 @@ void cerrar_servers(){
 
 void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {
     recurso->instanciasRecurso--;
+    list_add(unaPcb->recursosTomados,recurso);
     log_info(info_logger,"PID: <%d> - Wait: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if (recurso->instanciasRecurso < 0) {
         list_add(recurso->cola, unaPcb);
         log_info(info_logger,"PID: <%d> - Bloqueado por: <%s>",unaPcb->id,recurso->nombreRecurso);
-        moverProceso_ExecBloq(unaPcb);
+        bloquearProcesoPorRecurso(recurso);
     }else{
         enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
     }
 }
-
+int posRecursoTomado(t_recurso* recurso, t_pcb* pcb){
+    for(int i = 0; i < list_size(pcb->recursosTomados); i++){
+        t_recurso* recursoTomado = list_get(pcb->recursosTomados,i);
+        if(strcmp(recurso->nombreRecurso,recursoTomado->nombreRecurso) == 0){
+            return i;
+        }
+    }
+}
 
 void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
     recurso->instanciasRecurso++;
+    int posRecurso = posRecursoTomado(recurso,unaPcb);
+    list_remove(unaPcb->recursosTomados,posRecurso);
     log_info(info_logger,"PID: <%d> - Signal: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if(!list_is_empty(recurso->cola)){
         moverProceso_BloqrecursoReady(recurso);
@@ -504,12 +511,8 @@ void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
 }
 
 void manejoDeRecursos(char* orden){
-    pthread_mutex_lock(&mutex_colaExec);
-    t_pcb* unaPcb = list_get(colaExec,0);
-    pthread_mutex_unlock(&mutex_colaExec);
-
-    int apunteProgramCounter = unaPcb->programCounter;
-    t_instr * instruccion = list_get(unaPcb->instr,apunteProgramCounter-1);
+    t_pcb* unaPcb = obtenerPcbExec();
+    t_instr * instruccion = list_get(unaPcb->instr,unaPcb->programCounter-1);
     char* recursoSolicitado = instruccion->param1;
     mostrarEstadoRecursos();
     bool coincideConSolicitado(t_recurso* unRecurso){
@@ -518,15 +521,15 @@ void manejoDeRecursos(char* orden){
     t_recurso* recursoEncontrado = list_find(estadoBlockRecursos, coincideConSolicitado);
     if(recursoEncontrado == NULL){
         log_info(info_logger,"Recurso <%s> solicitado INEXISTENTE", recursoSolicitado);
+        log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <INVALID_RESOURCE>",unaPcb->id);
         moverProceso_ExecExit(unaPcb);
+    }else{
+        if(strcmp(orden,"WAIT") == 0){
+            waitRecursoPcb(recursoEncontrado, unaPcb);
+        } else{
+            signalRecursoPcb(recursoEncontrado, unaPcb);
+        }
     }
-    if(strcmp(orden,"WAIT") == 0){
-        waitRecursoPcb(recursoEncontrado, unaPcb);
-    } else{
-        signalRecursoPcb(recursoEncontrado, unaPcb);
-    }
-
-
 
 }
 

@@ -206,5 +206,6 @@ void cerrar_programa() {
     log_info(info_logger,"TERMINADA_LA_CONFIG");
     log_info(info_logger,"TERMINANDO_EL_LOG");
     log_destroy(info_logger);
+    //TODO tiene que eliminar los recursos, colas de estado, semaforos, config, TGAA, peticionesFS
 }
 

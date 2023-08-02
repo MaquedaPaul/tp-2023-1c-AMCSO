@@ -29,6 +29,7 @@ t_pcb* crearPcb(t_list* listaInstrucciones)
   pcb->instr = listaInstrucciones;
   pcb->tablaSegmentos = NULL;
   pcb->tablaArchivosAbiertos = list_create();
+  pcb->recursosTomados = list_create();
 
 
   return pcb;
@@ -133,6 +134,7 @@ void ejecutar_FOPEN(t_pcb* pcb){
         archivoLocal->ptro = 0;
         list_add(pcb->tablaArchivosAbiertos,archivoLocal);
 
+        log_info(info_logger,"PID: <%d> - Bloqueado por: <%s>",pcb->id,archivoLocal->archivo->nombreArchivo);
         moverProceso_ExecBloq(pcb);
     }
     pthread_mutex_unlock(&mutex_TGAA);
@@ -252,6 +254,7 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
             0) { //Si hay procesos blockeados esperando por ese archivo
             list_remove(listaPeticionesArchivos, i);
             actualizarDuenioTGAA(archivoPeticion->archivo->nombreArchivo, archivoPeticion->pcb);
+            sem_wait(&sem_procesosReady); //Lo pongo para frenar el planificador de corto ya que no tiene que replanificar todavia
             moverProceso_BloqReady(archivoPeticion->pcb);
             hayProcesosEsperandoPorArchivo = true;
             break;
@@ -263,6 +266,7 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
 
     log_info(info_logger,"PID: <%d> - Cerrar Archivo: <%s>",pcb->id, nomArch);
     pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
+    enviar_paquete_pcb(pcb,fd_cpu,PCB,info_logger);
     //Por lo que entiendo y el enunciado no aclara Kernel replanifica al desbloquarse el proceso
 }
 
