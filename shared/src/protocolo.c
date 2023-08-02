@@ -1679,14 +1679,13 @@ void enviar_archivoTruncacion(t_archivoTruncate* archivoTruncate, int conexion, 
     t_paquete* paquete= crear_paquete(codigo, logger);
     agregar_archivoTruncacion_a_paquete(paquete,archivoTruncate);
     enviar_paquete(paquete, conexion);
-    free(archivoTruncate->nombreArchivo);
-    free(archivoTruncate);
+
     eliminar_paquete(paquete, logger);
 }
 
 void agregar_archivoTruncacion_a_paquete(t_paquete* paquete, t_archivoTruncate* archivoTruncate){
     agregar_a_paquete(paquete, &(archivoTruncate->nombreArchivoLength), sizeof(uint32_t));
-    agregar_a_paquete(paquete, &(archivoTruncate->nombreArchivo), sizeof(archivoTruncate->nombreArchivoLength + 1));
+    agregar_a_paquete(paquete, archivoTruncate->nombreArchivo, archivoTruncate->nombreArchivoLength + 1);
     agregar_a_paquete(paquete,&(archivoTruncate->nuevoTamanio), sizeof (uint32_t));
 }
 
