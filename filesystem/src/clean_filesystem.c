@@ -35,6 +35,10 @@ void destruirConfig(){
     config_destroy(file_cfg_filesystem);
 }
 void destruirCfg(){
+    free(cfg_filesystem->PATH_FCB);
+    free(cfg_filesystem->PATH_BLOQUES);
+    free(cfg_filesystem->PATH_BITMAP);
+    free(cfg_filesystem->PATH_SUPERBLOQUE);
     free(cfg_filesystem);
 }
 

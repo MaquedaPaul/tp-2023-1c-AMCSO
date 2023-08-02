@@ -24,6 +24,7 @@ void* abrirArchivo(void* cliente_socket){
     }else{
         enviarString(nombreArchivo,conexion,APERTURA_ARCHIVO_FALLIDA,info_logger);
     }
+    free(nombreArchivo);
 }
 
 void* crearArchivo(void* cliente_socket){
@@ -33,6 +34,7 @@ void* crearArchivo(void* cliente_socket){
     log_debug(debug_logger,"nombre archivo: %s", nombreArchivo);
     realizarCreacionArchivo(nombreArchivo); //TODO ACA ARROJA SISEGV
     enviarString(nombreArchivo,conexion,CREACION_ARCHIVO_EXITOSA,info_logger);
+    free(nombreArchivo);
 }
 
 
@@ -42,6 +44,8 @@ void* truncarArchivo(void* cliente_socket){
     t_archivoTruncate* archivoTruncacion = recibir_archivoTruncacion(conexion);
     realizarTruncacionArchivo(archivoTruncacion->nombreArchivo, archivoTruncacion-> nuevoTamanio);
     enviarString(archivoTruncacion->nombreArchivo,conexion,TRUNCACION_ARCHIVO_EXITOSA,info_logger);
+    free(archivoTruncacion->nombreArchivo);
+    free(archivoTruncacion);
 }
 
 void* leerArchivo(void* cliente_socket){
@@ -68,6 +72,12 @@ void* leerArchivo(void* cliente_socket){
 
     log_debug(debug_logger, "se solcita a memoria escrbir en df");
     enviarListaIntsYDatos(listaInts,datosAEnviar,fd_memoria,info_logger,ACCESO_PEDIDO_ESCRITURA);
+    list_clean(listaInts);
+    list_destroy(listaInts);
+    free(archivo->nombreArchivo);
+    free(archivo);
+    free(datosAEnviar->datos);
+    free(datosAEnviar);
 }
 
 
@@ -86,8 +96,13 @@ void* escribirArchivo(void* cliente_socket){
     list_add(listaInts,  &archivo->cantidadBytes);
     list_add(listaInts, &pid);
 
-    log_debug(debug_logger, "se solcita a memoria leer en df");
+    log_debug(debug_logger, "se solicita a memoria leer en df");
     enviarListaUint32_t(listaInts,fd_memoria,info_logger, ACCESO_PEDIDO_LECTURA);
+    list_clean(listaInts);
+    list_destroy(listaInts);
+    free(archivo->nombreArchivo);
+    free(archivo);
+
 }
 
 void* finalizarEscrituraArchivo(void* cliente_socket){
@@ -101,6 +116,8 @@ void* finalizarEscrituraArchivo(void* cliente_socket){
     escrituraArchivo(nombreArchivo, puntero, df, tamanioDatos);
     realizarEscrituraArchivo(nombreArchivo,  puntero, datos, tamanioDatos);
     enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger);
+    free(datos);
+    free(nombreArchivo);
 }
 
 void* finalizarLecturaArchivo(void* cliente_socket){
@@ -108,14 +125,14 @@ void* finalizarLecturaArchivo(void* cliente_socket){
     char* nombreArchivo = obtenerPrimerArchivoUsado();
     recibirOrden(conexion);
     enviarString(nombreArchivo, fd_kernel, LECTURA_ARCHIVO_EXITOSA, info_logger);
+    free(nombreArchivo);
 }
 
 
 char* obtenerPrimerArchivoUsado() {
 
     pthread_mutex_lock(&mutex_ArchivosUsados);
-    t_config_fcb* fcb = list_get(archivosUsados, 0);
-    list_remove(archivosUsados,0);
+    t_config_fcb* fcb = list_remove(archivosUsados, 0);
     pthread_mutex_unlock(&mutex_ArchivosUsados);
 
     return fcb->NOMBRE_ARCHIVO;
