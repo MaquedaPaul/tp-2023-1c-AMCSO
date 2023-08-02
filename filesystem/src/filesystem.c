@@ -31,6 +31,7 @@ void* crearArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
 
     char* nombreArchivo = recibirString(conexion);
+    log_debug(debug_logger,"nombre archivo: %s", nombreArchivo);
     realizarCreacionArchivo(nombreArchivo); //TODO ACA ARROJA SISEGV
     enviarString(nombreArchivo,conexion,CREACION_ARCHIVO_EXITOSA,info_logger);
     free(nombreArchivo);
@@ -61,6 +62,9 @@ void* leerArchivo(void* cliente_socket){
     uint32_t pid = archivo->pid;
     t_datos* datosAEnviar = malloc(sizeof(t_datos));
     datosAEnviar->tamanio = archivo->cantidadBytes;
+
+    log_debug(debug_logger, "puntero archivo: %d", archivo->posPuntero);
+    log_debug(debug_logger, "cantidad de bytes a leer: %d", archivo->cantidadBytes);
     datosAEnviar->datos = realizarLecturaArchivo(archivo->nombreArchivo, archivo->posPuntero, archivo->cantidadBytes);
     t_list* listaInts = list_create();
     list_add(listaInts, &archivo->direcFisica);
