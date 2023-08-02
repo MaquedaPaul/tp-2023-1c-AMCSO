@@ -36,6 +36,9 @@ void destruirConfig(){
     config_destroy(file_cfg_cpu);
 }
 void destruirCfg(){
+    //free(cfg_cpu->PUERTO_ESCUCHA);
+    //free(cfg_cpu->PUERTO_MEMORIA);
+    //free(cfg_cpu->IP_MEMORIA);
     free(cfg_cpu);
 }
 

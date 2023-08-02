@@ -124,7 +124,7 @@ void ejecutar_F_SEEK(char* nombre_archivo, int posicion) {
     agregar_PCB_a_paquete(paquete, pcb_actual);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
-
+    liberarPcb(pcb_actual);
     //eliminar_PCB(pcb_actual);
     recibirPCB();
 }
@@ -193,6 +193,7 @@ void ejecutar_DELETE_SEGMENT(int id_del_segmento) {
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     //eliminar_PCB(pcb_actual);
+    liberarPcb(pcb_actual);
     recibirPCB();
 }
 
@@ -276,67 +277,28 @@ int calcular_bytes_segun_registro(char* registro)  {
 
 void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* valor) {
 
-    t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA, info_logger);
 
-    uint8_t cantidad_enteros = 2;
     t_list* listaInts = list_create();
     t_datos* unosDatos = malloc(sizeof(t_datos));
     unosDatos->tamanio= cantidad_bytes;
     unosDatos->datos = (void*) valor;
     list_add(listaInts, &direccion_fisica);
     list_add(listaInts, &pcb_actual->id);
-    enviarListaIntsYDatos(listaInts, unosDatos, fd_memoria, info_logger, ACCESO_PEDIDO_ESCRITURA);
-/*
-    agregar_a_paquete(paquete, &catidad_enteros, sizeof(uint8_t));
-    agregar_a_paquete(paquete, &direccion_fisica, sizeof(uint32_t));
-    agregar_a_paquete(paquete, &(pcb_actual->id), sizeof(uint32_t));
-    agregar_a_paquete(paquete, &cantidad_bytes, sizeof(uint32_t));
-    agregar_registroCPU_a_paquete(registro , paquete );
 
-    enviar_paquete(paquete, fd_memoria);
-    eliminar_paquete(paquete, info_logger);
-*/
+    enviarListaIntsYDatos(listaInts, unosDatos, fd_memoria, info_logger, ACCESO_PEDIDO_ESCRITURA);
+    list_clean(listaInts);
+    list_destroy(listaInts);
+
     char* valor2 = recibir_confirmacion_de_escritura() ;
     if (strcmp(valor2, "OK") == 0) {
     log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
     }
+    free(valor);
+    free(unosDatos);
+
  }
 
 
-/*
-void escribir_valor_en_memoria(int direccion_fisica, char valor[]) {
-
-    log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor); //donde esta declarado num_segmento??
-
-    //t_paquete* paquete = crear_paquete(ACCESO_PEDIDO_ESCRITURA, info_logger);
-    //agregar_a_paquete(paquete, &direccion_fisica, sizeof(int));
-
-    //int largo_nombre = strlen(valor) + 1;
-    //agregar_a_paquete(paquete, &largo_nombre, sizeof(int));
-    //agregar_a_paquete(paquete, valor, largo_nombre);
-    //enviar_paquete(paquete, fd_memoria);
-    //eliminar_paquete(paquete,info_logger);
-    //eliminar_paquete(paquete,info_logger);
-
-
-    t_list* listaInts = list_create();
-
-    int *dir_fisica = &direccion_fisica;
-    int *pid =  &pcb_actual->id;
-    t_datos* valor_a_escribir;
-
-    valor_a_escribir->tamanio = strlen(valor) + 1;
-    strcpy(valor_a_escribir->datos, valor); //con con el /0
-
-    list_add(listaInts, dir_fisica);
-    list_add(listaInts, pid);
-
-    enviarListaIntsYDatos(listaInts, valor_a_escribir, fd_memoria, info_logger, ACCESO_PEDIDO_ESCRITURA);
-
-    esperar_orden();
-
-}
-*/
 void agregar_registroCPU_a_paquete(char* registro, t_paquete* paquete) {
     if (strcmp(registro, "AX") == 0)
     agregar_a_paquete(paquete, registroCPU_AX, 4);
@@ -469,7 +431,7 @@ char* obtener_valor_registroCPU(char* registro) {
 
 char*  recibir_confirmacion_de_escritura()  {
 
-        char* valor = (char *) malloc (2 + 1);
+        char* valor; //(char *) malloc (2 + 1);
         int cod_op = recibir_operacion(fd_memoria);
 
 		switch (cod_op) {
@@ -588,8 +550,11 @@ void  recibirPCB()  {
         int cod_op = recibir_operacion(fd_kernel);
 
 		switch (cod_op) {
-		case PCB:
-             pcb_actual = recibir_pcb(fd_kernel) ;
-			 break;
+		case PCB: {
+            pcb_actual = recibir_pcb(fd_kernel);
+            break;
+        }
+            default:
+                log_error(error_logger, "Operacion %d invalida", cod_op);
         }
 }

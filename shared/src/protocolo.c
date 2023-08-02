@@ -726,7 +726,6 @@ bool agregarIntsYDatosAPaquete(t_list* listaInts, t_datos* datos, t_paquete* paq
     offset+= sizeof(uint32_t);
     memcpy(stream + offset, datos->datos, datos->tamanio);
     paquete->buffer->stream = stream;
-    printf("SE AGREGO EL PAQUETE\n");
     return true;
 
 }
@@ -1190,6 +1189,7 @@ t_pcb * recibir_pcb(int conexion) {
     tablaSegmentos->segmentos = segmentos;
     tablaSegmentos->pid = unPcb->id;
     unPcb->tablaSegmentos = tablaSegmentos;
+    free(buffer);
 
     return unPcb;
 }
