@@ -64,20 +64,20 @@ void realizarCreacionArchivo(char* nombreArchivo){
 
 	config_save(aux_config);
 
-            t_config_fcb* aux_FCB = malloc(sizeof(t_config_fcb));
+    t_config_fcb* aux_FCB = malloc(sizeof(t_config_fcb));
 
-            int tamanio_nombre_archivo = strlen(nombreArchivo);
+    int tamanio_nombre_archivo = strlen(nombreArchivo);
 
-            aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1  );
-            strcpy( aux_FCB->NOMBRE_ARCHIVO, nombreArchivo );
+    aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1);
+    strcpy( aux_FCB->NOMBRE_ARCHIVO, nombreArchivo );
 
-            aux_FCB->TAMANIO_ARCHIVO = 0;
-            aux_FCB->PUNTERO_DIRECTO = 0;
-            aux_FCB->PUNTERO_INDIRECTO = 0;
+    //TODO asignar los primeros bloques libres
+    aux_FCB->TAMANIO_ARCHIVO = 0;
+    aux_FCB->PUNTERO_DIRECTO = 0;
+    aux_FCB->PUNTERO_INDIRECTO = 0;
+    aux_FCB->fcb_config = aux_config;
 
-            aux_FCB->fcb_config = aux_config;
-
-	  list_add(lista_FCBs,aux_FCB);
+    list_add(lista_FCBs,aux_FCB);
 
 	creacionArchivo(nombreArchivo);
 	free(path);
@@ -97,8 +97,8 @@ void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_a
 
             if(tamanio_del_archivo_a_truncar != nuevo_tamanio_del_archivo ) {
 
-            ampliar_o_reducir_tamanio(aux_FCB, nuevo_tamanio_del_archivo, tamanio_del_archivo_a_truncar);
-          truncacionArchivo(nombreArchivo, nuevo_tamanio_del_archivo);
+                ampliar_o_reducir_tamanio(aux_FCB, nuevo_tamanio_del_archivo, tamanio_del_archivo_a_truncar);
+                truncacionArchivo(nombreArchivo, nuevo_tamanio_del_archivo);
             }
 
         break;
@@ -108,8 +108,6 @@ void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_a
 
 
 void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, uint32_t tamanio_archivo) {
-
-    lista_bloques = list_create(); //TODO porque si es global se hace la creacion aca?
 
     if(tamanio_archivo == 0){ 
 
@@ -163,22 +161,20 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
     // agregar en el archivo el numero de bloque directo y el bloque con punteros 
     // agrego en el archivo de bloques los punteros 
 
-    } 
+    }else {
 
-        else {   
+        uint32_t puntero_directo = obtener_bloque_libre(bitmap) ;
+        aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
+        aux_FCB->PUNTERO_DIRECTO = puntero_directo;
 
-      uint32_t puntero_directo = obtener_bloque_libre(bitmap) ;
-      aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
-      aux_FCB->PUNTERO_DIRECTO = puntero_directo;
-
-      accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, aux_FCB->PUNTERO_DIRECTO);
+         accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, aux_FCB->PUNTERO_DIRECTO);
 
         t_config* archivo_config = aux_FCB->fcb_config;
 
 
-    config_set_value(archivo_config, "TAMANIO_ARCHIVO", string_itoa((int)nuevo_tamanio));
-    config_set_value(archivo_config, "PUNTERO_DIRECTO", string_itoa((int)puntero_directo));
-    config_save(archivo_config);
+        config_set_value(archivo_config, "TAMANIO_ARCHIVO", string_itoa((int)nuevo_tamanio));
+        config_set_value(archivo_config, "PUNTERO_DIRECTO", string_itoa((int)puntero_directo));
+        config_save(archivo_config);
 
     // cambiaren en el bitmap el bloque que voy a ocupar  con 1
     // agregar en el archivo el numero de bloque directo
@@ -275,10 +271,10 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
                 uint32_t puntero_directo  = config_get_int_value(archivo_config, "PUNTERO_DIRECTO");
                 uint32_t puntero_indirecto  = config_get_int_value(archivo_config, "PUNTERO_INDIRECTO");
                 accesoABitmap(puntero_directo, bitarray_test_bit(bitmap, puntero_directo));
-                bitarray_clean_bit(bitmap,puntero_directo );
+                bitarray_clean_bit(bitmap,puntero_directo);
                 accesoABitmap(puntero_directo, bitarray_test_bit(bitmap, puntero_directo));
                 accesoABitmap(puntero_indirecto, bitarray_test_bit(bitmap, puntero_indirecto));
-                bitarray_clean_bit(bitmap,puntero_indirecto );
+                bitarray_clean_bit(bitmap,puntero_indirecto);
                 accesoABitmap(puntero_indirecto, bitarray_test_bit(bitmap, puntero_indirecto));
                 log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
 
@@ -362,7 +358,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
           t_config* archivo_config = aux_FCB->fcb_config;
           uint32_t puntero_indirecto = config_get_int_value(archivo_config, "PUNTERO_INDIRECTO");
-          log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
+          //log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
 
           uint32_t cantidad_de_punteros = list_size(lista_bloques);
           uint32_t  offset = sizeof(uint32_t) * (cantidad_de_bloques_viejos-1);
@@ -479,7 +475,7 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
         log_debug(debug_logger,"SE ESCRIBE EN UN BLOQUE NADA MAS");
         char* datoLeidoDeMemoria = malloc(tamanioAEscrbir +1);
         datoLeidoDeMemoria = (char*) datos;
-        log_debug(debug_logger,"dato a escrbir en el archivo: %s", datoLeidoDeMemoria);
+        log_debug(debug_logger,"dato a escrbir en el archivo: %s", datos);
         memcpy(archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque, datos, tamanioAEscrbir);
 
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
@@ -492,11 +488,6 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
         //para testear: leo lo que escribi
         void* datoEscritoEnElArchivo = malloc(bytesQueSePuedenEscrbirEnUnBloque);
         memcpy(datoEscritoEnElArchivo, archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque, bytesQueSePuedenEscrbirEnUnBloque);
-
-        char* dato1 = malloc(bytesQueSePuedenEscrbirEnUnBloque +1);
-        dato1 = (char*) datoEscritoEnElArchivo;
-        log_debug(debug_logger,"dato escrito en el archivo: %s", dato1);
-        //---
 
         bytesEscritos = bytesQueSePuedenEscrbirEnUnBloque;
         cantidadBytesNoEscrita = tamanioAEscrbir - bytesQueSePuedenEscrbirEnUnBloque;
@@ -512,31 +503,11 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
             datoAEscribirFaltante = malloc(nuevoTamanio);
             memcpy(datoAEscribirFaltante, datos + bytesEscritos, nuevoTamanio); //porque voy a escrbir en el archivo de a poco, separo "datos"
 
-            /*solo para testear
-            bytesYaEscritos = bytesQueSePuedenEscrbirEnUnBloque;
-            char* dato = malloc(nuevoTamanio +1);
-            dato = (char*) datoAEscribirFaltante;
-            log_debug(debug_logger, "dato a escribir: %s", dato);
-            free(dato);
-            */
-
             memcpy(archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE), datoAEscribirFaltante, nuevoTamanio);
             accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
-            //solo para testear
-            void* datoEscrito = malloc(nuevoTamanio);
-            char* dato2 = malloc(nuevoTamanio +1);
-            memcpy(datoEscrito, archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE),nuevoTamanio);
-            dato2 = (char*) datoEscrito;
-            log_debug(debug_logger,"Se escribio en el archivo: %s", dato2);
-            //--
-
             cantidadBytesNoEscrita = cantidadBytesQueFaltanEscrbir;
             bytesEscritos += nuevoTamanio;
-
-            //para testear
-            bytesYaEscritos += nuevoTamanio;
-            //--
             free(datoAEscribirFaltante); //libero lo que escribi en este ciclo
             datoAEscribirFaltante = NULL; //solo va a contener lo que necesito escrbir en cada ciclo
         }
@@ -612,6 +583,7 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
         }
     }
 
+    log_debug(debug_logger, "el dato leido: %p", datoLeido);
     return datoLeido;
 }
 
@@ -635,14 +607,14 @@ uint32_t buscarNumeroDeBloqueDelArchivoDeBloque(int numero_bloque, t_config_fcb*
         log_debug(debug_logger,"puntero directo: %d ",  fcb->PUNTERO_DIRECTO);
         return fcb->PUNTERO_DIRECTO;
 
-    } else {
+    }else{
 
         uint32_t offset = sizeof(uint32_t) * (numero_bloque-1);
-        uint32_t numeroBloqueDelPunteroDeBloques=1;
-        //memcpy(&numeroBloqueDelPunteroDeBloques, archivoBloques-> archivo + (fcb -> PUNTERO_INDIRECTO * cfg_superbloque->BLOCK_SIZE) + offset, sizeof(uint32_t));
+        uint32_t numeroBloqueDelPunteroDeBloques;
+        memcpy(&numeroBloqueDelPunteroDeBloques, archivoBloques-> archivo + (fcb -> PUNTERO_INDIRECTO * cfg_superbloque->BLOCK_SIZE) + offset, sizeof(uint32_t));
 
         log_debug(debug_logger,"puntero indirecto: %d ",  fcb->PUNTERO_INDIRECTO);
-        log_debug(debug_logger,"puntero: %d ",  numeroBloqueDelPunteroDeBloques);
+        log_debug(debug_logger,"puntero apuntado por el indirecto: %d ",  numeroBloqueDelPunteroDeBloques);
         return numeroBloqueDelPunteroDeBloques;
     }
 }

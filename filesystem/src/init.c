@@ -12,6 +12,7 @@ t_config_superbloque* cfg_superbloque;
 t_bloques* archivoBloques;
 t_list* lista_FCBs;
 t_list* archivosUsados;
+t_list*  lista_bloques;
 
 bool semaforosCreados = false;
 
@@ -108,7 +109,7 @@ bool iniciarFilesystem(){
     crearSemaforos();
     lista_FCBs = list_create();
     archivosUsados = list_create();
-
+    lista_bloques = list_create();
 
     if (!generar_conexiones()){
         //cerrar_programa();
@@ -274,7 +275,7 @@ bool levantarSuperbloque(){
         log_debug(debug_logger,"BLOCK_SIZE=64; BLOCK_COUNT=65536");
         cfg_superbloque = malloc(sizeof(t_config_superbloque));
         cfg_superbloque->BLOCK_COUNT=65536;
-        cfg_superbloque->BLOCK_SIZE=64;
+        cfg_superbloque->BLOCK_SIZE= 64;
         return true;
     }
     cfg_superbloque = malloc(sizeof(t_config_superbloque));

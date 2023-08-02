@@ -11,6 +11,7 @@
 #include <commons/collections/list.h>
 #include <commons/bitarray.h>
 #include <loggers_configs.h>
+#include <commons/memory.h>
 
 typedef struct
 {
