@@ -5,7 +5,6 @@
 #include <gestion_filesystem.h>
 #include <sys/mman.h>
 
-t_list* lista_bloques;
 pthread_mutex_t mutex_cliente_socket;
 
 
@@ -69,7 +68,7 @@ void realizarCreacionArchivo(char* nombreArchivo){
     int tamanio_nombre_archivo = strlen(nombreArchivo);
 
     aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1);
-    strcpy( aux_FCB->NOMBRE_ARCHIVO, nombreArchivo );
+    strcpy( aux_FCB->NOMBRE_ARCHIVO,nombreArchivo);
 
     //TODO asignar los primeros bloques libres
     aux_FCB->TAMANIO_ARCHIVO = 0;
@@ -583,7 +582,7 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
         }
     }
 
-    log_debug(debug_logger, "el dato leido: %p", datoLeido);
+    log_debug(debug_logger, "el dato leido: %s", datoLeido);
     return datoLeido;
 }
 
@@ -632,7 +631,7 @@ uint32_t cantidadBytesQueNoSePuedeLeerEnUnBloque(uint32_t nuevoTamanioALeer){
 
 uint32_t cantidadDisponibleDelBloque(uint32_t puntero){
     uint32_t cantidadDisponible = cfg_superbloque->BLOCK_SIZE - puntero;
-    log_debug(debug_logger,"bytes para escrbir en el bloque: %d", cantidadDisponible);
+    log_debug(debug_logger,"bytes para escrbir/leer en el bloque: %d", cantidadDisponible);
     return cantidadDisponible;
 }
 
