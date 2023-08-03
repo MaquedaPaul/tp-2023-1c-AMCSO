@@ -470,12 +470,12 @@ void cortar_conexiones(){
     liberar_conexion(&fd_cpu);
     liberar_conexion(&fd_memoria);
     liberar_conexion(&fd_filesystem);
-    log_info(info_logger,"CONEXIONES LIBERADAS");
+    log_trace(trace_logger,"CONEXIONES LIBERADAS");
 }
 
 void cerrar_servers(){
     close(fd_kernel);
-    log_info(info_logger,"SERVIDORES CERRADOS");
+    log_trace(trace_logger,"SERVIDORES CERRADOS");
 }
 
 void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {

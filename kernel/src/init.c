@@ -233,13 +233,14 @@ void cerrar_programa() {
     if(cfgCreado){
         destruirCfg();
     }
-/*
+
+    cortar_conexiones();
+    cerrar_servers();
+
     if(logsCreados){
         destruirLoggers();
     }
-*/
-    cortar_conexiones();
-    cerrar_servers();
+
     printf("\nCierre exitoso\n");
 }
 
