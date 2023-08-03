@@ -499,10 +499,16 @@ int posRecursoTomado(t_recurso* recurso, t_pcb* pcb){
     }
 }
 
-void signalRecursoPcb(t_recurso * recurso, t_pcb* unaPcb){
+bool list_remove_element(t_list *self, void *element) {
+    bool _is_the_element(void *data) {
+        return element == data;
+    }
+    return list_remove_by_condition(self, _is_the_element) != NULL;
+}
+
+void signalRecursoPcb(t_recurso* recurso, t_pcb* unaPcb){
     recurso->instanciasRecurso++;
-    int posRecurso = posRecursoTomado(recurso,unaPcb);
-    list_remove(unaPcb->recursosTomados,posRecurso);
+    list_remove_element(unaPcb->recursosTomados,recurso);
     log_info(info_logger,"PID: <%d> - Signal: <%s> - Instancias: <%d>", unaPcb->id, recurso->nombreRecurso, recurso->instanciasRecurso);
     if(!list_is_empty(recurso->cola)){
         moverProceso_BloqrecursoReady(recurso);
@@ -625,7 +631,7 @@ void actualizarPcbExec(t_pcb* pcbRecibida){
     pcbExec->registrosCpu = pcbRecibida->registrosCpu;
     pcbExec->tiempoLlegadaReady = pcbRecibida->tiempoLlegadaReady;
     pcbRecibida->registrosCpu = registrosAux;
-    liberarPcb(pcbRecibida);
+    liberarPcbCpu(pcbRecibida);
     pthread_mutex_unlock(&mutex_colaExec);
 
 }

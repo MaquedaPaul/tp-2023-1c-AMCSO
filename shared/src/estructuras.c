@@ -51,6 +51,16 @@ void liberarPcb(t_pcb* pcb) {
     free(pcb);
 }
 
+void liberarPcbCpu(t_pcb* pcb){
+    //Lo tenemos que hacer distinto pq nosotros No serializamos la TablaArchivosAbiertos y Lista recursos tomados
+    //Entonces sino le estariamos haciendo free a una memoria que nunca reservamos
+    free(pcb->registrosCpu);
+    list_destroy_and_destroy_elements(pcb->instr,liberarInstruccion);
+    list_destroy_and_destroy_elements(pcb->tablaSegmentos->segmentos,liberarSegmento);
+    free(pcb->tablaSegmentos);
+    free(pcb);
+}
+
 void closure_mostrarListaInstrucciones(t_instr * element) //Es compartido con consola
 {
     printf("%s",element->id);
