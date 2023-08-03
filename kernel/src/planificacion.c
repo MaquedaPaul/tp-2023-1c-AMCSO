@@ -63,10 +63,6 @@ void bloquearProcesoPorRecurso(t_recurso* recurso){
     list_add(recurso->cola,pcbABlockedRecurso);
     pthread_mutex_unlock(&semaforos_io[recurso->indiceSemaforo]);
 
-    pthread_mutex_lock(&mutex_colaBloq);
-    list_add(estadoBlockRecursos,pcbABlockedRecurso);
-    pthread_mutex_unlock(&mutex_colaBloq);
-
     log_info(info_logger,"PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <BLOCKED_RECURSO[%s]>", pcbABlockedRecurso->id, recurso->nombreRecurso);
 }
 
@@ -219,6 +215,10 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
 
     if(!list_is_empty(pcbBuscado->recursosTomados)){
         liberarRecursosTomados(pcbBuscado);
+    }
+
+    if(!list_is_empty(pcbBuscado->tablaArchivosAbiertos)){
+        eliminarPcbTGAA_Y_actualizarTGAA(pcbBuscado);
     }
 
     sem_post(&sem_procesosExit);

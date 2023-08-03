@@ -81,7 +81,6 @@ void procesar_conexion(void *void_args) {
                 actualizarPcbExec(pcbRecibida);
                 t_pcb* pcbActualizada = obtenerPcbExec();
                 log_info(info_logger,"Finaliza el proceso <%d> - Motivo: <SEG_FAULT>",pcbActualizada->id); //Motivo: <SUCCESS / SEG_FAULT / OUT_OF_MEMORY>
-                eliminarPcbTGAA_Y_actualizarTGAA(pcbActualizada);
                 moverProceso_ExecExit(pcbActualizada);
                 break;
             }
@@ -488,14 +487,6 @@ void waitRecursoPcb(t_recurso* recurso, t_pcb* unaPcb) {
         bloquearProcesoPorRecurso(recurso);
     }else{
         enviar_paquete_pcb(unaPcb,fd_cpu,PCB,info_logger);
-    }
-}
-int posRecursoTomado(t_recurso* recurso, t_pcb* pcb){
-    for(int i = 0; i < list_size(pcb->recursosTomados); i++){
-        t_recurso* recursoTomado = list_get(pcb->recursosTomados,i);
-        if(strcmp(recurso->nombreRecurso,recursoTomado->nombreRecurso) == 0){
-            return i;
-        }
     }
 }
 
