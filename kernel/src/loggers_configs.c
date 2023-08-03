@@ -3,6 +3,11 @@
 //
 
 #include <loggers_configs.h>
+
+bool logsCreados = false;
+bool configCreado = false;
+bool cfgCreado = false;
+
 t_log* trace_logger;
 t_log* debug_logger;
 t_log* info_logger;
@@ -15,6 +20,7 @@ char* path_config;
 
 int init_logs_configs(char *path_config) {
     cfg_kernel = cfg_kernel_start();
+    cfgCreado = true;
     trace_logger = log_create("trace_logger.log","Kernel", true, LOG_LEVEL_TRACE);
     debug_logger = log_create("debug_logger.log","Kernel", true, LOG_LEVEL_DEBUG);
     info_logger = log_create("info_logger.log","Kernel", true, LOG_LEVEL_INFO);
@@ -25,7 +31,10 @@ int init_logs_configs(char *path_config) {
         printf("No pude crear los loggers");
         return false;
     }
+
+    logsCreados = true;
     file_cfg_kernel = iniciar_config(path_config);
+    configCreado = true;
     return checkProperties(path_config);
 }
 

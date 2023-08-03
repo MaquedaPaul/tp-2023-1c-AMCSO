@@ -176,6 +176,8 @@ void eliminarArchivoTGAA(char* nombreArchivo){
         t_archivoPeticion* archivoPeticion = list_get(tablaGlobal_ArchivosAbiertos,i);
         if(strcmp(archivoPeticion->archivo->nombreArchivo, nombreArchivo) == 0){
             list_remove(tablaGlobal_ArchivosAbiertos,i);
+            free(archivoPeticion->archivo);
+            free(archivoPeticion);
         }
         else{
             log_error(error_logger,"El archivo: <%s> que solicitaste eliminar de la TGAA no se encuentra", nombreArchivo);
@@ -239,6 +241,8 @@ void eliminarArchivoTablaLocal(char* nombreArchivo, t_pcb* pcb){
         t_archivoLocal* archivoLocal = list_get(pcb->tablaArchivosAbiertos, i);
         if(strcmp(archivoLocal->archivo->nombreArchivo, nombreArchivo) == 0){
             list_remove(pcb->tablaArchivosAbiertos, i);
+            free(archivoLocal);
+            //No hacemos free(archivoLocal->archivo) pq se hace cuando se elimina de la TGAA
         }
     }
 }
@@ -256,6 +260,7 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
             actualizarDuenioTGAA(archivoPeticion->archivo->nombreArchivo, archivoPeticion->pcb);
             sem_wait(&sem_procesosReady); //Lo pongo para frenar el planificador de corto ya que no tiene que replanificar todavia
             moverProceso_BloqReady(archivoPeticion->pcb);
+            free(archivoPeticion);
             hayProcesosEsperandoPorArchivo = true;
             break;
         }

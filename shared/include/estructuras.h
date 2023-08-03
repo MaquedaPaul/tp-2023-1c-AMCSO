@@ -156,6 +156,7 @@ void closure_mostrarListaInstrucciones(t_instr * element);
 void liberarInstruccion(t_instr * instruccion);
 void liberarSegmento(t_segmento* segmento);
 void liberarPcb(t_pcb* pcb);
+void liberarPcbCpu(t_pcb* pcb);
 
 bool esInstruccionSinParametros(t_instr * instruccion);
 bool esInstruccionConUnParametro(t_instr * instruccion);

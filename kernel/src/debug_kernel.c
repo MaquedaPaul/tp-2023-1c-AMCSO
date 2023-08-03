@@ -66,3 +66,107 @@ void mostrarEstadoRecursos(){
     log_debug(debug_logger,"TERMINO DE IMPRIMIR");
     pthread_mutex_unlock(&mutex_debug_logger);
 }
+
+void liberarRecurso(t_recurso* recurso){
+    list_destroy_and_destroy_elements(recurso->cola,liberarPcb);
+    free(recurso);
+}
+
+void liberarRecursosKernel(){
+    list_destroy_and_destroy_elements(estadoBlockRecursos,liberarRecurso);
+    log_trace(trace_logger,"Se eliminaron los recursos de kernel");
+}
+
+void liberarEstadosKernel(){
+    pthread_mutex_lock(&mutex_colaNew);
+    queue_destroy_and_destroy_elements(colaNew,liberarPcb);
+    pthread_mutex_unlock(&mutex_colaNew);
+
+    pthread_mutex_lock(&mutex_ColaReady);
+    list_destroy_and_destroy_elements(colaReady,liberarPcb);
+    pthread_mutex_unlock(&mutex_ColaReady);
+
+    pthread_mutex_lock(&mutex_colaBloq);
+    list_destroy_and_destroy_elements(colaBloq,liberarPcb);
+    pthread_mutex_unlock(&mutex_colaBloq);
+
+    //La liberacion de la ColaEstadoBlockRecurso la hacemos cuando liberamos los recursos
+
+    pthread_mutex_lock(&mutex_colaExec);
+    list_destroy_and_destroy_elements(colaExec,liberarPcb);
+    pthread_mutex_unlock(&mutex_colaExec);
+
+    pthread_mutex_lock(&mutex_colaExit);
+    queue_destroy_and_destroy_elements(colaExit,liberarPcb);
+    pthread_mutex_unlock(&mutex_colaExit);
+
+    log_trace(trace_logger,"Se eliminaron los estados de kernel");
+}
+
+void liberarSemaforos(){
+
+    pthread_mutex_destroy(&mutex_TGAA);
+    pthread_mutex_destroy(&mutex_listaPeticionesArchivos);
+
+    pthread_mutex_destroy(&mutex_colaNew);
+    pthread_mutex_destroy(&mutex_ColaReady);
+    pthread_mutex_destroy(&mutex_colaExec);
+    pthread_mutex_destroy(&mutex_colaBloq);
+    pthread_mutex_destroy(&mutex_colaExit);
+    pthread_mutex_destroy(&mutex_MP);
+    pthread_mutex_destroy(&mutex_debug_logger);
+
+    sem_destroy(&sem_procesosEnNew);
+    sem_destroy(&sem_procesosReady);
+    sem_destroy(&sem_procesosExit);
+
+    log_trace(trace_logger,"Se eliminaron los semaforos");
+}
+
+void liberarArchivoPeticion(t_archivoPeticion* archivoPeticion){
+    free(archivoPeticion->archivo);
+    free(archivoPeticion);
+}
+
+void liberarManejoFs(){
+    list_destroy_and_destroy_elements(tablaGlobal_ArchivosAbiertos,liberarArchivoPeticion);
+    list_destroy_and_destroy_elements(listaPeticionesArchivos,free); //solo free pq el archivo ya se libera arriba
+
+    log_trace(trace_logger,"Se elimino las tablas para el manejo de FS");
+}
+
+void liberarSemaforoDinamico(){
+    int dim = tamanioArray(cfg_kernel->RECURSOS);
+    for(int i = 0; i < dim; i++){
+        pthread_mutex_destroy(&semaforos_io[i]);
+    }
+    log_trace(trace_logger,"Se elimino el semaforo dinamico");
+}
+
+void destruirConfig(){
+    config_destroy(file_cfg_kernel);//TODO este me genera SISEGV
+    log_trace(trace_logger,"Se libera el file config");
+}
+
+void destruirCfg(){
+    log_trace(trace_logger,"Se libera la struct cfg");
+    free(cfg_kernel->IP_MEMORIA);
+    free(cfg_kernel->PUERTO_MEMORIA);
+    free(cfg_kernel->IP_FILESYSTEM);
+    free(cfg_kernel->PUERTO_FILESYSTEM);
+    free(cfg_kernel->IP_CPU);
+    free(cfg_kernel->PUERTO_CPU);
+    free(cfg_kernel->PUERTO_ESCUCHA);
+    free(cfg_kernel->ALGORITMO_PLANIFICACION);
+    free(cfg_kernel);
+
+}
+
+void destruirLoggers(){
+    log_destroy(info_logger);
+    log_destroy(warning_logger);
+    log_destroy(error_logger);
+    log_destroy(debug_logger);
+    log_trace(trace_logger,"Se liberan loggers");
+    log_destroy(trace_logger);
+}
