@@ -221,6 +221,10 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
         liberarRecursosTomados(pcbBuscado);
     }
 
+    if(!list_is_empty(pcbBuscado->tablaArchivosAbiertos)){
+        eliminarPcbTGAA_Y_actualizarTGAA(pcbBuscado);
+    }
+
     sem_post(&sem_procesosExit);
 
 

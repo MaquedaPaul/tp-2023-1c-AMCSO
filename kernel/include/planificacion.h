@@ -27,7 +27,7 @@ void moverProceso_ExecBloq(t_pcb*);
 void moverProceso_BloqReady(t_pcb*);
 void moverProceso_ExecExit(t_pcb*);
 void bloquearProcesoPorRecurso(t_recurso* recurso);
-
+void liberarRecursosTomados(t_pcb* pcb);
 
 void aumentarGradoMP();
 void decrementarGradoMP();
