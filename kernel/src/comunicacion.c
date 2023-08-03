@@ -214,11 +214,13 @@ void procesar_conexion(void *void_args) {
             }
 
                 //----------------------------------MEMORIA----------------------------------------
-            case ESTRUCTURAS_INICALIZADAS:
-            {
-                t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
-                t_tablaSegmentos* tablaSegmentos = list_get(listaTablaSegmentosRecibida,0);
+            case ESTRUCTURAS_INICALIZADAS: {
+                t_list *listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
+                t_tablaSegmentos *tablaSegmentos = list_get(listaTablaSegmentosRecibida, 0);
+                list_clean(listaTablaSegmentosRecibida);
+                list_destroy(listaTablaSegmentosRecibida);
                 moverProceso_NewReady(tablaSegmentos);
+
                 break;
             }
             case CREACION_SEGMENTO_EXITOSO:

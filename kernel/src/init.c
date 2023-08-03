@@ -60,7 +60,6 @@ pthread_mutex_t* semaforos_io;
 
 int cargar_configuracion(char *path) {
 
-    file_cfg_kernel = config_create(path);
     cfg_kernel->IP_MEMORIA = strdup(config_get_string_value(file_cfg_kernel, "IP_MEMORIA"));
     log_trace(trace_logger, "IP_MEMORIA Cargada Correctamente: %s", cfg_kernel->IP_MEMORIA);
 
@@ -108,7 +107,6 @@ int cargar_configuracion(char *path) {
 
     log_trace(trace_logger, "Archivo de configuracion cargado correctamente");
 
-    //config_destroy(file_cfg_kernel);
 
     int dim = tamanioArray(cfg_kernel->RECURSOS);
     semaforos_io = calloc(dim,sizeof(pthread_mutex_t));
