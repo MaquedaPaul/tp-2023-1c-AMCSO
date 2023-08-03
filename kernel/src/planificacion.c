@@ -19,6 +19,7 @@ void planificador_largo_plazo(){
 void planificador_corto_plazo(){
     log_info(info_logger, "Kernel - PLANIFICADOR CORTO PLAZO INICIADO.");
     while(1){
+        sem_wait(&sem_cpuLibre);
         sem_wait(&sem_procesosReady);
         moverProceso_readyExec();
     }
