@@ -15,6 +15,7 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
     if (!(direccion_fisica < 0)) {
            char* valor = leer_valor_de_memoria(direccion_fisica, cantidad_bytes);
            cambiar_valor_del_registroCPU(registro,valor);
+           free(valor);
            pcb_actual->programCounter++;    
     }
 }
@@ -124,7 +125,7 @@ void ejecutar_F_SEEK(char* nombre_archivo, int posicion) {
     agregar_PCB_a_paquete(paquete, pcb_actual);
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
-    liberarPcb(pcb_actual);
+    liberarPcbCpu(pcb_actual);
     //eliminar_PCB(pcb_actual);
     recibirPCB();
 }
@@ -193,7 +194,7 @@ void ejecutar_DELETE_SEGMENT(int id_del_segmento) {
     enviar_paquete(paquete, fd_kernel);
     eliminar_paquete(paquete, info_logger);
     //eliminar_PCB(pcb_actual);
-    liberarPcb(pcb_actual);
+    liberarPcbCpu(pcb_actual);
     recibirPCB();
 }
 
@@ -454,10 +455,11 @@ char* leer_valor_de_memoria(int direccion_fisica, int cantidad_bytes) {
     list_add(listaInts, &uint32t_dir_fis);
     list_add(listaInts, &uint32t_tamanio);
     list_add(listaInts, &pcb_actual->id);
+
     enviarListaUint32_t(listaInts,fd_memoria,info_logger, ACCESO_PEDIDO_LECTURA);
-
     char* valor = recibir_valor_de_memoria(cantidad_bytes);
-
+    list_clean(listaInts);
+    list_destroy(listaInts);
     log_info(info_logger, "PID: <%d> - Acción: <LEER> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
 
     return valor;
@@ -530,21 +532,7 @@ char* recibir_paquete_con_cadena(int socket_cliente) {
 
     return valor;
 }
-/*
-char*  recibir_valor_de_memoria()  {
-        char* valor;
-    int fd_memoria;
 
-     int cod_op = recibir_operacion(fd_memoria);
-		switch (cod_op) {
-		case LECTURA_REALIZADA:
-            int tamanio;
-			valor = (char*) recibirDatos(fd_memoria, tamanio);
-			break;
-      }
-	return valor;
-}
-*/
 void  recibirPCB()  {
 
         int cod_op = recibir_operacion(fd_kernel);
