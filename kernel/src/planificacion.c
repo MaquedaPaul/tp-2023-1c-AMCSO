@@ -63,10 +63,6 @@ void bloquearProcesoPorRecurso(t_recurso* recurso){
     list_add(recurso->cola,pcbABlockedRecurso);
     pthread_mutex_unlock(&semaforos_io[recurso->indiceSemaforo]);
 
-    pthread_mutex_lock(&mutex_colaBloq);
-    list_add(estadoBlockRecursos,pcbABlockedRecurso);
-    pthread_mutex_unlock(&mutex_colaBloq);
-
     log_info(info_logger,"PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <BLOCKED_RECURSO[%s]>", pcbABlockedRecurso->id, recurso->nombreRecurso);
 }
 
