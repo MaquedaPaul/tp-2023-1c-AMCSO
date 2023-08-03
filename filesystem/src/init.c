@@ -6,15 +6,14 @@
 #include <sys/mman.h>
 #include <dirent.h>
 
-void* bitarraycontent;
-t_bitarray* bitmap;
-t_config_superbloque* cfg_superbloque;
-t_bloques* archivoBloques;
-t_list* lista_FCBs;
-t_list* archivosUsados;
+
 
 
 bool semaforosCreados = false;
+
+bool lista_FCBsCreado = true;
+bool archivosUsadosCreado = true;
+bool listaBloquesCreado = true;
 
 
 int cargar_configuracion(char *path) {
@@ -70,28 +69,27 @@ void reasignarPathSiEsNecesario(tipo_path tipo){
         case PATH_BITMAP:
             pathAux = cfg_filesystem->PATH_BITMAP;
             if(comprobarSimbolo(&pathAux)){
-                free(cfg_filesystem->PATH_BITMAP);
+
                 cfg_filesystem->PATH_BITMAP= pathAux;
             }
             break;
         case PATH_BLOQUES:
             pathAux = cfg_filesystem->PATH_BLOQUES;
             if(comprobarSimbolo(&pathAux)){
-                free(cfg_filesystem->PATH_BLOQUES);
+
                 cfg_filesystem->PATH_BLOQUES= pathAux;
             }
             break;
         case PATH_SUPERBLOQUE:
             pathAux = cfg_filesystem->PATH_SUPERBLOQUE;
             if(comprobarSimbolo(&pathAux)){
-                free(cfg_filesystem->PATH_SUPERBLOQUE);
+
                 cfg_filesystem->PATH_SUPERBLOQUE= pathAux;
             }
             break;
         case PATH_FCB:
             pathAux = cfg_filesystem->PATH_FCB;
             if(comprobarSimbolo(&pathAux)){
-                free(cfg_filesystem->PATH_FCB);
                 cfg_filesystem->PATH_FCB= pathAux;
             }
             break;
@@ -107,8 +105,11 @@ bool iniciarFilesystem(){
     bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
     crearSemaforos();
     lista_FCBs = list_create();
+    lista_FCBsCreado = true;
     archivosUsados = list_create();
+    archivosUsadosCreado = true;
     lista_bloques = list_create();
+    listaBloquesCreado = true;
 
     if (!generar_conexiones()){
         //cerrar_programa();

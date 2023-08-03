@@ -70,7 +70,7 @@ void* leerArchivo(void* cliente_socket){
     list_add(listaInts, &archivo->direcFisica);
     list_add(listaInts, &pid);
 
-    log_debug(debug_logger, "se solcita a memoria escrbir en df");
+    log_debug(debug_logger, "se solicita a memoria escrbir en df");
     enviarListaIntsYDatos(listaInts,datosAEnviar,fd_memoria,info_logger,ACCESO_PEDIDO_ESCRITURA);
     list_clean(listaInts);
     list_destroy(listaInts);
@@ -117,15 +117,14 @@ void* finalizarEscrituraArchivo(void* cliente_socket){
     realizarEscrituraArchivo(nombreArchivo,  puntero, datos, tamanioDatos);
     enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger);
     free(datos);
-    free(nombreArchivo);
 }
 
 void* finalizarLecturaArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
     char* nombreArchivo = obtenerPrimerArchivoUsado();
     recibirOrden(conexion);
+
     enviarString(nombreArchivo, fd_kernel, LECTURA_ARCHIVO_EXITOSA, info_logger);
-    free(nombreArchivo);
 }
 
 

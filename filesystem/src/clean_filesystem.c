@@ -9,7 +9,7 @@ void cerrar_programa(){
         destruirLoggers();
     }
     if(configCreado){
-        //destruirConfig();
+        destruirConfig();
     }
     if(cfgCreado){
         destruirCfg();
@@ -19,6 +19,15 @@ void cerrar_programa(){
     }
     if(semaforosCreados){
         destruirSemaforos();
+    }
+    if(lista_FCBsCreado){
+        destruirListaFCBs();
+    }
+    if(archivosUsadosCreado){
+        destruirArchivosUsados();
+    }
+    if(listaBloquesCreado){
+        destruirListaBloques();
     }
 
 }
@@ -48,4 +57,22 @@ void destruirConexiones(){
 
 void destruirSemaforos(){
     pthread_mutex_destroy(&mutex_ArchivosUsados);
+}
+
+void destruirListaFCBs(){
+    void destruirFcbs(t_config_fcb* unFcb){
+        free(unFcb->NOMBRE_ARCHIVO);
+        config_destroy(unFcb->fcb_config);
+        free(unFcb);
+    }
+    list_clean_and_destroy_elements(lista_FCBs, destruirFcbs);
+
+}
+void destruirArchivosUsados(){
+    list_clean(archivosUsados);
+    list_destroy(archivosUsados);
+}
+void destruirListaBloques(){
+    list_clean_and_destroy_elements(lista_bloques,free);
+    list_destroy(lista_bloques);
 }

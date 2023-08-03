@@ -8,6 +8,14 @@
 pthread_mutex_t mutex_cliente_socket;
 
 t_list* lista_bloques;
+void* bitarraycontent;
+t_bitarray* bitmap;
+t_config_superbloque* cfg_superbloque;
+t_bloques* archivoBloques;
+t_list* lista_FCBs;
+t_list* archivosUsados;
+
+
 
 int existe_archivoFCB(char *nombre_archivo) {
 
@@ -481,7 +489,7 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
     log_debug(debug_logger,"bytesQueSePuedenEscrbirEnUnBloque: %d", bytesQueSePuedenEscrbirEnUnBloque);
 
     char* datoLeidoDeMemoria = malloc(tamanioAEscrbir +1);
-    datoLeidoDeMemoria = (char*) datos;
+    memcpy(datoLeidoDeMemoria, datos, tamanioAEscrbir);
     log_debug(debug_logger,"dato a escrbir en el archivo: %s", datos);
 
     if (bytesQueSePuedenEscrbirEnUnBloque >= tamanioAEscrbir) {
@@ -600,9 +608,9 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
     }
 
     char* datoLeidoDeMemoria = malloc(tamanioALeer +1);
-    datoLeidoDeMemoria = (char*) datoLeido;
+    memcpy(datoLeidoDeMemoria,datoLeido, tamanioALeer +1);
     log_debug(debug_logger,"dato leido del archivo: %s", datoLeidoDeMemoria);
-
+    free(datoLeidoDeMemoria);
     return datoLeido;
 }
 

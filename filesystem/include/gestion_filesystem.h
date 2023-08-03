@@ -42,10 +42,7 @@ extern t_log* info_logger;
 extern t_log* warning_logger;
 extern t_log* error_logger;
 extern t_config_filesystem *cfg_filesystem;
-extern t_list* lista_FCBs;
-extern t_bloques* archivoBloques;
-extern t_bitarray* bitmap;
-extern t_config_superbloque* cfg_superbloque;
+
 
 
 

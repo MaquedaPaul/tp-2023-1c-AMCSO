@@ -23,11 +23,17 @@ extern bool configCreado;
 extern bool cfgCreado;
 extern bool conexionesHechas;
 extern bool semaforosCreados;
+extern bool lista_FCBsCreado;
+extern bool archivosUsadosCreado;
+extern bool listaBloquesCreado;
 void cerrar_programa();
 void destruirLoggers();
 void destruirConfig();
 void destruirCfg();
 void destruirConexiones();
 void destruirSemaforos();
+void destruirListaFCBs();
+void destruirArchivosUsados();
+void destruirListaBloques();
 
 #endif //FILESYSTEM_CLEAN_FILESYSTEM_H

@@ -35,6 +35,10 @@ extern t_bitarray* bitarrayBitmapDeBloques;
 extern t_list* lista_FCBs;
 extern t_bitarray* bitmap;
 
+extern void* bitarraycontent;
+extern t_list* archivosUsados;
+
+
 extern pthread_mutex_t mutex_ArchivosUsados;
 void reasignarPathSiEsNecesario(tipo_path tipo);
 bool crearSemaforos();
