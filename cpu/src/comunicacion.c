@@ -21,14 +21,14 @@ void procesar_conexion(void *void_args) {
 
                     if (pcb_actual->id == pid) {
                         ciclo_de_instruccion();
-                        liberarPcb(pcb_actual);
+                        liberarPcbCpu(pcb_actual);
                         //eliminar_PCB(pcb_actual);
                         break;
                     } else {
                         pid = pcb_actual->id;
                         copiar_registroPCB_a_los_registrosCPU(pcb_actual->registrosCpu);
                         ciclo_de_instruccion();
-                        liberarPcb(pcb_actual);
+                        liberarPcbCpu(pcb_actual);
                         //eliminar_PCB(pcb_actual);
                         break;
 
