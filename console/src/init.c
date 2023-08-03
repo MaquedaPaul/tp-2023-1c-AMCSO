@@ -12,9 +12,9 @@ t_list* inst_list;
 
 bool cargar_configuracion(char *path)
 {
-    cfg_console->IP_KERNEL = strdup(config_get_string_value(file_cfg_console, "IP_KERNEL"));
+    cfg_console->IP_KERNEL = config_get_string_value(file_cfg_console, "IP_KERNEL");
     log_trace(trace_logger, "IP Cargada Correctamente: %s", cfg_console->IP_KERNEL);
-    cfg_console->PUERTO_KERNEL = strdup(config_get_string_value(file_cfg_console, "PUERTO_KERNEL"));
+    cfg_console->PUERTO_KERNEL = config_get_string_value(file_cfg_console, "PUERTO_KERNEL");
     log_trace(trace_logger, "Puerto Cargado Correctamente: %s", cfg_console->PUERTO_KERNEL);
     log_trace(trace_logger, "Archivo de configuracion cargado correctamente");
     return true;
@@ -40,7 +40,7 @@ t_list * crear_lista_de_instrucciones(char *path) {
 
 
     string_iterate_lines(inst_per_line, closure_instrucciones);
-    //string_array_destroy(inst_per_line);
+    string_array_destroy(inst_per_line);
     free(buffer);
     //free(inst_per_line);
     fclose(file);
@@ -54,8 +54,8 @@ void closure_instrucciones(char *line) {
     t_instr *single_inst = malloc(sizeof(t_instr));     //reservo memoria para estructura instr_t
     single_inst->idLength= strlen(inst_and_param[0]);
     single_inst->id= malloc(single_inst->idLength + 1);
-    memcpy(&single_inst->id,&inst_and_param[0],single_inst->idLength +1);        //copio el id de la instruccion
-    //single_inst->nroDeParam= tamanioArray(inst_and_param)-1;     //guardo la cantidad de parametros
+    memcpy(single_inst->id,inst_and_param[0],single_inst->idLength +1);        //copio el id de la instruccion  //TODO Es raro que se use el &
+
 
     if(esInstruccionSinParametros(single_inst)){
         single_inst->cantidad_parametros = 0;
@@ -71,7 +71,7 @@ void closure_instrucciones(char *line) {
         single_inst->cantidad_parametros = 1;
         single_inst->param1Length = strlen(inst_and_param[1]);
         single_inst->param1 = malloc(single_inst->param1Length + 1);
-        memcpy(&single_inst->param1,&inst_and_param[1],single_inst->param1Length +1);
+        memcpy(single_inst->param1,inst_and_param[1],single_inst->param1Length +1);
         single_inst->param2Length =0;
         single_inst->param2 = NULL;
         single_inst->param3Length =0;
@@ -82,11 +82,11 @@ void closure_instrucciones(char *line) {
         single_inst->cantidad_parametros = 2;
         single_inst->param1Length = strlen(inst_and_param[1]);
         single_inst->param1 = malloc(single_inst->param1Length + 1);
-        memcpy(&single_inst->param1,&inst_and_param[1],single_inst->param1Length +1);
+        memcpy(single_inst->param1,inst_and_param[1],single_inst->param1Length +1);
 
         single_inst->param2Length =strlen(inst_and_param[2]);
         single_inst->param2 = malloc(single_inst->param2Length + 1);
-        memcpy(&single_inst->param2,&inst_and_param[2],single_inst->param2Length +1);
+        memcpy(single_inst->param2,inst_and_param[2],single_inst->param2Length +1);
 
         single_inst->param3Length =0;
         single_inst->param3 = NULL;
@@ -96,23 +96,23 @@ void closure_instrucciones(char *line) {
         single_inst->cantidad_parametros = 3;
         single_inst->param1Length = strlen(inst_and_param[1]);
         single_inst->param1 = malloc(single_inst->param1Length + 1);
-        memcpy(&single_inst->param1,&inst_and_param[1],single_inst->param1Length +1);
+        memcpy(single_inst->param1,inst_and_param[1],single_inst->param1Length +1);
 
         single_inst->param2Length =strlen(inst_and_param[2]);
         single_inst->param2 = malloc(single_inst->param2Length + 1);
-        memcpy(&single_inst->param2,&inst_and_param[2],single_inst->param2Length +1);
+        memcpy(single_inst->param2,inst_and_param[2],single_inst->param2Length +1);
 
         single_inst->param3Length =strlen(inst_and_param[3]);
         single_inst->param3 = malloc(single_inst->param3Length + 1);
-        memcpy(&single_inst->param3,&inst_and_param[3],single_inst->param3Length +1);
+        memcpy(single_inst->param3,inst_and_param[3],single_inst->param3Length +1);
 
         list_add(inst_list, single_inst); //agrego la instruccion a la lista
     }
     else{
         printf("Es una instruccion invalida\n");
     }
+    string_array_destroy(inst_and_param);
 
-    //string_array_destroy(inst_and_param);
 }
 
 

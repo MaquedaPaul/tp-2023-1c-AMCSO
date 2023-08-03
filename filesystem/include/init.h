@@ -18,7 +18,7 @@ typedef enum {
     PATH_FCB
 }tipo_path;
 
-
+extern t_list* lista_bloques;
 extern pthread_mutex_t mutex_cliente_socket;
 extern t_log* trace_logger;
 extern t_log* debug_logger;

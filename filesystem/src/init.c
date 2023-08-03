@@ -13,31 +13,32 @@ t_bloques* archivoBloques;
 t_list* lista_FCBs;
 t_list* archivosUsados;
 
+
 bool semaforosCreados = false;
 
 
 int cargar_configuracion(char *path) {
 
-    file_cfg_filesystem = config_create(path);
-    cfg_filesystem->IP_MEMORIA = strdup(config_get_string_value(file_cfg_filesystem, "IP_MEMORIA"));
+
+    cfg_filesystem->IP_MEMORIA = config_get_string_value(file_cfg_filesystem, "IP_MEMORIA");
     log_trace(trace_logger, "IP_MEMORIA Cargada Correctamente: %s", cfg_filesystem->IP_MEMORIA);
 
-    cfg_filesystem->PUERTO_MEMORIA = strdup(config_get_string_value(file_cfg_filesystem, "PUERTO_MEMORIA"));
+    cfg_filesystem->PUERTO_MEMORIA = config_get_string_value(file_cfg_filesystem, "PUERTO_MEMORIA");
     log_trace(trace_logger, "PUERTO_MEMORIA Cargada Correctamente: %s", cfg_filesystem->PUERTO_MEMORIA);
 
-    cfg_filesystem->PUERTO_ESCUCHA = strdup(config_get_string_value(file_cfg_filesystem, "PUERTO_ESCUCHA"));
+    cfg_filesystem->PUERTO_ESCUCHA = config_get_string_value(file_cfg_filesystem, "PUERTO_ESCUCHA");
     log_trace(trace_logger, "PUERTO_ESCUCHA Cargada Correctamente: %s", cfg_filesystem->PUERTO_ESCUCHA);
 
-    cfg_filesystem->PATH_SUPERBLOQUE = strdup(config_get_string_value(file_cfg_filesystem, "PATH_SUPERBLOQUE"));
+    cfg_filesystem->PATH_SUPERBLOQUE = config_get_string_value(file_cfg_filesystem, "PATH_SUPERBLOQUE");
     log_trace(trace_logger, "PATH_SUPERBLOQUE Cargada Correctamente: %s", cfg_filesystem->PATH_SUPERBLOQUE);
     reasignarPathSiEsNecesario(PATH_SUPERBLOQUE);
-    cfg_filesystem->PATH_BITMAP = strdup(config_get_string_value(file_cfg_filesystem, "PATH_BITMAP"));
+    cfg_filesystem->PATH_BITMAP = config_get_string_value(file_cfg_filesystem, "PATH_BITMAP");
     log_trace(trace_logger, "PATH_BITMAP Cargada Correctamente: %s", cfg_filesystem->PATH_BITMAP);
     reasignarPathSiEsNecesario(PATH_BITMAP);
-    cfg_filesystem->PATH_BLOQUES = strdup(config_get_string_value(file_cfg_filesystem, "PATH_BLOQUES"));
+    cfg_filesystem->PATH_BLOQUES = config_get_string_value(file_cfg_filesystem, "PATH_BLOQUES");
     log_trace(trace_logger, "PATH_BLOQUES Cargada Correctamente: %s", cfg_filesystem->PATH_BLOQUES);
     reasignarPathSiEsNecesario(PATH_BLOQUES);
-    cfg_filesystem->PATH_FCB = strdup(config_get_string_value(file_cfg_filesystem, "PATH_FCB"));
+    cfg_filesystem->PATH_FCB = config_get_string_value(file_cfg_filesystem, "PATH_FCB");
     log_trace(trace_logger, "PATH_FCB Cargada Correctamente: %s", cfg_filesystem->PATH_FCB);
     reasignarPathSiEsNecesario(PATH_FCB);
     cfg_filesystem->RETARDO_ACCESO_BLOQUE = config_get_int_value(file_cfg_filesystem, "RETARDO_ACCESO_BLOQUE");
@@ -45,7 +46,6 @@ int cargar_configuracion(char *path) {
 
     log_trace(trace_logger, "Archivo de configuracion cargado correctamente");
 
-    config_destroy(file_cfg_filesystem);
     return true;
 }
 
@@ -108,7 +108,7 @@ bool iniciarFilesystem(){
     crearSemaforos();
     lista_FCBs = list_create();
     archivosUsados = list_create();
-
+    lista_bloques = list_create();
 
     if (!generar_conexiones()){
         //cerrar_programa();
@@ -274,7 +274,7 @@ bool levantarSuperbloque(){
         log_debug(debug_logger,"BLOCK_SIZE=64; BLOCK_COUNT=65536");
         cfg_superbloque = malloc(sizeof(t_config_superbloque));
         cfg_superbloque->BLOCK_COUNT=65536;
-        cfg_superbloque->BLOCK_SIZE=64;
+        cfg_superbloque->BLOCK_SIZE= 16; //lo cambio para testear
         return true;
     }
     cfg_superbloque = malloc(sizeof(t_config_superbloque));

@@ -11,6 +11,7 @@
 #include <commons/collections/list.h>
 #include <commons/bitarray.h>
 #include <loggers_configs.h>
+#include <commons/memory.h>
 
 typedef struct
 {
@@ -33,6 +34,7 @@ typedef struct
     int fd;
     int tamanio;
 }t_bloques;
+
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;

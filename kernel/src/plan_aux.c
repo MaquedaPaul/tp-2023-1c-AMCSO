@@ -310,6 +310,8 @@ void ejecutar_FTRUNCATE(t_pcb* pcb){
     enviar_archivoTruncacion(archivoParaFs,fd_filesystem,TRUNCACION_ARCHIVO,info_logger);
 
     log_info(info_logger,"PID: <%d> - Archivo: <%s> - Tamaño: <%d>", pcb->id, nombreArchivo, nuevoTamanio);
+    free(archivoParaFs->nombreArchivo);
+    free(archivoParaFs);
 }
 
 uint32_t buscarPosPunteroTablaLocal(char* nombreArchivo, t_pcb* pcb){
@@ -424,13 +426,17 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
 
 
 void desbloquearPcb_porNombreArchivo (char* nombArch) {
-
+    bool desbloqueado = false;
     pthread_mutex_lock(&mutex_TGAA);
     for (int i = 0; i < list_size(tablaGlobal_ArchivosAbiertos); i++) {
         t_archivoPeticion *archivoPeticion = list_get(tablaGlobal_ArchivosAbiertos, i);
         if (strcmp(archivoPeticion->archivo->nombreArchivo, nombArch) == 0) {
             moverProceso_BloqReady(archivoPeticion->pcb);
+            desbloqueado = true;
         }
     }
     pthread_mutex_unlock(&mutex_TGAA);
+    if(desbloqueado == false){
+        log_error(error_logger,"Me enviaron un nombre de archivo que no coincide con ninguno de mis archivos");
+    }
 }

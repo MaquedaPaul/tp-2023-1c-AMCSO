@@ -284,7 +284,8 @@ bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete
     }
     list_iterate(listaInstrucciones,sumarTamaniosInstrucciones);
     paquete->buffer->size += sizeof(uint8_t);
-    void* stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
+    paquete->buffer->stream = malloc(paquete->buffer->size); //Reservo memoria para el stream
+    void* stream = paquete->buffer->stream;
     int offset=0; //desplazamiento
 
     //Sumo la cantidad de instrucciones al buffer
@@ -340,8 +341,8 @@ bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete
             offset += instruccion->param3Length +1;
         }
         else {
-            return false;
             printf("Es una instruccion invalida\n");
+            return false;
         }
 
     }
@@ -350,7 +351,7 @@ bool agregarInstruccionesAPaquete(t_list* listaInstrucciones, t_paquete* paquete
     offset += sizeof(uint8_t);
 
     list_iterate(listaInstrucciones,copiarElementos);
-    paquete->buffer->stream = stream;
+    //paquete->buffer->stream = stream;
     printf("SE AGREGO EL PAQUETE\n");
     return true;
 
@@ -725,7 +726,6 @@ bool agregarIntsYDatosAPaquete(t_list* listaInts, t_datos* datos, t_paquete* paq
     offset+= sizeof(uint32_t);
     memcpy(stream + offset, datos->datos, datos->tamanio);
     paquete->buffer->stream = stream;
-    printf("SE AGREGO EL PAQUETE\n");
     return true;
 
 }
@@ -1189,6 +1189,7 @@ t_pcb * recibir_pcb(int conexion) {
     tablaSegmentos->segmentos = segmentos;
     tablaSegmentos->pid = unPcb->id;
     unPcb->tablaSegmentos = tablaSegmentos;
+    free(buffer);
 
     return unPcb;
 }
@@ -1678,14 +1679,13 @@ void enviar_archivoTruncacion(t_archivoTruncate* archivoTruncate, int conexion, 
     t_paquete* paquete= crear_paquete(codigo, logger);
     agregar_archivoTruncacion_a_paquete(paquete,archivoTruncate);
     enviar_paquete(paquete, conexion);
-    free(archivoTruncate->nombreArchivo);
-    free(archivoTruncate);
+
     eliminar_paquete(paquete, logger);
 }
 
 void agregar_archivoTruncacion_a_paquete(t_paquete* paquete, t_archivoTruncate* archivoTruncate){
     agregar_a_paquete(paquete, &(archivoTruncate->nombreArchivoLength), sizeof(uint32_t));
-    agregar_a_paquete(paquete, &(archivoTruncate->nombreArchivo), sizeof(archivoTruncate->nombreArchivoLength + 1));
+    agregar_a_paquete(paquete, archivoTruncate->nombreArchivo, archivoTruncate->nombreArchivoLength + 1);
     agregar_a_paquete(paquete,&(archivoTruncate->nuevoTamanio), sizeof (uint32_t));
 }
 
@@ -1700,13 +1700,13 @@ t_archivoTruncate* recibir_archivoTruncacion(int conexion){
     memcpy(&(archivoTruncacion->nombreArchivoLength), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
 
-    archivoTruncacion->nombreArchivo = malloc(sizeof (archivoTruncacion->nombreArchivoLength + 1));
-    memcpy(&(archivoTruncacion->nombreArchivo), buffer + desplazamiento, sizeof (archivoTruncacion->nombreArchivoLength+1));
-    desplazamiento += sizeof (archivoTruncacion->nombreArchivoLength+1);
+    archivoTruncacion->nombreArchivo = malloc(archivoTruncacion->nombreArchivoLength + 1);
+    memcpy(archivoTruncacion->nombreArchivo, buffer + desplazamiento, archivoTruncacion->nombreArchivoLength+1);
+    desplazamiento += archivoTruncacion->nombreArchivoLength+1;
 
     memcpy(&(archivoTruncacion->nuevoTamanio), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
-
+    free(buffer);
     return archivoTruncacion;
 }
 
@@ -1753,6 +1753,6 @@ t_archivoRW* recibir_archivoRW(int conexion){
 
     memcpy(&(archivoRw->pid), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
-
+    free(buffer);
     return archivoRw;
 }
