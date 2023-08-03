@@ -59,6 +59,8 @@ void bloquearProcesoPorRecurso(t_recurso* recurso){
     t_pcb* pcbABlockedRecurso = list_remove(colaExec,0);
     pthread_mutex_unlock(&mutex_colaExec);
 
+    sem_post(&sem_cpuLibre);
+
     pthread_mutex_lock(&semaforos_io[recurso->indiceSemaforo]);
     list_add(recurso->cola,pcbABlockedRecurso);
     pthread_mutex_unlock(&semaforos_io[recurso->indiceSemaforo]);
@@ -145,6 +147,7 @@ void moverProceso_ExecBloq(t_pcb *pcbBuscado){
     pthread_mutex_unlock(&mutex_colaBloq);
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: BLOQ.", pcbBuscado->id);
+    sem_post(&sem_cpuLibre);
 
     mostrarEstadoColas();
 }
@@ -208,6 +211,7 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
     pthread_mutex_unlock(&mutex_colaExec);
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: EXIT", pcbBuscado->id);
+    sem_post(&sem_cpuLibre);
 
     pthread_mutex_lock(&mutex_colaExit);
     queue_push(colaExit,pcbBuscado);
@@ -222,6 +226,7 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
     }
 
     sem_post(&sem_procesosExit);
+
 
 
     mostrarEstadoColas();
@@ -239,6 +244,7 @@ void moverProceso_ExecReady(t_pcb* pcbBuscado){
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
     sem_post(&sem_procesosReady);
+    sem_post(&sem_cpuLibre);
     mostrarEstadoColas();
 
 }

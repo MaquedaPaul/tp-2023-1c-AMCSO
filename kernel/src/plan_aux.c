@@ -258,7 +258,7 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
             0) { //Si hay procesos blockeados esperando por ese archivo
             list_remove(listaPeticionesArchivos, i);
             actualizarDuenioTGAA(archivoPeticion->archivo->nombreArchivo, archivoPeticion->pcb);
-            sem_wait(&sem_procesosReady); //Lo pongo para frenar el planificador de corto ya que no tiene que replanificar todavia
+            //sem_wait(&sem_procesosReady); //Lo pongo para frenar el planificador de corto ya que no tiene que replanificar todavia
             moverProceso_BloqReady(archivoPeticion->pcb);
             free(archivoPeticion);
             hayProcesosEsperandoPorArchivo = true;

@@ -53,6 +53,7 @@ extern pthread_mutex_t mutex_TGAA; //Mutex de la tabla global de archivos abiert
 extern sem_t sem_procesosEnNew;
 extern sem_t sem_procesosReady;
 extern sem_t sem_procesosExit;
+extern sem_t sem_cpuLibre;
 
 //HILOS
 extern pthread_t conexion_con_consola;

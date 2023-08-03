@@ -122,6 +122,7 @@ void liberarSemaforos(){
     sem_destroy(&sem_procesosEnNew);
     sem_destroy(&sem_procesosReady);
     sem_destroy(&sem_procesosExit);
+    sem_destroy(&sem_cpuLibre);
 
     log_trace(trace_logger,"Se eliminaron los semaforos");
 }
