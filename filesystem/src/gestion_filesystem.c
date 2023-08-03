@@ -70,7 +70,6 @@ void realizarCreacionArchivo(char* nombreArchivo){
     aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1);
     strcpy( aux_FCB->NOMBRE_ARCHIVO,nombreArchivo);
 
-    //TODO asignar los primeros bloques libres
     aux_FCB->TAMANIO_ARCHIVO = 0;
     aux_FCB->PUNTERO_DIRECTO = 0;
     aux_FCB->PUNTERO_INDIRECTO = 0;
@@ -80,9 +79,9 @@ void realizarCreacionArchivo(char* nombreArchivo){
 
 	creacionArchivo(nombreArchivo);
 	free(path);
-
-
 }
+
+
 void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_archivo){
 
     uint32_t tamanio_del_archivo_a_truncar;
@@ -166,11 +165,9 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
         aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
         aux_FCB->PUNTERO_DIRECTO = puntero_directo;
 
-         accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, aux_FCB->PUNTERO_DIRECTO);
+        accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, aux_FCB->PUNTERO_DIRECTO);
 
         t_config* archivo_config = aux_FCB->fcb_config;
-
-
         config_set_value(archivo_config, "TAMANIO_ARCHIVO", string_itoa((int)nuevo_tamanio));
         config_set_value(archivo_config, "PUNTERO_DIRECTO", string_itoa((int)puntero_directo));
         config_save(archivo_config);
@@ -199,7 +196,6 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
             aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
             aux_FCB->PUNTERO_DIRECTO = 0;
-
 
             config_set_value(archivo_config, "TAMANIO_ARCHIVO", string_itoa((int)nuevo_tamanio));
             config_set_value(archivo_config, "PUNTERO_DIRECTO", string_itoa(0));
@@ -425,6 +421,9 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
     }
 }
 }
+    msync(archivoBloques->archivo, archivoBloques->tamanio, MS_SYNC);
+    int tamanio = obtener_tamanio_bitmap();
+    msync(bitmap, archivoBloques->tamanio, MS_SYNC);
 }
 
 
@@ -442,10 +441,20 @@ uint32_t obtener_bloque_libre(t_bitarray* bitmap) {
         }
     }
 
+    int tamanio = obtener_tamanio_bitmap();
+    msync(bitmap, archivoBloques->tamanio, MS_SYNC);
 	log_info(info_logger, "No se obtuvo un bloque libre");
     return -1;
 }
 
+int obtener_tamanio_bitmap(){
+
+    if(cfg_superbloque->BLOCK_COUNT%8 == 0){
+        return cfg_superbloque->BLOCK_COUNT/8;
+    }else {
+        return cfg_superbloque->BLOCK_COUNT/8 + 1;
+    }
+}
 
 void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos){
 
@@ -453,12 +462,13 @@ void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void
     uint32_t numeroBloque = numeroDeBloque(punteroArchivo);
     uint32_t posicionBloque = buscarPosicionDentroDelBloque(punteroArchivo, numeroBloque);
 
+    log_debug(debug_logger,"tamanio archivo: %d", fcb->TAMANIO_ARCHIVO);
     escribirBloque(numeroBloque, posicionBloque, punteroArchivo, datos,tamanioDatos, fcb);
-
 }
 
 void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* fcb){
 
+    tamanioAEscrbir = 31;
     void* datoAEscribirFaltante =NULL;
 
     uint32_t bytesQueSePuedenEscrbirEnUnBloque = cantidadDisponibleDelBloque(posicionBloque);
@@ -467,8 +477,12 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
     uint32_t numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
     uint32_t bytesYaEscritos = 0;
-    log_debug(debug_logger,"puntero: %d ", punteroArchivo);
+    log_debug(debug_logger,"puntero a escrbir en el archivo de bloques: %d ", punteroArchivo);
     log_debug(debug_logger,"bytesQueSePuedenEscrbirEnUnBloque: %d", bytesQueSePuedenEscrbirEnUnBloque);
+
+    char* datoLeidoDeMemoria = malloc(tamanioAEscrbir +1);
+    datoLeidoDeMemoria = (char*) datos;
+    log_debug(debug_logger,"dato a escrbir en el archivo: %s", datos);
 
     if (bytesQueSePuedenEscrbirEnUnBloque >= tamanioAEscrbir) {
         log_debug(debug_logger,"SE ESCRIBE EN UN BLOQUE NADA MAS");
@@ -483,10 +497,6 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
         log_debug(debug_logger,"SE VA A ESCRIBIR EN MAS DE UN BLOQUE");
         memcpy(archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque, datos, bytesQueSePuedenEscrbirEnUnBloque);
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
-
-        //para testear: leo lo que escribi
-        void* datoEscritoEnElArchivo = malloc(bytesQueSePuedenEscrbirEnUnBloque);
-        memcpy(datoEscritoEnElArchivo, archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque, bytesQueSePuedenEscrbirEnUnBloque);
 
         bytesEscritos = bytesQueSePuedenEscrbirEnUnBloque;
         cantidadBytesNoEscrita = tamanioAEscrbir - bytesQueSePuedenEscrbirEnUnBloque;
@@ -538,28 +548,36 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
 
     uint32_t numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
+    log_debug(debug_logger, "Tamanio archivo: %d", fcb->TAMANIO_ARCHIVO);
+
     if (loQueSePuedeLeerEnUnBloque >= tamanioALeer) {
+        log_debug(debug_logger, "SE VA A LEER EN UN BLOQUE");
         datoLeido = malloc(tamanioALeer + 1);
-        memcpy(datoLeido, archivoBloques->archivo + (posicionBloque * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  tamanioALeer);
+        memcpy(datoLeido, archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  tamanioALeer);
 
         char* dato = (char*) datoLeido;
         log_debug(debug_logger, "Dato leido: %s", dato);
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
     }else{
-
+        log_debug(debug_logger, "SE VA A LEER EN MAS DE UN BLOQUE");
         datoLeido = malloc(loQueSePuedeLeerEnUnBloque);
-        memcpy(datoLeido, archivoBloques-> archivo + (posicionBloque * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  loQueSePuedeLeerEnUnBloque);
+        memcpy(datoLeido, archivoBloques-> archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  loQueSePuedeLeerEnUnBloque);
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
         cantidadBytesNoLeida = tamanioALeer - loQueSePuedeLeerEnUnBloque;
         bytesLeidos = loQueSePuedeLeerEnUnBloque;
 
+        log_debug(debug_logger, "Primera lectur, bytes leidos: %d", bytesLeidos);
+
         while(bytesLeidos != tamanioALeer) {
+            log_debug(debug_logger, "SE LEE EN EL SIGUIENTE BLOQUE");
 
             uint32_t cantidadBytesQueFaltanLeer = cantidadBytesQueNoSePuedeLeerEnUnBloque(cantidadBytesNoLeida);
+            log_debug(debug_logger, "Cantidad de bytes que no se van a leer en este ciclo: %d", cantidadBytesQueFaltanLeer);
             uint32_t nuevoTamanioALeer = cantidadBytesNoLeida - cantidadBytesQueFaltanLeer;
-            numeroBloque++;
+            log_debug(debug_logger, "tamanio nuevo a leer: %d", nuevoTamanioALeer);
+            numeroBloque += 1;
             numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
             datoLeidoNuevo = malloc(nuevoTamanioALeer);
@@ -573,16 +591,18 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
             datoLeido = datoLeido_temporal;
 
             memcpy(datoLeido + bytesLeidos, datoLeidoNuevo, nuevoTamanioALeer); //escribo en el datoLeido el nuevo contenido a partir de lo ultimo leido, voy concatenando lo leido
-            accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
             bytesLeidos += nuevoTamanioALeer;
             cantidadBytesNoLeida = cantidadBytesQueFaltanLeer;
-            free(datoLeidoNuevo);
-            datoLeidoNuevo = NULL; //solo va a contener lo que necesito leer en cada ciclo
+            //free(datoLeidoNuevo);
+            //datoLeidoNuevo = NULL; //solo va a contener lo que necesito leer en cada ciclo
         }
     }
 
-    log_debug(debug_logger, "el dato leido: %s", datoLeido);
+    char* datoLeidoDeMemoria = malloc(tamanioALeer +1);
+    datoLeidoDeMemoria = (char*) datoLeido;
+    log_debug(debug_logger,"dato leido del archivo: %s", datoLeidoDeMemoria);
+
     return datoLeido;
 }
 
@@ -608,7 +628,7 @@ uint32_t buscarNumeroDeBloqueDelArchivoDeBloque(int numero_bloque, t_config_fcb*
 
     }else{
 
-        uint32_t offset = sizeof(uint32_t) * (numero_bloque-1);
+        uint32_t offset = sizeof(uint32_t) * (numero_bloque- 2);
         uint32_t numeroBloqueDelPunteroDeBloques;
         memcpy(&numeroBloqueDelPunteroDeBloques, archivoBloques-> archivo + (fcb -> PUNTERO_INDIRECTO * cfg_superbloque->BLOCK_SIZE) + offset, sizeof(uint32_t));
 

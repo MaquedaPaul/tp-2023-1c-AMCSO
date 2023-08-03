@@ -49,7 +49,7 @@ extern t_config_superbloque* cfg_superbloque;
 
 
 
-
+int obtener_tamanio_bitmap();
 int existe_archivoFCB(char *nombre_archivo);
 t_config_fcb* buscarFCBporNombre(char* nombre);
 void realizarCreacionArchivo(char* nombreArchivo);
