@@ -4,7 +4,11 @@
 
 #include <init.h>
 
-
+bool recursosCargados = false;
+bool estadosCargados = false;
+bool semaforosCargados = false;
+bool tablasFsCargadas = false;
+bool semaforoDinamicoCargado = false;
 
 
 //COLAS
@@ -31,7 +35,6 @@ pthread_mutex_t mutex_ColaReady;
 pthread_mutex_t mutex_colaExec;
 pthread_mutex_t mutex_colaBloq;
 pthread_mutex_t mutex_colaExit;
-pthread_mutex_t mutex_PlanLP;
 pthread_mutex_t mutex_MP;
 pthread_mutex_t mutex_listaPeticionesArchivos;
 pthread_mutex_t mutex_debug_logger;
@@ -70,7 +73,6 @@ int cargar_configuracion(char *path) {
     cfg_kernel->PUERTO_FILESYSTEM = strdup(config_get_string_value(file_cfg_kernel, "PUERTO_FILESYSTEM"));
     log_trace(trace_logger, "PUERTO_FILESYSTEM Cargada Correctamente: %s", cfg_kernel->PUERTO_FILESYSTEM);
 
-
     cfg_kernel->IP_CPU = strdup(config_get_string_value(file_cfg_kernel, "IP_CPU"));
     log_trace(trace_logger, "IP_CPU Cargada Correctamente: %s", cfg_kernel->IP_CPU);
 
@@ -106,11 +108,12 @@ int cargar_configuracion(char *path) {
 
     log_trace(trace_logger, "Archivo de configuracion cargado correctamente");
 
-    config_destroy(file_cfg_kernel);
+    //config_destroy(file_cfg_kernel);
 
     int dim = tamanioArray(cfg_kernel->RECURSOS);
     semaforos_io = calloc(dim,sizeof(pthread_mutex_t));
     iniciarSemaforoDinamico(semaforos_io, dim);
+    semaforoDinamicoCargado = true;
     cargarRecursos();
 
     return true;
@@ -125,10 +128,14 @@ void inicializar_kernel(){
     colaBloq = list_create();
     colaExit = queue_create();
 
+    estadosCargados = true;
 
 //TABLA GLOBAL ARCHIVOS ABIERTOS
     tablaGlobal_ArchivosAbiertos = list_create();
     listaPeticionesArchivos = list_create();
+
+    tablasFsCargadas = true;
+
     pthread_mutex_init(&mutex_TGAA, NULL);//Mutex de la tabla global de archivos abiertos
     pthread_mutex_init(&mutex_listaPeticionesArchivos,NULL);
 
@@ -141,12 +148,14 @@ void inicializar_kernel(){
     pthread_mutex_init(&mutex_colaExec, NULL);
     pthread_mutex_init(&mutex_colaBloq, NULL);
     pthread_mutex_init(&mutex_colaExit, NULL);
-    pthread_mutex_init(&mutex_PlanLP, NULL);
     pthread_mutex_init(&mutex_MP, NULL);
     pthread_mutex_init(&mutex_debug_logger, NULL);
     //SEMAFOROS
     sem_init(&sem_procesosEnNew,0,0);
+    sem_init(&sem_procesosReady,0,0);
     sem_init(&sem_procesosExit,0,0);
+
+    semaforosCargados = true;
 
  //HILOS
     pthread_create(&conexion_con_consola, NULL,(void*)crearServidor, NULL);
@@ -195,17 +204,42 @@ int cargarRecursos(){
         list_add(listaRecursos,recurso);
     }
     estadoBlockRecursos = listaRecursos;
+    recursosCargados = true;
     return true;
 }
 
 void cerrar_programa() {
 
+    if(recursosCargados){
+        liberarRecursosKernel();
+    }
+    if(estadosCargados){
+        liberarEstadosKernel();
+    }
+    if(semaforosCargados){
+        liberarSemaforos();
+    }
+    if(tablasFsCargadas){
+        liberarManejoFs();
+    }
+    if(semaforoDinamicoCargado){
+        liberarSemaforoDinamico();
+    }
+
+    if(configCreado){
+        destruirConfig();
+    }
+
+    if(cfgCreado){
+        destruirCfg();
+    }
+/*
+    if(logsCreados){
+        destruirLoggers();
+    }
+*/
     cortar_conexiones();
     cerrar_servers();
-    config_destroy(file_cfg_kernel);
-    log_info(info_logger,"TERMINADA_LA_CONFIG");
-    log_info(info_logger,"TERMINANDO_EL_LOG");
-    log_destroy(info_logger);
-    //TODO tiene que eliminar los recursos, colas de estado, semaforos, config, TGAA, peticionesFS
+    printf("\nCierre exitoso\n");
 }
 

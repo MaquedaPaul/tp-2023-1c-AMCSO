@@ -9,6 +9,11 @@
 #include <string.h>
 #include <config_utils.h>
 
+
+extern bool logsCreados;
+extern bool configCreado;
+extern bool cfgCreado;
+
 typedef struct
 {
     char *IP_MEMORIA;

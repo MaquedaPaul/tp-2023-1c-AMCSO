@@ -8,7 +8,11 @@
 #include <planificacion.h>
 #include <commons/log.h>
 
-
+extern bool recursosCargados;
+extern bool estadosCargados;
+extern bool semaforosCargados;
+extern bool tablasFsCargadas;
+extern bool semaforoDinamicoCargado;
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;
@@ -42,7 +46,6 @@ extern pthread_mutex_t mutex_colaExec;
 extern pthread_mutex_t mutex_colaBloq;
 extern pthread_mutex_t mutex_colaExit;
 extern pthread_mutex_t mutex_MP; //Des/activa el grado de Multiprogramacion
-extern pthread_mutex_t mutex_PlanLP; //Activa el PL
 extern pthread_mutex_t mutex_listaPeticionesArchivos;
 extern pthread_mutex_t mutex_TGAA; //Mutex de la tabla global de archivos abiertos
 
