@@ -70,6 +70,9 @@ void realizarPedidoLectura(int cliente_socket){
     bool esCpu= cliente_socket == ipCpu;
     uint32_t tamanio = *(uint32_t*)list_get(listaInts,1);
     uint32_t pid = *(uint32_t*)list_get(listaInts,2);
+    if(cliente_socket == ipFs){
+
+    }
     pthread_mutex_lock(&mutex_espacioContiguo);
     accesoEspacioUsuarioLecturaRetardoPrevio(posicion, tamanio, pid);
     simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
