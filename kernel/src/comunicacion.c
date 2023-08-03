@@ -542,7 +542,7 @@ void creacionSegmentoExitoso(uint32_t baseSegmento){
     t_segmento* segmento = malloc(sizeof (t_segmento));
     segmento->id = idSegmento;
     segmento->base = baseSegmento;
-    segmento->limite = baseSegmento + tamSegmento;
+    segmento->limite = tamSegmento;
 
     list_add(pcbExec->tablaSegmentos->segmentos,segmento);
     log_debug(debug_logger,"base del segmento: %d", segmento->base);

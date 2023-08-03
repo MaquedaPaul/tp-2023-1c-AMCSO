@@ -108,7 +108,7 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
     list_add(tablaEncontrada->segmentos, segmentoParaAgregar);
     creacionSegmento(pid,idSegmento,segmentoParaAgregar->base, segmentoParaAgregar->limite);
 
-    return 0;
+    return segmentoParaAgregar->base;
 }
 
 bool removerDeHuecosUsados(t_segmento* huecoUsado){
