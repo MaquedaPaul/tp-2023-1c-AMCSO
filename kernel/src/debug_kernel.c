@@ -15,7 +15,9 @@ void mostrarEstadoColasAux(char* colaMsg, t_list* cola){
 
     log_debug(debug_logger,"%s", colaMsg);
     string_append(&idsPcb, "[");
-    list_iterate(cola, guardarIds);
+    if(!list_is_empty(cola)){
+        list_iterate(cola, guardarIds);
+    }
     string_append(&idsPcb, "]");
     log_debug(debug_logger,"%s", idsPcb);
     free(idsPcb);
@@ -46,7 +48,9 @@ void mostrarEstadoRecursosAux(char* msg, t_list* recursos){
 
     log_debug(debug_logger,"%s", msg);
     string_append(&nombresRecursos, "[");
-    list_iterate(recursos, guardarNombres);
+    if(!list_is_empty(recursos)){
+        list_iterate(recursos, guardarNombres);
+    }
     string_append(&nombresRecursos, "]");
     log_debug(debug_logger,"%s", nombresRecursos);
     free(nombresRecursos);
@@ -61,7 +65,6 @@ void mostrarEstadoRecursos(){
     }
     pthread_mutex_lock(&mutex_debug_logger);
     log_debug(debug_logger,"COMIENZO A IMPRIMIR");
-    mostrarEstadoRecursosAux("Lista Recursos:", listaRecursos);
     mostrarEstadoRecursosAux("Estado Block Recursos:", estadoBlockRecursos);
     log_debug(debug_logger,"TERMINO DE IMPRIMIR");
     pthread_mutex_unlock(&mutex_debug_logger);
