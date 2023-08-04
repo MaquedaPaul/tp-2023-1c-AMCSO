@@ -76,6 +76,7 @@ void moverProceso_BloqrecursoReady(t_recurso* recurso){
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady,pcbLiberada);
     pthread_mutex_unlock(&mutex_ColaReady);
+    sem_post(&sem_procesosReady);
     log_info(info_logger,"PID: <%d> - Estado Anterior: <BLOCKED_RECURSO[%s]> - Estado Actual: <READY>",pcbLiberada->id,recurso->nombreRecurso);
     mostrarEstadoColas();
 }
@@ -241,7 +242,6 @@ void moverProceso_ExecReady(t_pcb* pcbBuscado){
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady,pcbBuscado);
     pthread_mutex_unlock(&mutex_ColaReady);
-
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
     sem_post(&sem_procesosReady);
