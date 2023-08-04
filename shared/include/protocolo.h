@@ -189,10 +189,6 @@ t_pcb * recibir_paquete_con_PCB(uint32_t*, char* ) ;
 char* sacar_cadena_de_paquete( uint32_t*desplazamiento , char* buffer);
 uint32_t  sacar_uint32_t_de_paquete( uint32_t*desplazamiento, char* buffer);
 uint8_t  sacar_uint8_t_de_paquete( uint32_t*desplazamiento, char* buffer) ;
-void agregar_segmentos_a_paquete2(t_paquete*, t_list*);
-void agregar_instrucciones_a_paquete2(t_paquete*,t_list* );
-void agregar_registros_a_paquete2(t_paquete*,registros_cpu* );
-void agregar_PCB_a_paquete2(t_paquete *,t_pcb* ) ;
 void agregar_registroPCB(char*,t_paquete* );
 
 

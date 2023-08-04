@@ -58,7 +58,6 @@ void procesar_conexion(void *void_args) {
 
             case IO_BLOCK: {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
-                actualizarTiempoRafaga(pcbRecibida);
                 actualizarPcbExec(pcbRecibida);
                 t_pcb* pcbActualizada = obtenerPcbExec();
                 moverProceso_ExecBloq(pcbActualizada);
@@ -70,7 +69,6 @@ void procesar_conexion(void *void_args) {
             }
             case YIELD:{
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
-                actualizarTiempoRafaga(pcbRecibida);
                 actualizarPcbExec(pcbRecibida);
                 t_pcb* pcbActualizada = obtenerPcbExec();
                 moverProceso_ExecReady(pcbActualizada);
@@ -624,7 +622,6 @@ void actualizarPcbExec(t_pcb* pcbRecibida){
     registros_cpu* registrosAux = pcbExec->registrosCpu;
     pcbExec->programCounter = pcbRecibida->programCounter;
     pcbExec->registrosCpu = pcbRecibida->registrosCpu;
-    pcbExec->tiempoLlegadaReady = pcbRecibida->tiempoLlegadaReady;
     pcbRecibida->registrosCpu = registrosAux;
     liberarPcbCpu(pcbRecibida);
     pthread_mutex_unlock(&mutex_colaExec);

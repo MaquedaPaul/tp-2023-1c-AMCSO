@@ -62,8 +62,8 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
 
 
 bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes, t_segmento * segmento) {
-    log_debug(debug_logger, "limite segmento: %d",  segmento->limite);
-    return ((desplazamiento_segmento + cantidad_bytes) > segmento->limite);
+    log_debug(debug_logger, "limite segmento (base + tamanio seg): %d",  segmento->limite +segmento->base);
+    return ((desplazamiento_segmento + cantidad_bytes) > (segmento->limite +segmento->base));
 }
 
 

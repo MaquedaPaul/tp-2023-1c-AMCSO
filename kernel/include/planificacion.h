@@ -32,7 +32,11 @@ void liberarRecursosTomados(t_pcb* pcb);
 void aumentarGradoMP();
 void decrementarGradoMP();
 
-int seleccionar_segunHRRN();
+//Funciones de HRNN
+double response_ratio(t_pcb* pcb);
+void calcular_estimacion(t_pcb* pcb);
+bool criterio_hrrn(t_pcb* pcb1, t_pcb* pcb2);
+
 /*
 -Se setean los campos HRRN en 0 al crear pcb
 -FALTA: Se setea tiempoLlegadaReady al recibir rta de creacion de estructura desde memoria

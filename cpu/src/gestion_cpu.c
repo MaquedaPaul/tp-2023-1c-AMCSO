@@ -9,7 +9,6 @@ void ejecutar_SET(char* registro, char* valor){
 
 void ejecutar_MOV_IN(char* registro, int direccion_logica) {
     int cantidad_bytes = calcular_bytes_segun_registro(registro);
-    log_debug(debug_logger, "cantidad de bytes del registros: %d", cantidad_bytes);
     int direccion_fisica = traducir_direccion_logica(direccion_logica,cantidad_bytes);
 
     if (!(direccion_fisica < 0)) {
@@ -23,12 +22,10 @@ void ejecutar_MOV_IN(char* registro, int direccion_logica) {
 
 void ejecutar_MOV_OUT(int direccion_logica, char* registro ) {
     int cantidad_bytes = calcular_bytes_segun_registro(registro);
-    log_debug(debug_logger, "cantidad de bytes del registros: %d", cantidad_bytes);
     char* valorDelRegistro = obtener_valor_registroCPU(registro);
     int direccion_fisica = traducir_direccion_logica(direccion_logica, cantidad_bytes);
 
     if (!(direccion_fisica < 0)) {
-        log_debug(debug_logger, "el valor del registro AX: %s", registroCPU_AX);
         escribir_valor_en_memoria(direccion_fisica,cantidad_bytes, valorDelRegistro);
         pcb_actual->programCounter++;
     }
