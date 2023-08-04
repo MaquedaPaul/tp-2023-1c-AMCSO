@@ -1,6 +1,4 @@
-F_OPEN Videogames
-F_SEEK Videogames 0
-F_READ Videogames 16 16
-MOV_IN RAX 16
-F_CLOSE Videogames
+F_OPEN a
+F_TRUNCATE a 0
+F_CLOSE a
 EXIT

@@ -124,7 +124,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
        uint32_t bloque = 0;
        for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
-          uint32_t bloque_libre = obtener_bloque_libreConBloque(bitmap,bloque) ;
+          uint32_t bloque_libre = obtener_bloque_libreConBloque(bitmap, bloque) ;
           uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t));
           *nuevo_bloque_libre = bloque_libre;
           list_add(lista_bloques, nuevo_bloque_libre);
@@ -260,9 +260,10 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
             uint32_t  cantidad_de_bloques = 1 + ((nuevo_tamanio - 1) / cfg_superbloque->BLOCK_SIZE);
             cantidad_de_bloques = cantidad_de_bloques - 1 ;
 
+            uint32_t bloque = 0;
           for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
-              uint32_t bloque_libre = obtener_bloque_libre(bitmap) ;
+              uint32_t bloque_libre = obtener_bloque_libreConBloque(bitmap, bloque) ;
               uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t));
               *nuevo_bloque_libre = bloque_libre;
               list_add(lista_bloques, nuevo_bloque_libre);
@@ -413,7 +414,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
         if(cantidad_de_bloques > cantidad_de_bloques_viejos ){      //  agrandando
 
           cantidad_de_bloques = cantidad_de_bloques - cantidad_de_bloques_viejos ;
-
+/*
           for (uint32_t i = 0; i < cantidad_de_bloques; i++) {
 
               uint32_t bloque_libre = obtener_bloque_libre(bitmap) ;
@@ -421,13 +422,13 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
               *nuevo_bloque_libre = bloque_libre;
               list_add(lista_bloques, nuevo_bloque_libre);
 
-          }
-       /*
+          }*/
+
        
             uint32_t bloque = 0;
             for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
-            uint32_t bloque_libre = obtener_bloque_libre(bitmap,bloque) ;
+            uint32_t bloque_libre = obtener_bloque_libreConBloque(bitmap,bloque) ;
             uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t));
             *nuevo_bloque_libre = bloque_libre;
             list_add(lista_bloques, nuevo_bloque_libre);
@@ -435,7 +436,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
             }
        
        
-       */
+
           t_config* archivo_config = aux_FCB->fcb_config;
           uint32_t puntero_indirecto = config_get_int_value(archivo_config, "PUNTERO_INDIRECTO");
           //log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
