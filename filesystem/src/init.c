@@ -282,7 +282,7 @@ bool levantarSuperbloque(){
         log_debug(debug_logger,"BLOCK_SIZE=64; BLOCK_COUNT=65536");
         cfg_superbloque = malloc(sizeof(t_config_superbloque));
         cfg_superbloque->BLOCK_COUNT=65536;
-        cfg_superbloque->BLOCK_SIZE= 16; //lo cambio para testear
+        cfg_superbloque->BLOCK_SIZE= 64; //lo cambio para testear
         return true;
     }
     cfg_superbloque = malloc(sizeof(t_config_superbloque));

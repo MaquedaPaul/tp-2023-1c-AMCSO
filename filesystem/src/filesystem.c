@@ -63,8 +63,6 @@ void* leerArchivo(void* cliente_socket){
     t_datos* datosAEnviar = malloc(sizeof(t_datos));
     datosAEnviar->tamanio = archivo->cantidadBytes;
 
-    log_debug(debug_logger, "puntero archivo: %d", archivo->posPuntero);
-    log_debug(debug_logger, "cantidad de bytes a leer: %d", archivo->cantidadBytes);
     datosAEnviar->datos = realizarLecturaArchivo(archivo->nombreArchivo, archivo->posPuntero, archivo->cantidadBytes);
     t_list* listaInts = list_create();
     list_add(listaInts, &archivo->direcFisica);
@@ -115,6 +113,9 @@ void* finalizarEscrituraArchivo(void* cliente_socket){
     //uint32_t pid = *(uint32_t*)list_get(listaInts,2);
     uint32_t punteroArchivo = *(uint32_t*)list_get(listaInts,3);
 
+    log_debug(debug_logger,"ds:%d ", direccionFisica);
+    log_debug(debug_logger,"punteroArchivo: %d ",punteroArchivo );
+    log_debug(debug_logger,"tamanio a escribir: %d", unosDatos->tamanio);
     char* nombreArchivo = obtenerPrimerArchivoUsado();
     escrituraArchivo(nombreArchivo, punteroArchivo, direccionFisica, unosDatos->tamanio);
     realizarEscrituraArchivo(nombreArchivo,  punteroArchivo, unosDatos->datos, unosDatos->tamanio);
