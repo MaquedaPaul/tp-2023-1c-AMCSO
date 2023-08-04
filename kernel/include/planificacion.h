@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <comunicacion.h>
 #include <init.h>
+#include <time.h>
 
 
 extern int fd_cpu;
