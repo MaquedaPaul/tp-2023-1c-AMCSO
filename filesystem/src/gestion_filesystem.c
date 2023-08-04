@@ -124,7 +124,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
        uint32_t bloque = 0;
        for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
-          uint32_t bloque_libre = obtener_bloque_libre(bitmap,bloque) ;
+          uint32_t bloque_libre = obtener_bloque_libreConBloque(bitmap,bloque) ;
           uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t));
           *nuevo_bloque_libre = bloque_libre;
           list_add(lista_bloques, nuevo_bloque_libre);
@@ -194,10 +194,10 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
     }else {
 
-        //   uint32_t bloque = 0;
+        uint32_t bloque = 0;
         //   uint32_t puntero_directo = obtener_bloque_libre(bitmap, bloque) ;
 
-        uint32_t puntero_directo = obtener_bloque_libre(bitmap) ;
+        uint32_t puntero_directo = obtener_bloque_libreConBloque(bitmap, bloque) ;
         aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
         aux_FCB->PUNTERO_DIRECTO = puntero_directo;
 
@@ -538,9 +538,9 @@ uint32_t obtener_bloque_libre(t_bitarray* bitmap) {
     return -1;
 }
 
-/*
 
-uint32_t obtener_bloque_libre(t_bitarray* bitmap, uint32_t ultimo_bloque) {
+
+uint32_t obtener_bloque_libreConBloque(t_bitarray* bitmap, uint32_t ultimo_bloque) {
 
     for (uint32_t i = ultimo_bloque ; i < bitarray_get_max_bit(bitmap); i++) {
             accesoABitmap(i, bitarray_test_bit(bitmap, i));
@@ -555,12 +555,12 @@ uint32_t obtener_bloque_libre(t_bitarray* bitmap, uint32_t ultimo_bloque) {
     }
 
     int tamanio = obtener_tamanio_bitmap();
-    msync(bitmap, archivoBloques->tamanio, MS_SYNC);
+    msync(bitmap, tamanio, MS_SYNC);
 	log_info(info_logger, "No se obtuvo un bloque libre");
     return -1;
 }
 
-*/
+
 
 
 

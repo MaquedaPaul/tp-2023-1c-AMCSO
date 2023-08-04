@@ -52,7 +52,8 @@ t_config_fcb* buscarFCBporNombre(char* nombre);
 void realizarCreacionArchivo(char* nombreArchivo);
 void realizarTruncacionArchivo(char* nombreArchivo, uint32_t nuevo_tamanio_del_archivo);
 void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, uint32_t tamanio_archivo);
-uint32_t obtener_bloque_libre(t_bitarray* auxBitArray);
+uint32_t obtener_bloque_libreConBloque(t_bitarray* auxBitArray, uint32_t bloque);
+uint32_t obtener_bloque_libre(t_bitarray* bitmap);
 void* realizarLecturaArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t  tamanio);
 void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void* datos, uint32_t tamanioDatos);
 
