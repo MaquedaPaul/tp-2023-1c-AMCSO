@@ -71,18 +71,25 @@ void realizarPedidoLectura(int cliente_socket){
     uint32_t tamanio = *(uint32_t*)list_get(listaInts,1);
     uint32_t pid = *(uint32_t*)list_get(listaInts,2);
     if(cliente_socket == ipFs){
-
+        uint32_t punteroArchivo = *(uint32_t*)list_get(listaInts,3);
+    }else{
+        list_remove_and_destroy_element(listaInts, 3, free);
     }
+
     pthread_mutex_lock(&mutex_espacioContiguo);
     accesoEspacioUsuarioLecturaRetardoPrevio(posicion, tamanio, pid);
     simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
     accesoEspacioUsuarioLecturaRetardoConcedido();
     void* datos = buscarDatosEnPosicion(pid, posicion, tamanio, esCpu);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-
+    t_datos* unosDatos = malloc(sizeof (t_datos));
+    unosDatos->datos = datos;
+    unosDatos->tamanio= tamanio;
+    enviarListaIntsYDatos(listaInts,unosDatos, cliente_socket, info_logger, LECTURA_REALIZADA);
+    free(datos);
+    free(unosDatos);
     list_clean_and_destroy_elements(listaInts,free);
     list_destroy(listaInts);
-    enviarDatos(datos,tamanio, LECTURA_REALIZADA,cliente_socket , info_logger);
 
 }
 
