@@ -46,7 +46,8 @@ void liberarPcb(t_pcb* pcb) {
     list_destroy_and_destroy_elements(pcb->instr,liberarInstruccion);
     list_destroy_and_destroy_elements(pcb->tablaSegmentos->segmentos,liberarSegmento);
     list_destroy_and_destroy_elements(pcb->tablaArchivosAbiertos,free); //Ya que no corresponde que la PCB libere el archivo.
-    list_destroy_and_destroy_elements(pcb->recursosTomados,free);
+    list_destroy(pcb->recursosTomados);
+
     free(pcb->tablaSegmentos);
     free(pcb);
 }

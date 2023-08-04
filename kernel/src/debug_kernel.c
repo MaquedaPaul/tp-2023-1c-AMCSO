@@ -127,12 +127,14 @@ void liberarSemaforos(){
 }
 
 void liberarArchivoPeticion(t_archivoPeticion* archivoPeticion){
+    free(archivoPeticion->archivo->nombreArchivo);
     free(archivoPeticion->archivo);
     free(archivoPeticion);
 }
 
 void liberarManejoFs(){
     list_destroy_and_destroy_elements(tablaGlobal_ArchivosAbiertos,liberarArchivoPeticion);
+
     list_destroy_and_destroy_elements(listaPeticionesArchivos,free); //solo free pq el archivo ya se libera arriba
 
     log_trace(trace_logger,"Se elimino las tablas para el manejo de FS");

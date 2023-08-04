@@ -140,28 +140,7 @@ void ejecutar_FOPEN(t_pcb* pcb){
     pthread_mutex_unlock(&mutex_TGAA);
 
 }
-/*
-pthread_mutex_lock(&mutex_listaPeticionesArchivos);
 
-for(int i = 0 ; i < list_size(listaPeticionesArchivos); i++){
-t_archivoPeticion* archivoPeticion = list_get(listaPeticionesArchivos,i);
-if(strcmp(archivoPeticion->archivo->nombreArchivo,nomArch)== 0){
-list_remove(listaPeticionesArchivos,i);
-
-pthread_mutex_lock(&mutex_TGAA);
-list_add(tablaGlobal_ArchivosAbiertos,archivoPeticion);
-pthread_mutex_unlock(&mutex_TGAA);
-
-t_archivoLocal* archivoLocal = malloc(sizeof (t_archivoLocal));
-archivoLocal->archivo = archivoPeticion->archivo;
-archivoLocal->ptro = 0;
-list_add(archivoPeticion->pcb->tablaArchivosAbiertos,archivoLocal);
-enviar_paquete_pcb(archivoPeticion->pcb, fd_cpu, PCB, info_logger);
-break;
-}
-}
-pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
-*/
 
 char* obtenerNombreArchivo(t_pcb* pcb){
     t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
@@ -176,8 +155,10 @@ void eliminarArchivoTGAA(char* nombreArchivo){
         t_archivoPeticion* archivoPeticion = list_get(tablaGlobal_ArchivosAbiertos,i);
         if(strcmp(archivoPeticion->archivo->nombreArchivo, nombreArchivo) == 0){
             list_remove(tablaGlobal_ArchivosAbiertos,i);
+            free(archivoPeticion->archivo->nombreArchivo);
             free(archivoPeticion->archivo);
             free(archivoPeticion);
+
         }
         else{
             log_error(error_logger,"El archivo: <%s> que solicitaste eliminar de la TGAA no se encuentra", nombreArchivo);
@@ -260,7 +241,9 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
             actualizarDuenioTGAA(archivoPeticion->archivo->nombreArchivo, archivoPeticion->pcb);
             sem_wait(&sem_procesosReady); //Lo pongo para frenar el planificador de corto ya que no tiene que replanificar todavia
             moverProceso_BloqReady(archivoPeticion->pcb);
+
             free(archivoPeticion);
+
             hayProcesosEsperandoPorArchivo = true;
             break;
         }
@@ -271,7 +254,9 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
 
     log_info(info_logger,"PID: <%d> - Cerrar Archivo: <%s>",pcb->id, nomArch);
     pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
+    free(nomArch);
     enviar_paquete_pcb(pcb,fd_cpu,PCB,info_logger);
+
     //Por lo que entiendo y el enunciado no aclara Kernel replanifica al desbloquarse el proceso
 }
 
@@ -289,6 +274,7 @@ void ejecutar_FSEEK(t_pcb* pcb){
     }
     log_info(info_logger,"PID: <%d> - Actualizar puntero Archivo: <%s> - Puntero <%d>", pcb->id, nombreArchivo, ubiPuntero);
     enviar_paquete_pcb(pcb,fd_cpu,PCB,info_logger);
+    free(nombreArchivo);
 }
 
 
@@ -421,6 +407,7 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
         }
     }
     pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
+    free(nomArch);
 
 }
 
@@ -439,4 +426,5 @@ void desbloquearPcb_porNombreArchivo (char* nombArch) {
     if(desbloqueado == false){
         log_error(error_logger,"Me enviaron un nombre de archivo que no coincide con ninguno de mis archivos");
     }
+    free(nombArch);
 }

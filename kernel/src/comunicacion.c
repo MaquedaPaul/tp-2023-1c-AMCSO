@@ -186,12 +186,14 @@ void procesar_conexion(void *void_args) {
             case APERTURA_ARCHIVO_FALLIDA: {
                 char* nombreArchivo = recibirString(cliente_socket);
                 enviarString(nombreArchivo, fd_filesystem, CREACION_ARCHIVO, info_logger);
+                free(nombreArchivo);
                 break;
             }
 
             case CREACION_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
                 agregarEntrada_TablaGlobalArchivosAbiertos(nombreArchivo);
+                //NO VA LIBERACION NOMARCHIVO
                 break;
             }
             
