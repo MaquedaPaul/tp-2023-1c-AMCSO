@@ -110,17 +110,21 @@ void* finalizarEscrituraArchivo(void* cliente_socket){
 
     t_datos* unosDatos = malloc(sizeof(t_datos));
     t_list* listaInts = recibirListaIntsYDatos(conexion, unosDatos);
-    uint32_t* direccionFisica = list_get(listaInts,0);
-    uint32_t pid = *(uint32_t*)list_get(listaInts,1);
-    uint32_t punteroArchivo = *(uint32_t*)list_get(listaInts,2);
+    uint32_t direccionFisica = *(uint32_t*)list_get(listaInts,0);
+    //uint32_t tamanio = *(uint32_t*)list_get(listaInts,1);
+    //uint32_t pid = *(uint32_t*)list_get(listaInts,2);
+    uint32_t punteroArchivo = *(uint32_t*)list_get(listaInts,3);
 
     char* nombreArchivo = obtenerPrimerArchivoUsado();
-    escrituraArchivo(nombreArchivo, punteroArchivo, *direccionFisica, unosDatos->tamanio);
+    escrituraArchivo(nombreArchivo, punteroArchivo, direccionFisica, unosDatos->tamanio);
     realizarEscrituraArchivo(nombreArchivo,  punteroArchivo, unosDatos->datos, unosDatos->tamanio);
     enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger);
+
+    list_clean_and_destroy_elements(listaInts,free);
+    list_destroy(listaInts);
     free(unosDatos->datos);
     free(unosDatos);
-    free(nombreArchivo);
+    //free(nombreArchivo);
 }
 
 

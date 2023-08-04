@@ -62,10 +62,13 @@ void destruirSemaforos(){
 void destruirListaFCBs(){
     void destruirFcbs(t_config_fcb* unFcb){
         free(unFcb->NOMBRE_ARCHIVO);
+        //free(&unFcb->PUNTERO_INDIRECTO);
+        //free(&unFcb->PUNTERO_DIRECTO);
         config_destroy(unFcb->fcb_config);
         free(unFcb);
     }
     list_clean_and_destroy_elements(lista_FCBs, destruirFcbs);
+    list_destroy(lista_FCBs);
 
 }
 void destruirArchivosUsados(){

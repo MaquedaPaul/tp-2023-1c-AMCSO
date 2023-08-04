@@ -740,7 +740,7 @@ t_list* recibirListaIntsYDatos(int socket_cliente,t_datos* datos)
     int desplazamiento = 0;
     void *buffer = recibir_stream(&tamanio, socket_cliente);
     t_list* listaInts = list_create();
-    int cantidad_ints = 0;
+    uint8_t cantidad_ints = 0;
     memcpy(&cantidad_ints, buffer + desplazamiento, sizeof(uint8_t));
     desplazamiento+=sizeof(uint8_t);
 
@@ -750,8 +750,7 @@ t_list* recibirListaIntsYDatos(int socket_cliente,t_datos* datos)
         desplazamiento+=sizeof(uint32_t);
         list_add(listaInts, nuevoEntero);
     }
-    uint32_t* posicion = list_get(listaInts,0);
-    uint32_t* pid = list_get(listaInts,1);
+
     memcpy(&datos->tamanio, buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento+=sizeof(uint32_t);
     datos->datos = malloc(datos->tamanio);
