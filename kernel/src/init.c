@@ -39,6 +39,8 @@ pthread_mutex_t mutex_MP;
 pthread_mutex_t mutex_listaPeticionesArchivos;
 pthread_mutex_t mutex_debug_logger;
 
+pthread_mutex_t m_pcb;
+
 //SEMAFOROS
 sem_t sem_procesosEnNew;
 sem_t sem_procesosReady;
@@ -137,6 +139,7 @@ void inicializar_kernel(){
 
     pthread_mutex_init(&mutex_TGAA, NULL);//Mutex de la tabla global de archivos abiertos
     pthread_mutex_init(&mutex_listaPeticionesArchivos,NULL);
+    pthread_mutex_init(&m_pcb,NULL);
 
 //CONTADORES Y MUTEX
 

@@ -22,8 +22,8 @@ t_pcb* crearPcb(t_list* listaInstrucciones)
   pcb->id = idProcesoGlobal++;
   pcb->programCounter = 0;
   pcb->estimacionRafaga = cfg_kernel->ESTIMACION_INICIAL;
-  pcb->tiempoIngresoReady = 0;
-  pcb->tiempoInicialExec = 0;
+  pcb->tiempoIngresoReady = time(NULL);
+  pcb->tiempoInicialExec = time(NULL);
   pcb->registrosCpu = crearRegistroCPU();
   pcb->instr = listaInstrucciones;
   pcb->tablaSegmentos = NULL;
