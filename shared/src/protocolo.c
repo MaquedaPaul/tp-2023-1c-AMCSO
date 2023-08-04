@@ -1641,3 +1641,4 @@ t_archivoRW* recibir_archivoRW(int conexion){
     free(buffer);
     return archivoRw;
 }
+     

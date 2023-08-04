@@ -114,8 +114,10 @@ void eliminarArchivoTGAA(char* nombreArchivo){
         t_archivoPeticion* archivoPeticion = list_get(tablaGlobal_ArchivosAbiertos,i);
         if(strcmp(archivoPeticion->archivo->nombreArchivo, nombreArchivo) == 0){
             list_remove(tablaGlobal_ArchivosAbiertos,i);
+            free(archivoPeticion->archivo->nombreArchivo);
             free(archivoPeticion->archivo);
             free(archivoPeticion);
+
         }
         else{
             log_error(error_logger,"El archivo: <%s> que solicitaste eliminar de la TGAA no se encuentra", nombreArchivo);
@@ -197,7 +199,9 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
             list_remove(listaPeticionesArchivos, i);
             actualizarDuenioTGAA(archivoPeticion->archivo->nombreArchivo, archivoPeticion->pcb);
             moverProceso_BloqReady(archivoPeticion->pcb);
+
             free(archivoPeticion);
+
             hayProcesosEsperandoPorArchivo = true;
             break;
         }
@@ -208,7 +212,9 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
 
     log_info(info_logger,"PID: <%d> - Cerrar Archivo: <%s>",pcb->id, nomArch);
     pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
+    free(nomArch);
     enviar_paquete_pcb(pcb,fd_cpu,PCB,info_logger);
+
     //Por lo que entiendo y el enunciado no aclara Kernel replanifica al desbloquarse el proceso
 }
 
@@ -226,6 +232,7 @@ void ejecutar_FSEEK(t_pcb* pcb){
     }
     log_info(info_logger,"PID: <%d> - Actualizar puntero Archivo: <%s> - Puntero <%d>", pcb->id, nombreArchivo, ubiPuntero);
     enviar_paquete_pcb(pcb,fd_cpu,PCB,info_logger);
+    free(nombreArchivo);
 }
 
 
@@ -358,6 +365,7 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
         }
     }
     pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
+    free(nomArch);
 
 }
 
@@ -376,4 +384,5 @@ void desbloquearPcb_porNombreArchivo (char* nombArch) {
     if(desbloqueado == false){
         log_error(error_logger,"Me enviaron un nombre de archivo que no coincide con ninguno de mis archivos");
     }
+    free(nombArch);
 }

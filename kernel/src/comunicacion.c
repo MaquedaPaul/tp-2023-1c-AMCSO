@@ -184,12 +184,14 @@ void procesar_conexion(void *void_args) {
             case APERTURA_ARCHIVO_FALLIDA: {
                 char* nombreArchivo = recibirString(cliente_socket);
                 enviarString(nombreArchivo, fd_filesystem, CREACION_ARCHIVO, info_logger);
+                free(nombreArchivo);
                 break;
             }
 
             case CREACION_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
                 agregarEntrada_TablaGlobalArchivosAbiertos(nombreArchivo);
+                //NO VA LIBERACION NOMARCHIVO
                 break;
             }
             
@@ -212,11 +214,13 @@ void procesar_conexion(void *void_args) {
             }
 
                 //----------------------------------MEMORIA----------------------------------------
-            case ESTRUCTURAS_INICALIZADAS:
-            {
-                t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
-                t_tablaSegmentos* tablaSegmentos = list_get(listaTablaSegmentosRecibida,0);
+            case ESTRUCTURAS_INICALIZADAS: {
+                t_list *listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
+                t_tablaSegmentos *tablaSegmentos = list_get(listaTablaSegmentosRecibida, 0);
+                list_clean(listaTablaSegmentosRecibida);
+                list_destroy(listaTablaSegmentosRecibida);
                 moverProceso_NewReady(tablaSegmentos);
+
                 break;
             }
             case CREACION_SEGMENTO_EXITOSO:

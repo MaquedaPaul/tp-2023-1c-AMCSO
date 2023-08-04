@@ -208,7 +208,8 @@ void liberarRecursosTomados(t_pcb* pcb){
         pthread_mutex_unlock(&semaforos_io[recursoTomado->indiceSemaforo]);
         log_info(info_logger,"PID:<%d> - libera Recurso:<%s> - Instancias <%d>", pcb->id, recursoTomado->nombreRecurso, recursoTomado->instanciasRecurso);
     }
-    list_destroy(pcb->recursosTomados); //No se hace la liberacion ya que no es correcto, los recursos pertenecen al sistema
+    list_clean(pcb->recursosTomados);
+    //No se hace la liberacion ya que no es correcto, los recursos pertenecen al sistema
     //la liberacion de los recursos se tiene que hacer en liberarPrograma
 }
 

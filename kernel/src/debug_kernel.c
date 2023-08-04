@@ -128,12 +128,14 @@ void liberarSemaforos(){
 }
 
 void liberarArchivoPeticion(t_archivoPeticion* archivoPeticion){
+    free(archivoPeticion->archivo->nombreArchivo);
     free(archivoPeticion->archivo);
     free(archivoPeticion);
 }
 
 void liberarManejoFs(){
     list_destroy_and_destroy_elements(tablaGlobal_ArchivosAbiertos,liberarArchivoPeticion);
+
     list_destroy_and_destroy_elements(listaPeticionesArchivos,free); //solo free pq el archivo ya se libera arriba
 
     log_trace(trace_logger,"Se elimino las tablas para el manejo de FS");
@@ -148,7 +150,7 @@ void liberarSemaforoDinamico(){
 }
 
 void destruirConfig(){
-    config_destroy(file_cfg_kernel);//TODO este me genera SISEGV
+    config_destroy(file_cfg_kernel);
     log_trace(trace_logger,"Se libera el file config");
 }
 
@@ -162,6 +164,8 @@ void destruirCfg(){
     free(cfg_kernel->PUERTO_CPU);
     free(cfg_kernel->PUERTO_ESCUCHA);
     free(cfg_kernel->ALGORITMO_PLANIFICACION);
+    string_array_destroy(cfg_kernel->RECURSOS);
+    string_array_destroy(cfg_kernel->INSTANCIAS_RECURSOS);
     free(cfg_kernel);
 
 }
