@@ -1555,7 +1555,7 @@ t_pcb*  recibir_pcb_direccion(int conexion,uint32_t* parametroDireccion) {
 
     memcpy(parametroDireccion, buffer + desplazamiento, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
-
+    free(buffer);
     return unPcb;
 }
 
@@ -1569,7 +1569,7 @@ void enviar_archivoTruncacion(t_archivoTruncate* archivoTruncate, int conexion, 
 
 void agregar_archivoTruncacion_a_paquete(t_paquete* paquete, t_archivoTruncate* archivoTruncate){
     agregar_a_paquete(paquete, &(archivoTruncate->nombreArchivoLength), sizeof(uint32_t));
-    agregar_a_paquete(paquete, archivoTruncate->nombreArchivo, archivoTruncate->nombreArchivoLength + 1);
+    agregar_a_paquete(paquete, archivoTruncate->nombreArchivo, archivoTruncate->nombreArchivoLength);
     agregar_a_paquete(paquete,&(archivoTruncate->nuevoTamanio), sizeof (uint32_t));
 }
 
@@ -1585,8 +1585,8 @@ t_archivoTruncate* recibir_archivoTruncacion(int conexion){
     desplazamiento += sizeof(uint32_t);
 
     archivoTruncacion->nombreArchivo = malloc(archivoTruncacion->nombreArchivoLength + 1);
-    memcpy(archivoTruncacion->nombreArchivo, buffer + desplazamiento, archivoTruncacion->nombreArchivoLength+1);
-    desplazamiento += archivoTruncacion->nombreArchivoLength+1;
+    memcpy(archivoTruncacion->nombreArchivo, buffer + desplazamiento, archivoTruncacion->nombreArchivoLength);
+    desplazamiento += archivoTruncacion->nombreArchivoLength;
 
     memcpy(&(archivoTruncacion->nuevoTamanio), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);

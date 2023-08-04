@@ -175,7 +175,7 @@ void crear_fcbs_del_directorio() {
                 aux_FCB->PUNTERO_INDIRECTO = config_get_int_value(aux_config, "PUNTERO_INDIRECTO");
 
                 aux_FCB->fcb_config = aux_config;
-
+                free(nombre);
                 free(path_fcb_config);
 
 			    list_add(lista_FCBs,aux_FCB);
@@ -310,6 +310,7 @@ bool levantarArchivoBloques(){
         close( archivoBloques->fd);
         return false;
     }
+    archivoBloques->tamanio = tamanio;
     log_debug(debug_logger,"Se levanto el archivo de bloques");
     return true;
 }

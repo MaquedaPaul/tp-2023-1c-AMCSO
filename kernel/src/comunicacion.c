@@ -68,6 +68,7 @@ void procesar_conexion(void *void_args) {
                 break;
             }
             case YIELD:{
+
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
                 t_pcb* pcbActualizada = obtenerPcbExec();
@@ -612,6 +613,8 @@ void solicitarCreacionSegmentoMemoria(t_pcb* pcb){
 
     log_info(info_logger,"PID: <%d> - Crear Segmento - Id: <%d> - Tamaño: <%d>", pcb->id,idSegmento,tamSegmento);
     enviarListaUint32_t(listaIntsMemoria,fd_memoria,info_logger,CREACION_SEGMENTOS);
+    list_clean(listaIntsMemoria);
+    list_destroy(listaIntsMemoria);
 }
 
 void actualizarPcbExec(t_pcb* pcbRecibida){
