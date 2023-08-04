@@ -149,8 +149,8 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
        for (uint32_t i = 0; i < cantidad_de_punteros; i++) {
 
            uint32_t* puntero_a_escribir = list_get(lista_bloques,i);
+           accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, i+1, *puntero_a_escribir );
            uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
-
            memcpy(archivoBloques->archivo + posicion_del_puntero_indirecto, puntero_a_escribir, sizeof(uint32_t));
            offset += sizeof(uint32_t);
 
@@ -279,6 +279,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
                 accesoABitmap(puntero_indirecto, bitarray_test_bit(bitmap, puntero_indirecto));
                 bitarray_clean_bit(bitmap,puntero_indirecto);
                 accesoABitmap(puntero_indirecto, bitarray_test_bit(bitmap, puntero_indirecto));
+                accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, puntero_directo);
                 log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
 
                 aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
