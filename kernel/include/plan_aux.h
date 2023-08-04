@@ -15,14 +15,12 @@ void eliminarElementoLista(t_pcb* , t_list*);
 
 t_pcb *crearPcb (t_list* listaInstrucciones);
 registros_cpu *crearRegistroCPU ();
-void actualizarTiempoRafaga(t_pcb*);
+
 
 
 //FILESYSTEM
 void ejecutar_FOPEN(t_pcb*);
-void ejecutar_FOPEN_socket(int);
 void ejecutar_FCLOSE(t_pcb*);
-void ejecutar_FCLOSE_porNombreArchivo(t_pcb* , char*);
 void ejecutar_FSEEK(t_pcb* );
 void ejecutar_FTRUNCATE( t_pcb* );
 void ejecutar_FREAD(t_pcb*,uint32_t direccionFisica);

@@ -928,9 +928,6 @@ void agregar_PCB_a_paquete(t_paquete *paquete, t_pcb* pcb) {
     agregar_a_paquete(paquete, &(pcb->id), sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb->programCounter), sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb->estimacionRafaga), sizeof(uint32_t));
-    agregar_a_paquete(paquete, &(pcb->rafagaAnterior), sizeof(uint32_t));
-    agregar_a_paquete(paquete, &(pcb->tiempoLlegadaReady), sizeof(uint32_t));
-    agregar_a_paquete(paquete, &(pcb->tiempoEnvioExec), sizeof(uint32_t));
     agregar_a_paquete(paquete, &(pcb->fd_consola), sizeof (uint32_t));
     //la parte de la PCB que no son uint32_t
     //PCB: REGISTROS CPU, INSTRUCCIONES, TABLA SEGMENTOS
@@ -1002,17 +999,6 @@ t_pcb * recibir_pcb(int conexion) {
     memcpy(&(unPcb->estimacionRafaga), buffer + desplazamiento, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
 
-    //RAFAGA ANTERIOR
-    memcpy(&(unPcb->rafagaAnterior), buffer + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    //TIEMPO LLEGADA READY
-    memcpy(&(unPcb->tiempoLlegadaReady), buffer + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    //TIEMPO ENVIO EXEC
-    memcpy(&(unPcb->tiempoEnvioExec), buffer + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
 
     //FD_CONSOLA
     memcpy(&(unPcb->fd_consola), buffer + desplazamiento, sizeof(uint32_t));
@@ -1223,9 +1209,6 @@ t_pcb * recibir_paquete_con_PCB(uint32_t* desplazamiento, char* buffer) {
     unPcb->id                 = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento) ;
     unPcb->programCounter     = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento) ;
     unPcb->estimacionRafaga   = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento) ;
-    unPcb->rafagaAnterior     = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento) ;
-    unPcb->tiempoLlegadaReady = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento) ;
-    unPcb->tiempoEnvioExec    = sacar_uint32_t_de_paquete(desplazamiento, buffer + *desplazamiento) ;
   
     registros_cpu* registro = malloc(sizeof(registros_cpu));
 
@@ -1358,98 +1341,12 @@ uint8_t  sacar_uint8_t_de_paquete( uint32_t*desplazamiento, char* buffer) {
 
 
 
-void agregar_PCB_a_paquete2(t_paquete *paquete,t_pcb* pcb) {  
-
-    agregar_a_paquete(paquete, &(pcb->id),sizeof(uint32_t)); 
-    agregar_a_paquete(paquete, &(pcb->programCounter),sizeof(uint32_t)); 
-    agregar_a_paquete(paquete, &(pcb->estimacionRafaga),sizeof(uint32_t)); 
-    agregar_a_paquete(paquete, &(pcb->rafagaAnterior),sizeof(uint32_t)); 
-    agregar_a_paquete(paquete, &(pcb->tiempoLlegadaReady),sizeof(uint32_t)); 
-    agregar_a_paquete(paquete, &(pcb->tiempoEnvioExec),sizeof(uint32_t)); 
-    agregar_registros_a_paquete2(paquete,pcb->registrosCpu);
-    agregar_instrucciones_a_paquete2(paquete, pcb->instr);
-    agregar_segmentos_a_paquete2(paquete, pcb->tablaSegmentos);
-}
-
-void agregar_registros_a_paquete2(t_paquete* paquete,registros_cpu* registro) {
-
-   agregar_registroPCB(registro->registro_AX,paquete);
-   agregar_registroPCB(registro->registro_BX,paquete);
-   agregar_registroPCB(registro->registro_CX,paquete);
-   agregar_registroPCB(registro->registro_DX,paquete);
-   agregar_registroPCB(registro->registro_EAX,paquete);
-   agregar_registroPCB(registro->registro_EBX,paquete);
-   agregar_registroPCB(registro->registro_ECX,paquete);
-   agregar_registroPCB(registro->registro_EDX,paquete);
-   agregar_registroPCB(registro->registro_RAX,paquete);
-   agregar_registroPCB(registro->registro_RBX,paquete);
-   agregar_registroPCB(registro->registro_RCX,paquete);
-   agregar_registroPCB(registro->registro_RDX,paquete);
-}
 
 void agregar_registroPCB(char* nombre_registro,t_paquete* paquete){
 
             uint32_t tamanio = strlen(nombre_registro)+1;
             agregar_a_paquete(paquete, &(tamanio),sizeof(uint32_t)); 
             agregar_a_paquete(paquete,nombre_registro,tamanio); 
-}
-
-void agregar_instrucciones_a_paquete2(t_paquete* paquete, t_list* instrucciones ) {
-
-       uint32_t tamanio11 = list_size(instrucciones);
-       agregar_a_paquete(paquete, &(tamanio11),sizeof(uint32_t));
-
-	for (int k = 0; k < tamanio11; k++) {
-
-            t_instr* instruc = list_get(instrucciones,k);
-            agregar_a_paquete(paquete, &(instruc->idLength),sizeof(uint8_t)); 
-            agregar_a_paquete(paquete,instruc->id,instruc->idLength+1); 
-
-            agregar_a_paquete(paquete, &(instruc->cantidad_parametros),sizeof(uint8_t)); 
-
-        if(instruc->cantidad_parametros == 1){
-        agregar_a_paquete(paquete, &(instruc->param1Length),sizeof(uint8_t)); 
-        agregar_a_paquete(paquete,instruc->param1,instruc->param1Length + 1); 
-        }
-        if(instruc->cantidad_parametros == 2){
-        agregar_a_paquete(paquete, &(instruc->param1Length),sizeof(uint8_t)); 
-        agregar_a_paquete(paquete,instruc->param1,instruc->param1Length + 1); 
-
-        agregar_a_paquete(paquete, &(instruc->param2Length),sizeof(uint8_t)); 
-        agregar_a_paquete(paquete,instruc->param2,instruc->param2Length + 1); 
-        }
-        if(instruc->cantidad_parametros == 3){
-        agregar_a_paquete(paquete, &(instruc->param1Length),sizeof(uint8_t)); 
-        agregar_a_paquete(paquete,instruc->param1,instruc->param1Length + 1); 
-
-        agregar_a_paquete(paquete, &(instruc->param2Length),sizeof(uint8_t)); 
-        agregar_a_paquete(paquete,instruc->param2,instruc->param2Length + 1); 
-
-        agregar_a_paquete(paquete, &(instruc->param3Length),sizeof(uint8_t)); 
-        agregar_a_paquete(paquete,instruc->param3,instruc->param3Length + 1); 
-        }
-    }
-}
-
-void agregar_segmentos_a_paquete2(t_paquete* paquete, t_list* segmentos){
-
-            uint32_t tamanio_lista_segmentos=list_size(segmentos);
-            agregar_a_paquete(paquete, &(tamanio_lista_segmentos),sizeof(uint32_t));
-
-            for (int i = 0; i < tamanio_lista_segmentos; i++) {
-
-            t_segmento* seg = list_get(segmentos,i);
-            agregar_a_paquete(paquete, &(seg->id),sizeof(uint32_t));            
-            agregar_a_paquete(paquete, &(seg->base),sizeof(uint32_t));            // ver el orden de los demas 
-            agregar_a_paquete(paquete, &(seg->limite),sizeof(uint32_t)); 
-           }
-}
-
-void enviar_paquete_pcb2(t_pcb* pcb, int conexion, op_code codigo, t_log* info_logger){
-    t_paquete* paquete= crear_paquete(codigo, info_logger);
-    agregar_PCB_a_paquete2(paquete,pcb);
-    enviar_paquete(paquete, conexion);
-    eliminar_paquete(paquete, info_logger);
 }
 
 
@@ -1479,18 +1376,6 @@ t_pcb*  recibir_pcb_direccion(int conexion,uint32_t* parametroDireccion) {
 
     //ESTIMACION RAFAGA
     memcpy(&(unPcb->estimacionRafaga), buffer + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    //RAFAGA ANTERIOR
-    memcpy(&(unPcb->rafagaAnterior), buffer + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    //TIEMPO LLEGADA READY
-    memcpy(&(unPcb->tiempoLlegadaReady), buffer + desplazamiento, sizeof(uint32_t));
-    desplazamiento += sizeof(uint32_t);
-
-    //TIEMPO ENVIO EXEC
-    memcpy(&(unPcb->tiempoEnvioExec), buffer + desplazamiento, sizeof(uint32_t));
     desplazamiento += sizeof(uint32_t);
 
     //FD_CONSOLA

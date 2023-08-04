@@ -21,10 +21,9 @@ t_pcb* crearPcb(t_list* listaInstrucciones)
   t_pcb *pcb = malloc(sizeof(t_pcb));
   pcb->id = idProcesoGlobal++;
   pcb->programCounter = 0;
-  pcb->rafagaAnterior = 0;
   pcb->estimacionRafaga = cfg_kernel->ESTIMACION_INICIAL;
-  pcb->tiempoLlegadaReady = 0;
-  pcb->tiempoEnvioExec = 0;
+  pcb->tiempoIngresoReady = 0;
+  pcb->tiempoInicialExec = 0;
   pcb->registrosCpu = crearRegistroCPU();
   pcb->instr = listaInstrucciones;
   pcb->tablaSegmentos = NULL;
@@ -55,45 +54,6 @@ registros_cpu* crearRegistroCPU() {
     return puntero_registros;
 }
 
-
-
-//Actualizar pcb
-
-void actualizarTiempoRafaga(t_pcb* pcbEjecutado){
-
-    time_t t_actual = time(NULL) ;
-    double t_envioExec = pcbEjecutado->tiempoEnvioExec;
-    
-    pcbEjecutado->rafagaAnterior = t_actual - t_envioExec;
-    
-}
-
-//----------------------------FileSystem----------------------------------
-/*ACOTACIONES
-1.FCLOSE retoma FOPEN si hay alguno encolado, sino borra la entrada en TGAA
-2.Se implemento una tabla local de peticiones a FS para trackear archivo-pcb-opCode
-3.FSEEK no avisa a FS o CPU
-4.FTRUNCATE FREAD FWRITE bloquean el proceso
-
-void* datosRecibidos = recibirDatos(socket_cliente, tamanioDatos);
-
-// Suponiendo que los datos están compuestos por: posición 1 (estructura),  posición 2 (int) y posición 3(string)
-// Ejemplo de uso de la estructura en posición 1
-Estructura* estructuraRecibida = (Estructura*)datosRecibidos;
-int enteroRecibido;
-memcpy(&enteroRecibido, datosRecibidos + sizeof(Estructura)  + 1, sizeof(int));
-// Ejemplo de uso del string en posición 3 --> hay que evaluarlo segun los ints/struct que tenga antes e ir sumando sizeof
-char* cadenaRecibida = (char*)(datosRecibidos + (sizeof(Estructura)+sizeof(int)));
-free(datosRecibidos);
-
-FALTA
-
-    1. verificar bloq de pcb x filesystem o devolver a exec --> AVERIGUAR que hacer con la pcb
-    5. FSEEK: que tiene que avisar a FS o CPU?
-    8. COORDINAR CON COMPACTACION
-
-*/
-//TODO habria que hacer free de archivo,t_archivoPeticion y t_archivoLocal
 
 void ejecutar_FOPEN(t_pcb* pcb){
     //F_OPEN ARCHIVO
@@ -140,28 +100,6 @@ void ejecutar_FOPEN(t_pcb* pcb){
     pthread_mutex_unlock(&mutex_TGAA);
 
 }
-/*
-pthread_mutex_lock(&mutex_listaPeticionesArchivos);
-
-for(int i = 0 ; i < list_size(listaPeticionesArchivos); i++){
-t_archivoPeticion* archivoPeticion = list_get(listaPeticionesArchivos,i);
-if(strcmp(archivoPeticion->archivo->nombreArchivo,nomArch)== 0){
-list_remove(listaPeticionesArchivos,i);
-
-pthread_mutex_lock(&mutex_TGAA);
-list_add(tablaGlobal_ArchivosAbiertos,archivoPeticion);
-pthread_mutex_unlock(&mutex_TGAA);
-
-t_archivoLocal* archivoLocal = malloc(sizeof (t_archivoLocal));
-archivoLocal->archivo = archivoPeticion->archivo;
-archivoLocal->ptro = 0;
-list_add(archivoPeticion->pcb->tablaArchivosAbiertos,archivoLocal);
-enviar_paquete_pcb(archivoPeticion->pcb, fd_cpu, PCB, info_logger);
-break;
-}
-}
-pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
-*/
 
 char* obtenerNombreArchivo(t_pcb* pcb){
     t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
@@ -258,7 +196,6 @@ void ejecutar_FCLOSE(t_pcb* pcb) {
             0) { //Si hay procesos blockeados esperando por ese archivo
             list_remove(listaPeticionesArchivos, i);
             actualizarDuenioTGAA(archivoPeticion->archivo->nombreArchivo, archivoPeticion->pcb);
-            //sem_wait(&sem_procesosReady); //Lo pongo para frenar el planificador de corto ya que no tiene que replanificar todavia
             moverProceso_BloqReady(archivoPeticion->pcb);
             free(archivoPeticion);
             hayProcesosEsperandoPorArchivo = true;

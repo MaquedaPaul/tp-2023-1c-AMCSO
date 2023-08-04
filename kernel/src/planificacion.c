@@ -51,6 +51,7 @@ void moverProceso_NewReady(t_tablaSegmentos* tablaDeSegmentosMemoria){
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady,pcbAReady);
     pthread_mutex_unlock(&mutex_ColaReady);
+    pcbAReady->tiempoIngresoReady = time(NULL);
     sem_post(&sem_procesosReady);
     mostrarEstadoColas();
 }
@@ -60,6 +61,7 @@ void bloquearProcesoPorRecurso(t_recurso* recurso){
     t_pcb* pcbABlockedRecurso = list_remove(colaExec,0);
     pthread_mutex_unlock(&mutex_colaExec);
 
+    calcular_estimacion(pcbABlockedRecurso);
     sem_post(&sem_cpuLibre);
 
     pthread_mutex_lock(&semaforos_io[recurso->indiceSemaforo]);
@@ -76,6 +78,7 @@ void moverProceso_BloqrecursoReady(t_recurso* recurso){
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady,pcbLiberada);
     pthread_mutex_unlock(&mutex_ColaReady);
+    pcbLiberada->tiempoIngresoReady = time(NULL);
     sem_post(&sem_procesosReady);
     log_info(info_logger,"PID: <%d> - Estado Anterior: <BLOCKED_RECURSO[%s]> - Estado Actual: <READY>",pcbLiberada->id,recurso->nombreRecurso);
     mostrarEstadoColas();
@@ -105,32 +108,54 @@ void agregarProceso_New(t_pcb *pcbNew){
     sem_post(&sem_procesosEnNew);
 }
 
+//R.R. = (S + W) / S
+//Donde S = Ráfaga estimada y W = Tiempo de espera.
+
+double response_ratio(t_pcb* pcb){
+    time_t tiempo_actual = time(NULL);
+    double espera = difftime(tiempo_actual, pcb->tiempoIngresoReady);
+    double rr = (pcb->estimacionRafaga + espera * 1000) / pcb->estimacionRafaga;
+    log_info(info_logger, "El response ratio del proceso <%d> es:  %f",pcb->id, rr);
+    return rr;
+}
+
+void calcular_estimacion(t_pcb* pcb){
+    time_t tiempo_actual = time(NULL);
+    double rafaga = difftime(tiempo_actual, pcb->tiempoInicialExec);
+    //S = α . estimadoAnterior + (1 - α) . ráfagaAnterior
+    uint32_t nueva_estimacion = cfg_kernel->HRRN_ALFA * pcb->estimacionRafaga + (1-cfg_kernel->HRRN_ALFA) * rafaga * 1000;
+    pcb->estimacionRafaga = nueva_estimacion;
+    log_info(info_logger, "La estimacion para el proceso <%d> es: %d", pcb->id, nueva_estimacion);
+}
+
+bool criterio_hrrn(t_pcb* pcb1, t_pcb* pcb2){
+    return response_ratio(pcb1) >= response_ratio(pcb2);
+}
+
 void moverProceso_readyExec(){
         pthread_mutex_lock(&mutex_ColaReady);
         pthread_mutex_lock(&mutex_colaExec);
 
         if(strcmp(cfg_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
-            int posicion = seleccionar_segunHRRN();
-            t_pcb *pcbReady = list_get(colaReady,posicion);
-            pcbReady->tiempoEnvioExec = time(NULL) ;
-            list_add(colaExec, pcbReady);
-            list_remove(colaReady,posicion);
+            mostrarEstadoColas();
+            list_sort(colaReady,(void*)criterio_hrrn);
+            t_pcb* pcb = list_remove(colaReady,0);
+            list_add(colaExec,pcb);
+            pcb->tiempoInicialExec = time(NULL) ;
             pthread_mutex_unlock(&mutex_ColaReady);
             pthread_mutex_unlock(&mutex_colaExec);
        
-            enviar_paquete_pcb(pcbReady, fd_cpu,PCB, info_logger);
-            log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
+            enviar_paquete_pcb(pcb, fd_cpu,PCB, info_logger);
+            log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcb->id);
             mostrarEstadoColas();
 
         }
         else{
             //ALGORITMO FIFO
-            t_pcb *pcbReady = list_get(colaReady,0);
+            t_pcb *pcbReady = list_remove(colaReady,0);
             list_add(colaExec,pcbReady);
-            list_remove(colaReady,0);
             pthread_mutex_unlock(&mutex_ColaReady);
             pthread_mutex_unlock(&mutex_colaExec);
-       
             enviar_paquete_pcb(pcbReady, fd_cpu,PCB, info_logger);
             log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
             mostrarEstadoColas();
@@ -149,31 +174,13 @@ void moverProceso_ExecBloq(t_pcb *pcbBuscado){
     pthread_mutex_unlock(&mutex_colaBloq);
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: BLOQ.", pcbBuscado->id);
+
+    calcular_estimacion(pcbBuscado);
     sem_post(&sem_cpuLibre);
 
     mostrarEstadoColas();
 }
 
-
-
-/*
-void moverProceso_ExecReady(pcb *pcbBuscado){ 
-
-    pthread_mutex_lock(&mutex_colaExec);
-    eliminarElementoLista(pcbBuscado, colaExec);
-
-    enviar_paquete_pcb(pcbReady, fd_cpu,INTERRUPCION, logger_kernel);
-
-    pthread_mutex_lock(&mutex_ColaReady);
-    list_add(colaReady, (void *) pcbBuscado);
-
-    log_info(logger_kernel, "PID: [%d] - Estado Anterior: EXEC- Estado Actual: READY.", pcbBuscado->pid);
-
-    pthread_mutex_unlock(&mutex_ColaReady1);
-    pthread_mutex_unlock(&mutex_colaExec);
-
-}
-*/
 
 void moverProceso_BloqReady(t_pcb* pcbBuscado){
 
@@ -181,13 +188,12 @@ void moverProceso_BloqReady(t_pcb* pcbBuscado){
     eliminarElementoLista(pcbBuscado, colaBloq);
     pthread_mutex_unlock(&mutex_colaBloq);
 
-    //HHRN
-    //pcbBuscado->tiempoLlegadaReady = time(NULL);
 
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady, pcbBuscado);
     pthread_mutex_unlock(&mutex_ColaReady);
     log_info(info_logger, "PID: [%d] - Estado Anterior: BLOQ - Estado Actual: READY.", pcbBuscado->id);
+    pcbBuscado->tiempoIngresoReady = time(NULL);
     sem_post(&sem_procesosReady);
     mostrarEstadoColas();
 
@@ -244,69 +250,10 @@ void moverProceso_ExecReady(t_pcb* pcbBuscado){
     pthread_mutex_unlock(&mutex_ColaReady);
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
+    pcbBuscado->tiempoIngresoReady = time(NULL);
+    calcular_estimacion(pcbBuscado);
     sem_post(&sem_procesosReady);
     sem_post(&sem_cpuLibre);
     mostrarEstadoColas();
 
 }
-
-int seleccionar_segunHRRN(){ 
-    
-    /* ::REQUIERE::: 
-                    -setear tiempoLlegadaReady cuando pcb llega a ready
-                    -setear rafagaAnterior cuando vuelve de exec
-                    -actualizar rafagaEstProx en pcb.rafagaEstimada cuando se selecciona para HRRN
-
-
-    */
-
-    int mejorOpcion = 0; // index mejor posicion en lista
-
-    double tEspera = 0;
-    double rafagaEstProx = 0;
-    double rafagaEstProxElegida = 0;
-    time_t tFin = time(NULL) ;
-    double resultado = 0;
-    double mejorRR = 0;
-    t_pcb *pcbBuscado;
-
-
-    for (size_t i = 0; i < list_size(colaReady); i++)
-    {
-        pcbBuscado = list_get(colaReady,i);
-
-       tEspera =  tFin - pcbBuscado->tiempoLlegadaReady;
-
-       if (pcbBuscado->estimacionRafaga == 0) //se puede mover al crear PCB
-       {
-            pcbBuscado->estimacionRafaga = cfg_kernel->ESTIMACION_INICIAL;
-            pcbBuscado->rafagaAnterior = 0;
-       }
-       
-       rafagaEstProx = (cfg_kernel->HRRN_ALFA * pcbBuscado->rafagaAnterior)+ ((1-cfg_kernel->HRRN_ALFA )*pcbBuscado->estimacionRafaga);
-
-       
-       resultado = 1 + (tEspera / rafagaEstProx);
-
-       if(mejorRR == 0){
-        mejorRR = resultado;
-        mejorOpcion = i;
-        rafagaEstProxElegida = rafagaEstProx;
-       }
-
-       if(mejorRR > resultado){
-        mejorRR = resultado;
-        mejorOpcion = i;
-        rafagaEstProxElegida = rafagaEstProx;
-       }
-
-    }
-
-    //Actualizo la rafaga estimada del pcb elegido    
-    pcbBuscado = list_get(colaReady,mejorOpcion);
-    pcbBuscado->estimacionRafaga = rafagaEstProxElegida;
-    
-    return mejorOpcion;
-}
-
-

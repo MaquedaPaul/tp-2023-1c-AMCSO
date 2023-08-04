@@ -108,9 +108,9 @@ typedef struct{
 	uint32_t id;
 	uint32_t programCounter;
     uint32_t estimacionRafaga;
-    uint32_t rafagaAnterior;
-    uint32_t tiempoLlegadaReady;
-    uint32_t tiempoEnvioExec;
+    //uint32_t rafagaAnterior;
+    time_t tiempoIngresoReady; //No lo serializamos mas pq son time_t
+    time_t tiempoInicialExec; //Tampoco
     uint32_t fd_consola;
     registros_cpu* registrosCpu;
     t_list* instr;
