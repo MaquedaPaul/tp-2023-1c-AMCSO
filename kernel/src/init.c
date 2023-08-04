@@ -43,6 +43,7 @@ pthread_mutex_t mutex_debug_logger;
 sem_t sem_procesosEnNew;
 sem_t sem_procesosReady;
 sem_t sem_procesosExit;
+sem_t sem_cpuLibre;
 
 
 //HILOS
@@ -152,6 +153,7 @@ void inicializar_kernel(){
     sem_init(&sem_procesosEnNew,0,0);
     sem_init(&sem_procesosReady,0,0);
     sem_init(&sem_procesosExit,0,0);
+    sem_init(&sem_cpuLibre,0,1);
 
     semaforosCargados = true;
 

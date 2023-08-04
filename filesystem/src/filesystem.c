@@ -80,7 +80,6 @@ void* leerArchivo(void* cliente_socket){
     free(datosAEnviar);
 }
 
-
 void* escribirArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
     t_archivoRW* archivo = recibir_archivoRW(conexion);
@@ -95,6 +94,7 @@ void* escribirArchivo(void* cliente_socket){
     list_add(listaInts,  &archivo->direcFisica);
     list_add(listaInts,  &archivo->cantidadBytes);
     list_add(listaInts, &pid);
+    list_add(listaInts, &archivo->posPuntero);
 
     log_debug(debug_logger, "se solicita a memoria leer en df");
     enviarListaUint32_t(listaInts,fd_memoria,info_logger, ACCESO_PEDIDO_LECTURA);
@@ -107,17 +107,22 @@ void* escribirArchivo(void* cliente_socket){
 
 void* finalizarEscrituraArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
-    uint32_t tamanioDatos = 16;
-    uint32_t puntero=60;
-    int df=16;
-    void* datos = recibirDatos(conexion, tamanioDatos);
-    char* nombreArchivo = obtenerPrimerArchivoUsado();
 
-    escrituraArchivo(nombreArchivo, puntero, df, tamanioDatos);
-    realizarEscrituraArchivo(nombreArchivo,  puntero, datos, tamanioDatos);
+    t_datos* unosDatos = malloc(sizeof(t_datos));
+    t_list* listaInts = recibirListaIntsYDatos(conexion, unosDatos);
+    uint32_t* direccionFisica = list_get(listaInts,0);
+    uint32_t pid = *(uint32_t*)list_get(listaInts,1);
+    uint32_t punteroArchivo = *(uint32_t*)list_get(listaInts,2);
+
+    char* nombreArchivo = obtenerPrimerArchivoUsado();
+    escrituraArchivo(nombreArchivo, punteroArchivo, *direccionFisica, unosDatos->tamanio);
+    realizarEscrituraArchivo(nombreArchivo,  punteroArchivo, unosDatos->datos, unosDatos->tamanio);
     enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger);
-    free(datos);
+    free(unosDatos->datos);
+    free(unosDatos);
+    free(nombreArchivo);
 }
+
 
 void* finalizarLecturaArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
