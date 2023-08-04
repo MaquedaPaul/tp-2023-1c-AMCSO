@@ -121,13 +121,30 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
        uint32_t cantidad_de_bloques = 1 + ((nuevo_tamanio - 1) / cfg_superbloque->BLOCK_SIZE);
 
+       uint32_t bloque = 0;
        for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
-          uint32_t bloque_libre = obtener_bloque_libre(bitmap) ;
+          uint32_t bloque_libre = obtener_bloque_libre(bitmap,bloque) ;
           uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t));
           *nuevo_bloque_libre = bloque_libre;
           list_add(lista_bloques, nuevo_bloque_libre);
+          bloque= bloque_libre+1;
        }
+
+       /*
+       
+            uint32_t bloque = 0;
+            for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
+
+            uint32_t bloque_libre = obtener_bloque_libre(bitmap,bloque) ;
+            uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t));
+            *nuevo_bloque_libre = bloque_libre;
+            list_add(lista_bloques, nuevo_bloque_libre);
+            bloque= bloque_libre+1;
+            }
+       
+       
+       */
 
        aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
 
@@ -168,6 +185,9 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
     // agrego en el archivo de bloques los punteros 
 
     }else {
+
+        //   uint32_t bloque = 0;
+        //   uint32_t puntero_directo = obtener_bloque_libre(bitmap, bloque) ;
 
         uint32_t puntero_directo = obtener_bloque_libre(bitmap) ;
         aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
@@ -230,7 +250,20 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
               list_add(lista_bloques, nuevo_bloque_libre);
 
              }
+       /*
+       
+            uint32_t bloque = 0;
+            for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
+            uint32_t bloque_libre = obtener_bloque_libre(bitmap,bloque) ;
+            uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t));
+            *nuevo_bloque_libre = bloque_libre;
+            list_add(lista_bloques, nuevo_bloque_libre);
+            bloque= bloque_libre+1;
+            }
+       
+       
+       */
             uint32_t* enteroAuxInd = list_remove(lista_bloques,0);
             aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
             aux_FCB->PUNTERO_INDIRECTO = *enteroAuxInd;
@@ -360,7 +393,20 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
               list_add(lista_bloques, nuevo_bloque_libre);
 
           }
+       /*
+       
+            uint32_t bloque = 0;
+            for (uint32_t i = 0; i <= cantidad_de_bloques; i++) {
 
+            uint32_t bloque_libre = obtener_bloque_libre(bitmap,bloque) ;
+            uint32_t *nuevo_bloque_libre = malloc(sizeof(uint32_t));
+            *nuevo_bloque_libre = bloque_libre;
+            list_add(lista_bloques, nuevo_bloque_libre);
+            bloque= bloque_libre+1;
+            }
+       
+       
+       */
           t_config* archivo_config = aux_FCB->fcb_config;
           uint32_t puntero_indirecto = config_get_int_value(archivo_config, "PUNTERO_INDIRECTO");
           //log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
@@ -456,6 +502,32 @@ uint32_t obtener_bloque_libre(t_bitarray* bitmap) {
 	log_info(info_logger, "No se obtuvo un bloque libre");
     return -1;
 }
+
+/*
+
+uint32_t obtener_bloque_libre(t_bitarray* bitmap, uint32_t ultimo_bloque) {
+
+    for (uint32_t i = ultimo_bloque ; i < bitarray_get_max_bit(bitmap); i++) {
+            accesoABitmap(i, bitarray_test_bit(bitmap, i));
+
+        if (!bitarray_test_bit(bitmap, i)) {
+
+            bitarray_set_bit(bitmap, i);
+            accesoABitmap(i, bitarray_test_bit(bitmap, i));
+
+            return i;
+        }
+    }
+
+    int tamanio = obtener_tamanio_bitmap();
+    msync(bitmap, archivoBloques->tamanio, MS_SYNC);
+	log_info(info_logger, "No se obtuvo un bloque libre");
+    return -1;
+}
+
+*/
+
+
 
 int obtener_tamanio_bitmap(){
 
