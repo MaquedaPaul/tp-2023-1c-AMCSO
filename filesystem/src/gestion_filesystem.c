@@ -586,7 +586,6 @@ void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void
 
 void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroArchivo, void* datos, uint32_t tamanioAEscrbir, t_config_fcb* fcb){
 
-    //tamanioAEscrbir = 31;
     void* datoAEscribirFaltante =NULL;
 
     uint32_t bytesQueSePuedenEscrbirEnUnBloque = cantidadDisponibleDelBloque(posicionBloque);
@@ -595,7 +594,7 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
     uint32_t numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
     uint32_t bytesYaEscritos = 0;
-    log_debug(debug_logger,"puntero a escrbir en el archivo de bloques: %d ", punteroArchivo);
+
     log_debug(debug_logger,"bytesQueSePuedenEscrbirEnUnBloque: %d", bytesQueSePuedenEscrbirEnUnBloque);
 
     //char* datoLeidoDeMemoria = malloc(tamanioAEscrbir +1);
@@ -624,7 +623,7 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
 
             uint32_t cantidadBytesQueFaltanEscrbir = cantidadBytesQueNoSePuedeLeerEnUnBloque(cantidadBytesNoEscrita);
             uint32_t nuevoTamanio = cantidadBytesNoEscrita - cantidadBytesQueFaltanEscrbir;
-            numeroBloque++;
+            numeroBloque +=1;
             numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
             datoAEscribirFaltante = malloc(nuevoTamanio);
@@ -666,15 +665,12 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
 
     uint32_t numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
-    log_debug(debug_logger, "Tamanio archivo: %d", fcb->TAMANIO_ARCHIVO);
 
     if (loQueSePuedeLeerEnUnBloque >= tamanioALeer) {
         log_debug(debug_logger, "SE VA A LEER EN UN BLOQUE");
-        datoLeido = malloc(tamanioALeer + 1);
+        datoLeido = malloc(tamanioALeer);
         memcpy(datoLeido, archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  tamanioALeer);
 
-        char* dato = (char*) datoLeido;
-        log_debug(debug_logger, "Dato leido: %s", dato);
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
     }else{
@@ -717,8 +713,8 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
         }
     }
 
-    char* datoLeidoDeMemoria = malloc(tamanioALeer +1);
-    memcpy(datoLeidoDeMemoria,datoLeido, tamanioALeer +1);
+    char* datoLeidoDeMemoria = malloc(tamanioALeer);
+    memcpy(datoLeidoDeMemoria,datoLeido, tamanioALeer);
     log_debug(debug_logger,"dato leido del archivo: %s", datoLeidoDeMemoria);
     free(datoLeidoDeMemoria);
     return datoLeido;
@@ -740,18 +736,22 @@ int buscarPosicionDentroDelBloque(uint32_t punteroArchivo, uint32_t numeroBloque
 
 uint32_t buscarNumeroDeBloqueDelArchivoDeBloque(int numero_bloque, t_config_fcb* fcb) {
 
+    uint32_t offset = sizeof(uint32_t) * (numero_bloque- 2);
     if (numero_bloque == 1) {
         log_debug(debug_logger,"puntero directo: %d ",  fcb->PUNTERO_DIRECTO);
         return fcb->PUNTERO_DIRECTO;
 
-    }else{
+    }else {
 
-        uint32_t offset = sizeof(uint32_t) * (numero_bloque- 2);
+        uint32_t offset = sizeof(uint32_t) * (numero_bloque - 2);
+        log_debug(debug_logger, "offset para el bloque de punteros: %d", offset);
         uint32_t numeroBloqueDelPunteroDeBloques;
-        memcpy(&numeroBloqueDelPunteroDeBloques, archivoBloques-> archivo + (fcb -> PUNTERO_INDIRECTO * cfg_superbloque->BLOCK_SIZE) + offset, sizeof(uint32_t));
+        memcpy(&numeroBloqueDelPunteroDeBloques,
+               archivoBloques->archivo + (fcb->PUNTERO_INDIRECTO * cfg_superbloque->BLOCK_SIZE) + offset,
+               sizeof(uint32_t));
 
-        log_debug(debug_logger,"puntero indirecto: %d ",  fcb->PUNTERO_INDIRECTO);
-        log_debug(debug_logger,"puntero apuntado por el indirecto: %d ",  numeroBloqueDelPunteroDeBloques);
+        log_debug(debug_logger, "puntero indirecto: %d ", fcb->PUNTERO_INDIRECTO);
+        log_debug(debug_logger, "puntero apuntado por el indirecto: %d ", numeroBloqueDelPunteroDeBloques);
         return numeroBloqueDelPunteroDeBloques;
     }
 }

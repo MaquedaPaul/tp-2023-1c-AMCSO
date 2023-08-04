@@ -1,4 +1,6 @@
-F_OPEN a
-F_TRUNCATE a 0
-F_CLOSE a
+F_OPEN Consoles
+F_SEEK Consoles 128
+F_READ Consoles 90 4
+MOV_IN RAX 16
+F_CLOSE Consoles
 EXIT
