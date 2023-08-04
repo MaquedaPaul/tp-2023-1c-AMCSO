@@ -72,6 +72,7 @@ void procesar_conexion(void *void_args) {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
                 t_pcb* pcbActualizada = obtenerPcbExec();
+                log_debug(debug_logger,"Luego de obternerPcbExec, estimacion{%d}", pcbActualizada->estimacionRafaga);
                 moverProceso_ExecReady(pcbActualizada);
                 break;
             }
