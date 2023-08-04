@@ -54,7 +54,6 @@ void execute() {
         char* registro = instruccion->param1;
         char* valor = instruccion->param2;
 
-        //log_info(info_logger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%s>", pcb_actual->id, registro, valor2);
         log_info(info_logger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%s>", pcb_actual->id, registro, valor);
 
         log_debug(debug_logger,"tamanio del nombre del registro: %ld", strlen(registro));

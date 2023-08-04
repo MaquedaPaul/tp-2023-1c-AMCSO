@@ -102,7 +102,6 @@ void reasignarPathSiEsNecesario(tipo_path tipo){
 
 bool iniciarFilesystem(){
     //TODO Si hiciera falta que exclusivamente tiene que generarse las conexiones antes que las estructuras, acá es donde hay que tocar.
-    bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
     crearSemaforos();
     lista_FCBs = list_create();
     lista_FCBsCreado = true;
@@ -110,12 +109,11 @@ bool iniciarFilesystem(){
     archivosUsadosCreado = true;
     lista_bloques = list_create();
     listaBloquesCreado = true;
-
+    bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
     if (!generar_conexiones()){
         //cerrar_programa();
         return false;
     }
-
 
 
     return estructurasAdministrativas;
@@ -127,23 +125,21 @@ bool iniciarEstructurasAdministrativas(char* nombre_path) {
         log_info(info_logger, "crear directorio %s", nombre_path);
         mkdir(nombre_path,0777);
         archivoBloques = malloc(sizeof(t_bloques));
-
         levantarSuperbloque();
 
         return crearEstructuras();
     } else {
+
+        crear_fcbs_del_directorio();
         return levantarArchivosExistentes();
     }
 }
-
 
 
 bool crearEstructuras(){
 
     bool comp1 = crear_bitmap_de_bloques();
     bool comp2 = crear_archivo_de_bloques();
-
-    crear_fcbs_del_directorio();
 
     return comp1 && comp2;
 
@@ -156,7 +152,7 @@ void crear_fcbs_del_directorio() {
 	d = opendir(cfg_filesystem->PATH_FCB);
 	if (d) {
 		while ((dir = readdir(d)) != NULL) {
-			if( strcmp( dir->d_name, "." ) != 0 && strcmp( dir->d_name, ".." ) != 0 ){
+			if(strcmp( dir->d_name, "." ) != 0 && strcmp( dir->d_name, ".." ) != 0 ){
 
                 t_config_fcb* aux_FCB = malloc(sizeof(t_config_fcb));
 
@@ -188,6 +184,7 @@ void crear_fcbs_del_directorio() {
 		}
 		closedir(d);
 	}
+    log_info(info_logger, "Cantidad de FCBs levantados del directorio: %d", list_size(lista_FCBs));
 }
 
 
@@ -265,6 +262,16 @@ bool crear_archivo_de_bloques(){
 
 bool levantarArchivosExistentes() {
     return levantarSuperbloque() && levantarArchivoBloques() &&  levantarBitmapBloques();
+}
+
+char* devolver_fcb_path_config(char* path_fcbs, char* nombre_archivo) {
+
+    char* path_fcbs_config = string_new();
+    string_append(&path_fcbs_config, path_fcbs);
+    string_append(&path_fcbs_config, "/");
+    string_append(&path_fcbs_config, nombre_archivo);
+
+    return path_fcbs_config;
 }
 
 bool levantarSuperbloque(){

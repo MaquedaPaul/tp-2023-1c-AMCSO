@@ -287,7 +287,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
                 uint32_t  offset = 0;
 
-                for (uint32_t i = 0; i < (cantidad_de_bloques_a_eliminar-1); i++) {
+                for (uint32_t i = 0; i < (cantidad_de_bloques_a_eliminar-1); i++) { //elimina 1, si son2 bloques
 
                     uint32_t bloque_ocupado ;
                     uint32_t posicion_del_puntero_indirecto = puntero_indirecto * cfg_superbloque->BLOCK_SIZE + offset;
@@ -295,7 +295,8 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
                     memcpy(&bloque_ocupado, archivoBloques->archivo + posicion_del_puntero_indirecto, sizeof(uint32_t));
                     offset += sizeof(uint32_t);
                     accesoABitmap(bloque_ocupado, bitarray_test_bit(bitmap, bloque_ocupado));
-                    bitarray_clean_bit(bitmap,bloque_ocupado );
+                    bitarray_clean_bit(bitmap,bloque_ocupado);
+                    log_debug(debug_logger, "posicion del bloque ocupado que se va a borrar del bitmap: %d", bloque_ocupado);
                     accesoABitmap(bloque_ocupado, bitarray_test_bit(bitmap, bloque_ocupado));
                     accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, i+1, bloque_ocupado);
                 }
