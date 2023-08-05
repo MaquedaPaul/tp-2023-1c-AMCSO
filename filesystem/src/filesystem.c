@@ -8,141 +8,95 @@
 int fd_memoria;
 int fd_kernel;
 bool kernelInicializado = false;
-pthread_mutex_t mutex_ArchivosUsados;
 
-void* abrirArchivo(void* cliente_socket){
 
-    int conexion = *((int*) cliente_socket);
-    char* nombreArchivo = recibirString(conexion);
+//SE EJECUTAN LAS PETICIONES
 
-    if(kernelInicializado == false){
-        fd_kernel= conexion;
-        kernelInicializado = true;
-    }
+void ejecutar_fopen(char* nombreArchivo){
+
     if(existe_archivoFCB(nombreArchivo)){
-        enviarString(nombreArchivo,conexion,APERTURA_ARCHIVO_EXITOSA,info_logger);
+        enviarString(nombreArchivo,fd_kernel,APERTURA_ARCHIVO_EXITOSA,info_logger);
     }else{
-        enviarString(nombreArchivo,conexion,APERTURA_ARCHIVO_FALLIDA,info_logger);
+        enviarString(nombreArchivo,fd_kernel,APERTURA_ARCHIVO_FALLIDA,info_logger);
     }
     free(nombreArchivo);
 }
 
-void* crearArchivo(void* cliente_socket){
-    int conexion = *((int*) cliente_socket);
+void ejecutarCreacionArchivo(char* nombreArchivo){
 
-    char* nombreArchivo = recibirString(conexion);
     log_debug(debug_logger,"nombre archivo: %s", nombreArchivo);
-    realizarCreacionArchivo(nombreArchivo); //TODO ACA ARROJA SISEGV
-    enviarString(nombreArchivo,conexion,CREACION_ARCHIVO_EXITOSA,info_logger);
+    realizarCreacionArchivo(nombreArchivo);
+    enviarString(nombreArchivo,fd_kernel,CREACION_ARCHIVO_EXITOSA,info_logger);
     free(nombreArchivo);
 }
 
+void ejecutarFwrite(char* nombreArchivo, uint32_t pid, uint32_t puntero, uint32_t tamanio, uint32_t direcFisica){
 
-void* truncarArchivo(void* cliente_socket){
-    int conexion = *((int*) cliente_socket);
+    escrituraArchivo(nombreArchivo, puntero, direcFisica, tamanio);
 
-    t_archivoTruncate* archivoTruncacion = recibir_archivoTruncacion(conexion);
-    realizarTruncacionArchivo(archivoTruncacion->nombreArchivo, archivoTruncacion-> nuevoTamanio);
-    enviarString(archivoTruncacion->nombreArchivo,conexion,TRUNCACION_ARCHIVO_EXITOSA,info_logger);
-    free(archivoTruncacion->nombreArchivo);
-    free(archivoTruncacion);
-}
-
-void* leerArchivo(void* cliente_socket){
-    int conexion = *((int*) cliente_socket);
-
-    t_archivoRW* archivo = recibir_archivoRW(conexion);
-    lecturaArchivo(archivo->nombreArchivo,archivo->posPuntero,archivo->direcFisica, archivo->cantidadBytes);
-
-    pthread_mutex_lock(&mutex_ArchivosUsados);
-    t_config_fcb* fcb = buscarFCBporNombre(archivo->nombreArchivo); //solo agrego a lista los archivos que se lee o escribe
-    list_add(archivosUsados, fcb);
-    pthread_mutex_unlock(&mutex_ArchivosUsados);
-
-    uint32_t pid = archivo->pid;
-    t_datos* datosAEnviar = malloc(sizeof(t_datos));
-    datosAEnviar->tamanio = archivo->cantidadBytes;
-
-    datosAEnviar->datos = realizarLecturaArchivo(archivo->nombreArchivo, archivo->posPuntero, archivo->cantidadBytes);
     t_list* listaInts = list_create();
-    list_add(listaInts, &archivo->direcFisica);
+    list_add(listaInts,  &direcFisica);
+    list_add(listaInts,  &tamanio);
     list_add(listaInts, &pid);
-
-    log_debug(debug_logger, "se solicita a memoria escrbir en df");
-    enviarListaIntsYDatos(listaInts,datosAEnviar,fd_memoria,info_logger,ACCESO_PEDIDO_ESCRITURA);
-    list_clean(listaInts);
-    list_destroy(listaInts);
-    free(archivo->nombreArchivo);
-    free(archivo);
-    free(datosAEnviar->datos);
-    free(datosAEnviar);
-}
-
-void* escribirArchivo(void* cliente_socket){
-    int conexion = *((int*) cliente_socket);
-    t_archivoRW* archivo = recibir_archivoRW(conexion);
-
-    pthread_mutex_lock(&mutex_ArchivosUsados);
-    t_config_fcb* fcb =buscarFCBporNombre(archivo->nombreArchivo);
-    list_add(archivosUsados, fcb); //solo agrego a lista los archivos que se lee o escribe
-    pthread_mutex_unlock(&mutex_ArchivosUsados);
-
-    uint32_t pid = archivo->pid;
-    t_list* listaInts = list_create();
-    list_add(listaInts,  &archivo->direcFisica);
-    list_add(listaInts,  &archivo->cantidadBytes);
-    list_add(listaInts, &pid);
-    list_add(listaInts, &archivo->posPuntero);
+    list_add(listaInts, &puntero);
 
     log_debug(debug_logger, "se solicita a memoria leer en df");
     enviarListaUint32_t(listaInts,fd_memoria,info_logger, ACCESO_PEDIDO_LECTURA);
     list_clean(listaInts);
     list_destroy(listaInts);
-    free(archivo->nombreArchivo);
-    free(archivo);
+    free(nombreArchivo);
 
 }
 
-void* finalizarEscrituraArchivo(void* cliente_socket){
-    int conexion = *((int*) cliente_socket);
+void ejecutarFread(char* nombreArchivo, uint32_t pid, uint32_t puntero, uint32_t tamanio, uint32_t direcFisica){
 
-    t_datos* unosDatos = malloc(sizeof(t_datos));
-    t_list* listaInts = recibirListaIntsYDatos(conexion, unosDatos);
-    uint32_t direccionFisica = *(uint32_t*)list_get(listaInts,0);
-    //uint32_t tamanio = *(uint32_t*)list_get(listaInts,1);
-    //uint32_t pid = *(uint32_t*)list_get(listaInts,2);
-    uint32_t punteroArchivo = *(uint32_t*)list_get(listaInts,3);
+    lecturaArchivo(nombreArchivo,puntero,direcFisica, tamanio);
 
-    log_debug(debug_logger,"ds:%d ", direccionFisica);
-    log_debug(debug_logger,"punteroArchivo: %d ",punteroArchivo );
-    log_debug(debug_logger,"tamanio a escribir: %d", unosDatos->tamanio);
-    char* nombreArchivo = obtenerPrimerArchivoUsado();
-    escrituraArchivo(nombreArchivo, punteroArchivo, direccionFisica, unosDatos->tamanio);
-    realizarEscrituraArchivo(nombreArchivo,  punteroArchivo, unosDatos->datos, unosDatos->tamanio);
-    enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger);
+    t_datos* datosAEnviar = malloc(sizeof(t_datos));
+    datosAEnviar->tamanio = tamanio;
 
-    list_clean_and_destroy_elements(listaInts,free);
+    datosAEnviar->datos = realizarLecturaArchivo(nombreArchivo, puntero, tamanio);
+    t_list* listaInts = list_create();
+    list_add(listaInts, &direcFisica);
+    list_add(listaInts, &pid);
+
+    log_debug(debug_logger, "Se solicita a memoria escrbir en df");
+    enviarListaIntsYDatos(listaInts,datosAEnviar,fd_memoria,info_logger,ACCESO_PEDIDO_ESCRITURA);
+    list_clean(listaInts);
     list_destroy(listaInts);
-    free(unosDatos->datos);
-    free(unosDatos);
-    //free(nombreArchivo);
+    free(nombreArchivo);
+    free(datosAEnviar->datos);
+    free(datosAEnviar);
 }
 
+void ejecutarFtruncate(char* nombreArchivo, uint32_t tamanioNuevo){
 
-void* finalizarLecturaArchivo(void* cliente_socket){
-    int conexion = *((int*) cliente_socket);
-    char* nombreArchivo = obtenerPrimerArchivoUsado();
-    recibirOrden(conexion);
-
-    enviarString(nombreArchivo, fd_kernel, LECTURA_ARCHIVO_EXITOSA, info_logger);
+    realizarTruncacionArchivo(nombreArchivo, tamanioNuevo);
+    enviarString(nombreArchivo,fd_kernel,TRUNCACION_ARCHIVO_EXITOSA,info_logger);
+    free(nombreArchivo);
 }
 
+void ejecutar_finalizarEscrituraArchivo(char* nombreArchivo, uint32_t puntero, uint32_t tamanio, uint32_t direccionFisica, void* datos){
+    log_debug(debug_logger,"ds:%d ", direccionFisica);
+    log_debug(debug_logger,"punteroArchivo: %d ",puntero);
+    log_debug(debug_logger,"tamanio a escribir: %d", tamanio);
 
-char* obtenerPrimerArchivoUsado() {
+    escrituraArchivo(nombreArchivo, puntero, direccionFisica,tamanio);
 
-    pthread_mutex_lock(&mutex_ArchivosUsados);
-    t_config_fcb* fcb = list_remove(archivosUsados, 0);
-    pthread_mutex_unlock(&mutex_ArchivosUsados);
+    realizarEscrituraArchivo(nombreArchivo,  puntero, datos, tamanio);
+    uint32_t size =list_size(peticiones_pendientes);
+    //enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger); //cantidad de peticiones, kernel las recibe, lo va ir controlando
+    enviarEnteroYString(size,nombreArchivo, strlen(nombreArchivo) +1,fd_kernel,info_logger,ESCRITURA_ARCHIVO_EXITOSA);
+    free(datos);
 
-    return fcb->NOMBRE_ARCHIVO;
+//free(nombreArchivo);
 }
+
+void ejecutar_finalizarLecturaArchivo(char* nombreArchivo){
+
+    uint32_t size =list_size(peticiones_pendientes);
+    //enviarString(nombreArchivo, fd_kernel, LECTURA_ARCHIVO_EXITOSA, info_logger); //cantidad de peticiones, kernel las recibe, lo va ir controlando
+    enviarEnteroYString(size,nombreArchivo, strlen(nombreArchivo) +1,fd_kernel,info_logger,LECTURA_ARCHIVO_EXITOSA);
+}
+
+//MANEJO PETICIONES

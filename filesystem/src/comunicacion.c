@@ -9,9 +9,13 @@ char* ip_filesystem;
 char* puerto_filesystem;
 pthread_t crear_server_filesystem;
 
-
+t_list* peticiones_pendientes;
 bool conexionesHechas = false;
-
+sem_t contador_peticiones;
+pthread_mutex_t mutex_peticiones_pendientes;
+pthread_mutex_t mutex_ArchivosUsados;
+bool kernelInicializado = false;
+t_list* archivosUsados;
 
 void procesar_conexion(void *void_args) {
     t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
@@ -43,7 +47,6 @@ void procesar_conexion(void *void_args) {
                 pthread_join(abrirArchivoHilo, NULL);
                 break;
             }
-            //     char* nombreArchivo = recibirString(cliente_socket);
             case CREACION_ARCHIVO:{
                 pthread_t crearArchivoHilo;
                 pthread_create(&crearArchivoHilo, NULL, (void *) crearArchivo, &cliente_socket);
@@ -186,5 +189,187 @@ bool atenderMemoria(){
     return true;
 }
 
+//MANEJO DE PETICIONES
+void* abrirArchivo(void* cliente_socket){
 
+    int conexion = *((int*) cliente_socket);
+    char* nombreArchivo = recibirString(conexion);
+
+    if(kernelInicializado == false){
+        fd_kernel= conexion;
+        kernelInicializado = true;
+    }
+
+    t_peticion* peticion_open = crear_peticion(EJECUTAR_OPEN,nombreArchivo, 0, 0, 0, 0, NULL);
+    agregarPeticionAPendientes(peticion_open);
+    sem_post(&contador_peticiones);
+}
+
+void* crearArchivo(void* cliente_socket){
+    int conexion = *((int*) cliente_socket);
+
+    char* nombreArchivo = recibirString(conexion);
+    log_debug(debug_logger,"nombre archivo: %s", nombreArchivo);
+
+    t_peticion* peticion_open = crear_peticion(EJECUTAR_CREACION,nombreArchivo, 0, 0, 0, 0, NULL);
+    agregarPeticionAPendientes(peticion_open);
+    sem_post(&contador_peticiones);
+
+}
+
+
+void* truncarArchivo(void* cliente_socket){
+    int conexion = *((int*) cliente_socket);
+
+    t_archivoTruncate* archivoTruncacion = recibir_archivoTruncacion(conexion);
+    t_peticion* peticion_truncar = crear_peticion(EJECUTAR_TRUNCATE,archivoTruncacion->nombreArchivo, archivoTruncacion->nuevoTamanio, 0, 0, 0, NULL);
+    agregarPeticionAPendientes(peticion_truncar);
+    sem_post(&contador_peticiones);
+}
+
+void* leerArchivo(void* cliente_socket){
+    int conexion = *((int*) cliente_socket);
+
+    t_archivoRW* archivo = recibir_archivoRW(conexion);
+    lecturaArchivo(archivo->nombreArchivo,archivo->posPuntero,archivo->direcFisica, archivo->cantidadBytes);
+
+    pthread_mutex_lock(&mutex_ArchivosUsados);
+    t_config_fcb* fcb = buscarFCBporNombre(archivo->nombreArchivo); //solo agrego a lista los archivos que se lee o escribe
+    list_add(archivosUsados, fcb);
+    pthread_mutex_unlock(&mutex_ArchivosUsados);
+
+    t_peticion* peticion_read = crear_peticion(EJECUTAR_READ,archivo->nombreArchivo, archivo->cantidadBytes, archivo->direcFisica, archivo->posPuntero, archivo->pid, NULL);
+    agregarPeticionAPendientes(peticion_read);
+    sem_post(&contador_peticiones);
+}
+
+void* escribirArchivo(void* cliente_socket){
+    int conexion = *((int*) cliente_socket);
+    //escrituraArchivo(nombreArchivo, punteroArchivo, direccionFisica, unosDatos->tamanio);
+    t_archivoRW* archivo = recibir_archivoRW(conexion);
+
+    pthread_mutex_lock(&mutex_ArchivosUsados);
+    t_config_fcb* fcb =buscarFCBporNombre(archivo->nombreArchivo);
+    list_add(archivosUsados, fcb); //solo agrego a lista los archivos que se lee o escribe
+    pthread_mutex_unlock(&mutex_ArchivosUsados);
+
+    t_peticion* peticion_write = crear_peticion(EJECUTAR_WRITE,archivo->nombreArchivo, archivo->cantidadBytes, archivo->direcFisica, archivo->posPuntero, archivo->pid, NULL);
+    agregarPeticionAPendientes(peticion_write);
+    sem_post(&contador_peticiones);
+
+}
+
+void* finalizarEscrituraArchivo(void* cliente_socket){
+    int conexion = *((int*) cliente_socket);
+
+    t_datos* unosDatos = malloc(sizeof(t_datos));
+    t_list* listaInts = recibirListaIntsYDatos(conexion, unosDatos);
+    uint32_t direccionFisica = *(uint32_t*)list_get(listaInts,0);
+    //uint32_t tamanio = *(uint32_t*)list_get(listaInts,1);
+    //uint32_t pid = *(uint32_t*)list_get(listaInts,2);
+    uint32_t punteroArchivo = *(uint32_t*)list_get(listaInts,3);
+
+    char* nombreArchivo = obtenerPrimerArchivoUsado();
+    t_peticion* peticion_write = crear_peticion(EJECUTAR_RESPUESTA_LECTURA,nombreArchivo, unosDatos->tamanio, direccionFisica, punteroArchivo, 0, unosDatos->datos);
+    agregarPeticionAPendientes(peticion_write);
+    sem_post(&contador_peticiones);
+
+}
+
+
+void* finalizarLecturaArchivo(void* cliente_socket){
+    int conexion = *((int*) cliente_socket);
+    char* nombreArchivo = obtenerPrimerArchivoUsado();
+    t_peticion* peticion_write = crear_peticion(EJECUTAR_RESPUESTA_LECTURA,nombreArchivo, 0, 0, 0, 0, NULL);
+    agregarPeticionAPendientes(peticion_write);
+    sem_post(&contador_peticiones);
+}
+
+
+char* obtenerPrimerArchivoUsado() {
+
+    pthread_mutex_lock(&mutex_ArchivosUsados);
+    t_config_fcb* fcb = list_remove(archivosUsados, 0);
+    pthread_mutex_unlock(&mutex_ArchivosUsados);
+
+    return fcb->NOMBRE_ARCHIVO;
+}
+
+
+void iniciar_atencion_peticiones(){
+    pthread_t hilo_peticiones;
+    log_info(info_logger, "Inicio atencion de peticiones");
+
+    pthread_create(&hilo_peticiones, NULL, (void*) atender_peticiones, NULL);
+    pthread_detach(hilo_peticiones);
+}
+
+void atender_peticiones(){
+    while(1){
+        sem_wait(&contador_peticiones);
+        log_info(info_logger, "Hay peticion pendiente");
+        t_peticion* peticion = sacoPeticionDePendientes();
+        manejar_peticion(peticion);
+    }
+}
+
+t_peticion* crear_peticion(t_operacion_fs operacion, char* nombre, int tamanio, int dir_fisica, int puntero, int pid, void* datos){
+    t_peticion* peticion = malloc(sizeof(t_peticion));
+    peticion->nombre = malloc(strlen(nombre) + 1);
+
+    peticion->operacion = operacion;
+    strcpy(peticion->nombre, nombre);
+    peticion->tamanio = tamanio;
+    peticion->direccionFisica = dir_fisica;
+    peticion->puntero = puntero;
+    peticion->pid = pid;
+    peticion->datos = datos;
+    return peticion;
+}
+
+void agregarPeticionAPendientes(t_peticion* peticion){
+    pthread_mutex_lock(&mutex_peticiones_pendientes);
+    list_add(peticiones_pendientes, peticion);
+    pthread_mutex_unlock(&mutex_peticiones_pendientes);
+}
+
+t_peticion* sacoPeticionDePendientes(){
+    pthread_mutex_lock(&mutex_peticiones_pendientes);
+    t_peticion* peticion = list_remove(peticiones_pendientes, 0);
+    pthread_mutex_unlock(&mutex_peticiones_pendientes);
+    return peticion;
+}
+
+
+void manejar_peticion(t_peticion* peticion){
+    t_operacion_fs cop = peticion->operacion;
+
+    switch (cop) {
+        case EJECUTAR_OPEN:
+            ejecutar_fopen(peticion->nombre);
+            break;
+        case EJECUTAR_CREACION:
+            ejecutarCreacionArchivo(peticion->nombre); //hacer otra funcion parecida a las del filesystem.c
+            break;
+        case EJECUTAR_READ:
+            ejecutarFread(peticion->nombre, peticion->pid, peticion->puntero, peticion->tamanio, peticion->direccionFisica);
+            break;
+        case EJECUTAR_TRUNCATE:
+            ejecutarFtruncate(peticion->nombre, peticion->tamanio);
+            break;
+        case EJECUTAR_WRITE:
+            ejecutarFwrite(peticion->nombre, peticion->pid, peticion->puntero, peticion->tamanio, peticion->direccionFisica);
+            break;
+        case EJECUTAR_RESPUESTA_LECTURA:
+            ejecutar_finalizarEscrituraArchivo(peticion->nombre, peticion->puntero, peticion->tamanio, peticion->direccionFisica, peticion->datos);
+            break;
+        case EJECUTAR_RESPUESTA_ESCRITURA:
+            ejecutar_finalizarLecturaArchivo(peticion->nombre);
+            break;
+        default:
+            log_error(error_logger, "Algo anduvo mal");
+            log_info(info_logger, "Cop: %d", cop);
+            return;
+    }
+}
 
