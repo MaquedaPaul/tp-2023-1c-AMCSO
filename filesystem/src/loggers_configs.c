@@ -105,5 +105,5 @@ void escrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, uint32_t dir
 
 void accesoABloqueArchivo(char* nombreArchivo, uint32_t numeroBloqueArchivo, uint32_t numeroBloqueFs){
     log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Bloque Archivo: <%d> - Bloque File System <%d>", nombreArchivo, numeroBloqueArchivo, numeroBloqueFs);
-    //usleep(cfg_filesystem->RETARDO_ACCESO_BLOQUE * 1000); //TODO DESCOMENTAR
+    usleep(cfg_filesystem->RETARDO_ACCESO_BLOQUE * 1000); //TODO DESCOMENTAR
 }
