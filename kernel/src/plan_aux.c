@@ -255,7 +255,7 @@ void ejecutar_FTRUNCATE(t_pcb* pcb){
     enviar_archivoTruncacion(archivoParaFs,fd_filesystem,TRUNCACION_ARCHIVO,info_logger);
     aumentarContadorPeticionesFs();
 
-    log_info(info_logger,"PID: <%d> - Archivo: <%s> - Tamaño: <%d>", pcb->id, nombreArchivo, nuevoTamanio);
+    log_info(info_logger,"PID: <%d> - Archivo: <%s> - Tamanio: <%d>", pcb->id, nombreArchivo, nuevoTamanio);
     free(archivoParaFs->nombreArchivo);
     free(archivoParaFs);
 }
