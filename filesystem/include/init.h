@@ -32,7 +32,7 @@ extern t_config_filesystem *cfg_filesystem;
 extern t_config_superbloque* cfg_superbloque;
 extern t_bloques* archivoBloques;
 extern t_list* archivosUsados;
-
+extern pthread_mutex_t mutex_recv;
 extern char* path_config;
 int cargar_configuracion(char *path);
 extern t_bitarray* bitarrayBitmapDeBloques;

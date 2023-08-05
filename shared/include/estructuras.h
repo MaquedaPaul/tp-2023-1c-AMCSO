@@ -97,6 +97,12 @@ typedef struct {
 } t_procesar_conexion_args;
 
 typedef struct {
+    int fd;
+    char *server_name;
+    pthread_mutex_t mutex_procesar;
+} t_procesar_conexion_args_fs;
+
+typedef struct {
     t_list* cola; //La usamos como una cola.Por el unico motivo que es una lista es por el tema de actualizacion de tablas de segmentos.
     char* nombreRecurso;
     int indiceSemaforo;

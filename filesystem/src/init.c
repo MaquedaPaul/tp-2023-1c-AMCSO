@@ -348,6 +348,7 @@ int obtener_tamanio_en_bytes(){
 
 bool crearSemaforos(){
     pthread_mutex_init(&mutex_cliente_socket,NULL);
+    pthread_mutex_init(&mutex_recv,NULL);
     int comprobacionArchivosUsados = pthread_mutex_init(&mutex_ArchivosUsados,NULL);
 
     pthread_mutex_init(&mutex_peticiones_pendientes, NULL);

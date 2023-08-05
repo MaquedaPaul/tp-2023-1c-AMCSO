@@ -14,17 +14,21 @@ bool conexionesHechas = false;
 sem_t contador_peticiones;
 pthread_mutex_t mutex_peticiones_pendientes;
 pthread_mutex_t mutex_ArchivosUsados;
+pthread_mutex_t mutex_recv;
 bool kernelInicializado = false;
 t_list* archivosUsados;
 
 void procesar_conexion(void *void_args) {
-    t_procesar_conexion_args *args = (t_procesar_conexion_args *) void_args;
+    t_procesar_conexion_args_fs *args = (t_procesar_conexion_args_fs *) void_args;
     int cliente_socket = args->fd;
     char *server_name = args->server_name;
+    pthread_mutex_t mutex_recv = args->mutex_procesar;
     free(args);
     op_code cop;
 
     while (cliente_socket != -1) {
+        pthread_mutex_lock(&mutex_recv);
+
         if (recv(cliente_socket, &cop, sizeof(op_code), 0) != sizeof(op_code)) {
             log_info(info_logger, "DISCONNECT!");
             return;
@@ -33,10 +37,12 @@ void procesar_conexion(void *void_args) {
         switch (cop) {
             case DEBUG:
                 log_info(info_logger, "debug");
+                pthread_mutex_unlock(&mutex_recv);
                 break;
             case HANDSHAKE_FS: {
                 recibirOrden(cliente_socket);
                 fd_memoria = cliente_socket;
+                pthread_mutex_unlock(&mutex_recv);
                 break;
             }
             case APERTURA_ARCHIVO: {
@@ -45,50 +51,60 @@ void procesar_conexion(void *void_args) {
                 pthread_create(&abrirArchivoHilo, NULL, (void *) abrirArchivo, &cliente_socket);
 
                 pthread_join(abrirArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
                 break;
             }
             case CREACION_ARCHIVO:{
                 pthread_t crearArchivoHilo;
                 pthread_create(&crearArchivoHilo, NULL, (void *) crearArchivo, &cliente_socket);
                 pthread_join(crearArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
                 break;
             }
             case TRUNCACION_ARCHIVO: {
                 pthread_t truncarArchivoHilo;
                 pthread_create(&truncarArchivoHilo, NULL, (void *) truncarArchivo, &cliente_socket);
                 pthread_join(truncarArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
                 break;
             }
             case LECTURA_ARCHIVO:{
                 pthread_t leerArchivoHilo;
                 pthread_create(&leerArchivoHilo, NULL, (void *) leerArchivo, &cliente_socket);
                 pthread_join(leerArchivoHilo,NULL);
+                pthread_mutex_unlock(&mutex_recv);
+
                 break;
             }
             case LECTURA_REALIZADA: {
                 pthread_t finalizarEscrituraArchivoHilo;
                 pthread_create(&finalizarEscrituraArchivoHilo, NULL, (void *) finalizarEscrituraArchivo, &cliente_socket);
                 pthread_join(finalizarEscrituraArchivoHilo,NULL);
+                pthread_mutex_unlock(&mutex_recv);
                 break;
             }
             case ESCRITURA_ARCHIVO:{
                 pthread_t escribirArchivoHilo;
                 pthread_create(&escribirArchivoHilo, NULL, (void *) escribirArchivo, &cliente_socket);
                 pthread_join(escribirArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
                 break;
             }
             case ESCRITURA_REALIZADA:{
                 pthread_t finalizarLecturaArchivoHilo;
                 pthread_create(&finalizarLecturaArchivoHilo, NULL, (void *) finalizarLecturaArchivo, &cliente_socket);
                 pthread_join(finalizarLecturaArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
             break;
             }
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
+                pthread_mutex_unlock(&mutex_recv);
                 return;
             default:
                 log_error(error_logger, "Algo anduvo mal en el server de %s", server_name);
                 log_info(info_logger, "Cop: %d", cop);
+                pthread_mutex_unlock(&mutex_recv);
                 return;
         }
     }
@@ -97,14 +113,112 @@ void procesar_conexion(void *void_args) {
     return;
 }
 
+
+void procesar_conexion2(void *void_args) {
+    t_procesar_conexion_args_fs *args = (t_procesar_conexion_args_fs *) void_args;
+    int cliente_socket = args->fd;
+    char *server_name = args->server_name;
+    pthread_mutex_t mutex_recv = args->mutex_procesar;
+    free(args);
+    op_code cop;
+
+    while (cliente_socket != -1) {
+        pthread_mutex_lock(&mutex_recv);
+
+        if (recv(cliente_socket, &cop, sizeof(op_code), 0) != sizeof(op_code)) {
+            log_info(info_logger, "DISCONNECT!");
+            return;
+        }
+
+        switch (cop) {
+            case DEBUG:
+                log_info(info_logger, "debug");
+                pthread_mutex_unlock(&mutex_recv);
+                break;
+            case HANDSHAKE_FS: {
+                recibirOrden(cliente_socket);
+                fd_memoria = cliente_socket;
+                pthread_mutex_unlock(&mutex_recv);
+                break;
+            }
+            case APERTURA_ARCHIVO: {
+                pthread_t abrirArchivoHilo;
+
+                pthread_create(&abrirArchivoHilo, NULL, (void *) abrirArchivo, &cliente_socket);
+
+                pthread_join(abrirArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
+                break;
+            }
+            case CREACION_ARCHIVO:{
+                pthread_t crearArchivoHilo;
+                pthread_create(&crearArchivoHilo, NULL, (void *) crearArchivo, &cliente_socket);
+                pthread_join(crearArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
+                break;
+            }
+            case TRUNCACION_ARCHIVO: {
+                pthread_t truncarArchivoHilo;
+                pthread_create(&truncarArchivoHilo, NULL, (void *) truncarArchivo, &cliente_socket);
+                pthread_join(truncarArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
+                break;
+            }
+            case LECTURA_ARCHIVO:{
+                pthread_t leerArchivoHilo;
+                pthread_create(&leerArchivoHilo, NULL, (void *) leerArchivo, &cliente_socket);
+                pthread_join(leerArchivoHilo,NULL);
+                pthread_mutex_unlock(&mutex_recv);
+
+                break;
+            }
+            case LECTURA_REALIZADA: {
+                pthread_t finalizarEscrituraArchivoHilo;
+                pthread_create(&finalizarEscrituraArchivoHilo, NULL, (void *) finalizarEscrituraArchivo, &cliente_socket);
+                pthread_join(finalizarEscrituraArchivoHilo,NULL);
+                pthread_mutex_unlock(&mutex_recv);
+                break;
+            }
+            case ESCRITURA_ARCHIVO:{
+                pthread_t escribirArchivoHilo;
+                pthread_create(&escribirArchivoHilo, NULL, (void *) escribirArchivo, &cliente_socket);
+                pthread_join(escribirArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
+                break;
+            }
+            case ESCRITURA_REALIZADA:{
+                pthread_t finalizarLecturaArchivoHilo;
+                pthread_create(&finalizarLecturaArchivoHilo, NULL, (void *) finalizarLecturaArchivo, &cliente_socket);
+                pthread_join(finalizarLecturaArchivoHilo, NULL);
+                pthread_mutex_unlock(&mutex_recv);
+                break;
+            }
+            case -1:
+                log_error(error_logger, "Cliente desconectado de %s...", server_name);
+                pthread_mutex_unlock(&mutex_recv);
+                return;
+            default:
+                log_error(error_logger, "Algo anduvo mal en el server de %s", server_name);
+                log_info(info_logger, "Cop: %d", cop);
+                pthread_mutex_unlock(&mutex_recv);
+                return;
+        }
+    }
+
+    log_warning(warning_logger, "El cliente se desconecto de %s server", server_name);
+    return;
+}
+
+
 int server_escuchar(t_log *logger, char *server_name, int server_socket) {
     int cliente_socket = esperar_cliente(logger, server_name, server_socket);
 
     if (cliente_socket != -1) {
         pthread_t atenderConexionNueva;
-        t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
+        t_procesar_conexion_args_fs *args = malloc(sizeof(t_procesar_conexion_args_fs));
         args->fd = cliente_socket;
         args->server_name = server_name;
+        pthread_mutex_init(&args->mutex_procesar, NULL);
         pthread_create(&atenderConexionNueva, NULL,(void* )procesar_conexion,args);
         pthread_detach(atenderConexionNueva);
         return 1;
@@ -181,10 +295,11 @@ bool atenderMemoria(){
         return EXIT_FAILURE;
     }
     pthread_t atenderMemoria;
-    t_procesar_conexion_args *args = malloc(sizeof(t_procesar_conexion_args));
+    t_procesar_conexion_args_fs *args = malloc(sizeof(t_procesar_conexion_args_fs));
     args->fd = fd_memoria;
     args->server_name = "ATENDER_MEMORIA";
-    pthread_create(&atenderMemoria, NULL,(void*)procesar_conexion,args);
+    pthread_mutex_init(&args->mutex_procesar, NULL);
+    pthread_create(&atenderMemoria, NULL,(void*)procesar_conexion2,args);
     pthread_detach(atenderMemoria);
     return true;
 }
@@ -280,7 +395,8 @@ void* finalizarEscrituraArchivo(void* cliente_socket){
 void* finalizarLecturaArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
     char* nombreArchivo = obtenerPrimerArchivoUsado();
-    t_peticion* peticion_write = crear_peticion(EJECUTAR_RESPUESTA_LECTURA,nombreArchivo, 0, 0, 0, 0, NULL);
+    recibirOrden(conexion);
+    t_peticion* peticion_write = crear_peticion(EJECUTAR_RESPUESTA_ESCRITURA,nombreArchivo, 0, 0, 0, 0, NULL);
     agregarPeticionAPendientes(peticion_write);
     sem_post(&contador_peticiones);
 }
