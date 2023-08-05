@@ -313,7 +313,7 @@ void atender_peticiones(){
     }
 }
 
-t_peticion* crear_peticion(t_operacion_fs operacion, char* nombre, int tamanio, int dir_fisica, int puntero, int pid, void* datos){
+t_peticion* crear_peticion(t_operacion_fs operacion, char* nombre, uint32_t tamanio, uint32_t dir_fisica, uint32_t puntero, uint32_t pid, void* datos){
     t_peticion* peticion = malloc(sizeof(t_peticion));
     peticion->nombre = malloc(strlen(nombre) + 1);
 
