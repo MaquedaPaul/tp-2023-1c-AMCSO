@@ -59,6 +59,7 @@ void ejecutar_FOPEN(t_pcb* pcb){
     //F_OPEN ARCHIVO
 
     char* nomArch = obtenerNombreArchivo(pcb);
+    log_info(info_logger,"PID: <%d> - Abrir Archivo: <%s>",pcb->id,nomArch);
 
     pthread_mutex_lock(&mutex_TGAA);
     int pos = buscarArch_TablaGlobalArchivo(nomArch);
@@ -191,6 +192,7 @@ void eliminarArchivoTablaLocal(char* nombreArchivo, t_pcb* pcb){
 void ejecutar_FCLOSE(t_pcb* pcb) {
     char *nomArch = obtenerNombreArchivo(pcb);
     eliminarArchivoTablaLocal(nomArch, pcb);
+    log_info(info_logger,"PID: <%d> - Cerrar Archivo: <%s>",pcb->id,nomArch);
     bool hayProcesosEsperandoPorArchivo = false;
     pthread_mutex_lock(&mutex_listaPeticionesArchivos);
     for (int i = 0; i < list_size(listaPeticionesArchivos); i++) {

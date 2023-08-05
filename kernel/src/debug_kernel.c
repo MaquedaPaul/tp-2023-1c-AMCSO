@@ -29,11 +29,12 @@ void mostrarEstadoColas(){
 
 
     pthread_mutex_lock(&mutex_debug_logger);
-    log_debug(debug_logger,"COMIENZO A IMPRIMIR");
-    mostrarEstadoColasAux("COLA BLOQ", colaBloq);
-    mostrarEstadoColasAux("COLA EXEC", colaExec);
+
+   // log_debug(debug_logger,"COMIENZO A IMPRIMIR");
+    //mostrarEstadoColasAux("COLA BLOQ", colaBloq);
+    //mostrarEstadoColasAux("COLA EXEC", colaExec);
     mostrarEstadoColasAux("COLA READY", colaReady);
-    log_debug(debug_logger,"TERMINO DE IMPRIMIR");
+    //log_debug(debug_logger,"TERMINO DE IMPRIMIR");
     pthread_mutex_unlock(&mutex_debug_logger);
 
 }
