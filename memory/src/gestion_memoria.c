@@ -185,7 +185,47 @@ t_tablaSegmentos* buscarTablaConPid(uint32_t pid){
 
     return tablaEncontrada;
 }
+t_segmento* buscarSegmentoSegunIdYPid(uint32_t idSegmento,uint32_t pid){
 
+
+    t_tablaSegmentos* unaTabla = buscarTablaConPid(pid);
+    bool coincideId(t_segmento* segmento){
+        return segmento->id == idSegmento;
+    }
+
+    bool perteneceATabla(t_segmento* unSegmento){
+        return list_any_satisfy(unaTabla->segmentos, coincideId);
+    }
+
+    bool coincideIdYPid(t_segmento* segmento){
+        return segmento->id == idSegmento && perteneceATabla(segmento);
+    }
+    t_segmento *usado = list_find(huecosUsados,coincideIdYPid);
+    t_segmento *libre = list_find(huecosLibres,coincideIdYPid);
+    /*
+    void verContenidoUsado(t_segmento* unSegmento){
+        unSegmento;
+        log_info(info_logger,"USADO ID:%d BASE:%d LIMITE:%d", unSegmento->id,unSegmento->base, unSegmento->limite );
+    }
+    void verContenidoLibre(t_segmento* unSegmento){
+        unSegmento;
+        log_info(info_logger,"LIBRE ID:%d BASE:%d LIMITE:%d", unSegmento->id,unSegmento->base, unSegmento->limite );
+    }
+
+    list_iterate(huecosLibres, verContenidoLibre);
+    list_iterate(huecosUsados, verContenidoUsado);
+     */
+    if(usado != NULL){
+        return usado;
+    }
+    else if(libre != NULL){
+        return libre;
+    }
+    else {
+        log_warning(warning_logger, "Segmento con ID: [%d] no encontrado",idSegmento);
+        return NULL;
+    }
+}
 t_segmento* buscarSegmentoSegunId(uint32_t unId){
     bool coincideId(t_segmento* segmento){
         return segmento->id == unId;
