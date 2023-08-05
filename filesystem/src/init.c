@@ -175,7 +175,7 @@ void crear_fcbs_del_directorio() {
                 aux_FCB->PUNTERO_INDIRECTO = config_get_int_value(aux_config, "PUNTERO_INDIRECTO");
 
                 aux_FCB->fcb_config = aux_config;
-
+                free(nombre);
                 free(path_fcb_config);
 
 			    list_add(lista_FCBs,aux_FCB);
@@ -282,7 +282,7 @@ bool levantarSuperbloque(){
         log_debug(debug_logger,"BLOCK_SIZE=64; BLOCK_COUNT=65536");
         cfg_superbloque = malloc(sizeof(t_config_superbloque));
         cfg_superbloque->BLOCK_COUNT=65536;
-        cfg_superbloque->BLOCK_SIZE= 16; //lo cambio para testear
+        cfg_superbloque->BLOCK_SIZE= 64; //lo cambio para testear
         return true;
     }
     cfg_superbloque = malloc(sizeof(t_config_superbloque));
@@ -310,6 +310,7 @@ bool levantarArchivoBloques(){
         close( archivoBloques->fd);
         return false;
     }
+    archivoBloques->tamanio = tamanio;
     log_debug(debug_logger,"Se levanto el archivo de bloques");
     return true;
 }

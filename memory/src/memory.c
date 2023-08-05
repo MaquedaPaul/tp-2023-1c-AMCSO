@@ -70,11 +70,7 @@ void realizarPedidoLectura(int cliente_socket){
     bool esCpu= cliente_socket == ipCpu;
     uint32_t tamanio = *(uint32_t*)list_get(listaInts,1);
     uint32_t pid = *(uint32_t*)list_get(listaInts,2);
-    if(cliente_socket == ipFs){
-        uint32_t punteroArchivo = *(uint32_t*)list_get(listaInts,3);
-    }else{
-        list_remove_and_destroy_element(listaInts, 3, free);
-    }
+
 
     pthread_mutex_lock(&mutex_espacioContiguo);
     accesoEspacioUsuarioLecturaRetardoPrevio(posicion, tamanio, pid);
@@ -97,6 +93,7 @@ void realizarPedidoLectura(int cliente_socket){
 
 
 void realizarPedidoEscritura(int cliente_socket){
+
     t_datos* unosDatos = malloc(sizeof(t_datos));
     t_list* listaInts = recibirListaIntsYDatos(cliente_socket, unosDatos);
     uint32_t* posicion = list_get(listaInts,0);
@@ -113,7 +110,7 @@ void realizarPedidoEscritura(int cliente_socket){
     list_destroy(listaInts);
     pthread_mutex_unlock(&mutex_espacioContiguo);
 
-
+    //mostrarMemoria();
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
 
