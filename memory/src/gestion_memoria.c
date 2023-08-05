@@ -357,8 +357,8 @@ bool intercambiarDatosSegmentosEnMp(t_segmento* unSegmento, t_segmento* otroSegm
     void* datosSegundo = malloc(sizeof(otroSegmento->limite));
     memcpy(datosPrimer, espacio_contiguo+unSegmento->base, unSegmento->limite);
     memcpy(datosSegundo, espacio_contiguo+otroSegmento->base, otroSegmento->limite);
-    memcpy(espacio_contiguo+unSegmento->base,datosSegundo,otroSegmento->limite);
-    memcpy(espacio_contiguo+otroSegmento->base,datosPrimer,unSegmento->limite);
+    memcpy(espacio_contiguo + unSegmento->base,datosSegundo,otroSegmento->limite);
+    memcpy(espacio_contiguo + unSegmento->base + otroSegmento->limite,datosPrimer,unSegmento->limite);
     log_debug(debug_logger, "Se esta liberando datos de memcpy en aproximado linea 364");
     free(datosPrimer);
     free(datosSegundo);
@@ -384,6 +384,10 @@ bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
     }
     if(seConsolido){
         limpiarHueco(segmentoLibre);
+    }else{
+        segmentoLibre->id = -1;
+        agregarAHuecosLibres(segmentoLibre);
+        removerDeHuecosUsados(segmentoLibre);
     }
 }
 
@@ -404,10 +408,10 @@ void compactarSegmentos(){
     intercambiarDatosSegmentosEnMp(primerHuecoLibre, siguienteSegmentoUsado);
     removerDeHuecosUsados(siguienteSegmentoUsado);
     removerDeHuecosLibres(primerHuecoLibre);
-    primerHuecoLibre->base = siguienteSegmentoUsado->base;
-    primerHuecoLibre->limite = siguienteSegmentoUsado->limite;
+    primerHuecoLibre->base = primerHuecoLibre->base + siguienteSegmentoUsado->limite;
+    //primerHuecoLibre->limite = siguienteSegmentoUsado->limite;
     siguienteSegmentoUsado->base = siguienteBase;
-    siguienteSegmentoUsado->limite = siguienteLimite;
+    //siguienteSegmentoUsado->limite = siguienteLimite;
     agregarAHuecosUsados(siguienteSegmentoUsado);
     consolidarSiExistenAledaniosA(primerHuecoLibre);
 
