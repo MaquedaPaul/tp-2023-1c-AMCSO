@@ -18,6 +18,8 @@ typedef enum {
     PATH_FCB
 }tipo_path;
 
+extern sem_t contador_peticiones;
+extern t_list* peticionesPendientes;
 extern t_list* lista_bloques;
 extern pthread_mutex_t mutex_cliente_socket;
 extern t_log* trace_logger;
@@ -36,9 +38,9 @@ extern t_list* lista_FCBs;
 extern t_bitarray* bitmap;
 
 extern void* bitarraycontent;
-extern t_list* archivosUsados;
 
 
+extern pthread_mutex_t mutex_peticiones_pendientes;
 extern pthread_mutex_t mutex_ArchivosUsados;
 void reasignarPathSiEsNecesario(tipo_path tipo);
 bool crearSemaforos();
@@ -66,4 +68,6 @@ bool crear_bitmap_de_bloques();
 bool crear_archivo_de_bloques();
 bool levantarArchivosExistentes();
 bool iniciarEstructurasAdministrativas(char* nombre_path);
+void iniciar_atencion_peticiones();
+
 #endif //TEMPLATE_INIT_H

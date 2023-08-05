@@ -14,6 +14,7 @@ bool semaforosCreados = false;
 bool lista_FCBsCreado = true;
 bool archivosUsadosCreado = true;
 bool listaBloquesCreado = true;
+bool listaPeticionesPendientes = true;
 
 
 int cargar_configuracion(char *path) {
@@ -109,7 +110,11 @@ bool iniciarFilesystem(){
     archivosUsadosCreado = true;
     lista_bloques = list_create();
     listaBloquesCreado = true;
+    peticionesPendientes = list_create();
+    listaPeticionesPendientes = true;
     bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
+
+    iniciar_atencion_peticiones();
     if (!generar_conexiones()){
         //cerrar_programa();
         return false;
@@ -344,6 +349,10 @@ int obtener_tamanio_en_bytes(){
 bool crearSemaforos(){
     pthread_mutex_init(&mutex_cliente_socket,NULL);
     int comprobacionArchivosUsados = pthread_mutex_init(&mutex_ArchivosUsados,NULL);
+
+    pthread_mutex_init(&mutex_peticiones_pendientes, NULL);
+    sem_init(&contador_peticiones, 0, 0);
+
     if(comprobacionArchivosUsados !=0){
         log_error(error_logger, "No se pudieron inicializar los semaforos");
         return false;
