@@ -110,7 +110,7 @@ bool iniciarFilesystem(){
     archivosUsadosCreado = true;
     lista_bloques = list_create();
     listaBloquesCreado = true;
-    peticionesPendientes = list_create();
+    peticiones_pendientes = list_create();
     listaPeticionesPendientes = true;
     bool estructurasAdministrativas = iniciarEstructurasAdministrativas(cfg_filesystem->PATH_FCB);
 

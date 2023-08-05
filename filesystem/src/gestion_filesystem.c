@@ -13,7 +13,7 @@ t_bitarray* bitmap;
 t_config_superbloque* cfg_superbloque;
 t_bloques* archivoBloques;
 t_list* lista_FCBs;
-t_list* archivosUsados;
+
 
 
 
@@ -157,7 +157,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
        aux_FCB->PUNTERO_INDIRECTO = *enteroAuxIndPuntero;
 
 
-       log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, aux_FCB->PUNTERO_INDIRECTO);
+       //log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto <%d>   - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, aux_FCB->PUNTERO_INDIRECTO, );
 
        uint32_t  puntero_directo = *enteroAuxPuntero;
        uint32_t  puntero_indirecto = *enteroAuxIndPuntero;
@@ -289,7 +289,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
             uint32_t puntero_indirecto = *enteroAuxInd;
 
 
-            log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, aux_FCB->PUNTERO_INDIRECTO);
+            //log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, aux_FCB->PUNTERO_INDIRECTO);
 
             uint32_t cantidad_de_punteros = list_size(lista_bloques);
             uint32_t  offset = 0;
@@ -336,7 +336,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
                 bitarray_clean_bit(bitmap,puntero_indirecto);
                 accesoABitmap(puntero_indirecto, bitarray_test_bit(bitmap, puntero_indirecto));
                 accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, 0, puntero_directo);
-                log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
+                //log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
 
                 aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
                 aux_FCB->PUNTERO_DIRECTO = 0;
@@ -376,7 +376,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
                 accesoABitmap(puntero_indirecto, bitarray_test_bit(bitmap, puntero_indirecto));
                 bitarray_clean_bit(bitmap,puntero_indirecto );
                 accesoABitmap(puntero_indirecto, bitarray_test_bit(bitmap, puntero_indirecto));
-                log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
+                //log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
 
                 aux_FCB->TAMANIO_ARCHIVO = nuevo_tamanio;
                 aux_FCB->PUNTERO_INDIRECTO = 0;
@@ -472,7 +472,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 
              t_config* archivo_config = aux_FCB->fcb_config;
              uint32_t puntero_indirecto = config_get_int_value(archivo_config, "PUNTERO_INDIRECTO");
-             log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
+             //log_info(info_logger,"Acceso Bloque - Archivo: <%s> - Puntero Indirecto    - Bloque File System <%d>", aux_FCB->NOMBRE_ARCHIVO, puntero_indirecto);
 
              uint32_t  offset = sizeof(uint32_t) * (cantidad_de_bloques - 1);
 
@@ -515,7 +515,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
 }
     msync(archivoBloques->archivo, archivoBloques->tamanio, MS_SYNC);
     int tamanio = obtener_tamanio_bitmap();
-    msync(bitmap, archivoBloques->tamanio, MS_SYNC);
+    msync(bitmap, tamanio, MS_SYNC);
 }
 
 
@@ -534,7 +534,7 @@ uint32_t obtener_bloque_libre(t_bitarray* bitmap) {
     }
 
     int tamanio = obtener_tamanio_bitmap();
-    msync(bitmap, archivoBloques->tamanio, MS_SYNC);
+    msync(bitmap, tamanio, MS_SYNC);
 	log_info(info_logger, "No se obtuvo un bloque libre");
     return -1;
 }
