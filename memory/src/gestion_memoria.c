@@ -345,9 +345,7 @@ t_segmento* buscarPrimerHuecoLibre(){
     bool esLaMenorBase(t_segmento* segmento,t_segmento* otroSegmento){
         return segmento-> base < otroSegmento->base;
     }
-    pthread_mutex_lock(&mutex_huecosDisponibles);
     list_sort(huecosLibres, esLaMenorBase);
-    pthread_mutex_unlock(&mutex_huecosDisponibles);
 
     t_segmento* segmentoMenor = list_get(huecosLibres,0);
     return segmentoMenor;
@@ -440,6 +438,13 @@ uint32_t realizarCompactacion(){
     while(list_size(huecosLibres) >= 2){
         compactarSegmentos();
     }
+    log_debug(debug_logger,"Muestro usados");
+    mostrarListaUsados();
+    log_debug(debug_logger,"Muestro libres");
+    mostrarListaLibres();
+    log_debug(debug_logger,"Muestro tablas de segmentos");
+    mostrarTablasDeSegmentos();
+
     void detallarTablas(t_tablaSegmentos* unaTabla){
         uint32_t pid = unaTabla->pid;
         void detallarSegmento(t_segmento* unSegmento){

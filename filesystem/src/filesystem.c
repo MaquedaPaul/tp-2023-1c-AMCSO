@@ -7,7 +7,7 @@
 
 int fd_memoria;
 int fd_kernel;
-bool kernelInicializado = false;
+//bool kernelInicializado = false;
 
 
 //SE EJECUTAN LAS PETICIONES
@@ -72,7 +72,8 @@ void ejecutarFread(char* nombreArchivo, uint32_t pid, uint32_t puntero, uint32_t
 void ejecutarFtruncate(char* nombreArchivo, uint32_t tamanioNuevo){
 
     realizarTruncacionArchivo(nombreArchivo, tamanioNuevo);
-    enviarString(nombreArchivo,fd_kernel,TRUNCACION_ARCHIVO_EXITOSA,info_logger);
+    uint32_t size = list_size(peticiones_pendientes);
+    enviarEnteroYString(size,nombreArchivo, strlen(nombreArchivo),fd_kernel,info_logger,ESCRITURA_ARCHIVO_EXITOSA);
     free(nombreArchivo);
 }
 
@@ -85,8 +86,9 @@ void ejecutar_finalizarEscrituraArchivo(char* nombreArchivo, uint32_t puntero, u
 
     realizarEscrituraArchivo(nombreArchivo,  puntero, datos, tamanio);
     uint32_t size =list_size(peticiones_pendientes);
+
     //enviarString(nombreArchivo,fd_kernel,ESCRITURA_ARCHIVO_EXITOSA, info_logger); //cantidad de peticiones, kernel las recibe, lo va ir controlando
-    enviarEnteroYString(size,nombreArchivo, strlen(nombreArchivo) +1,fd_kernel,info_logger,ESCRITURA_ARCHIVO_EXITOSA);
+    enviarEnteroYString(size,nombreArchivo, strlen(nombreArchivo),fd_kernel,info_logger,ESCRITURA_ARCHIVO_EXITOSA);
     free(datos);
 
 //free(nombreArchivo);
@@ -96,7 +98,7 @@ void ejecutar_finalizarLecturaArchivo(char* nombreArchivo){
 
     uint32_t size =list_size(peticiones_pendientes);
     //enviarString(nombreArchivo, fd_kernel, LECTURA_ARCHIVO_EXITOSA, info_logger); //cantidad de peticiones, kernel las recibe, lo va ir controlando
-    enviarEnteroYString(size,nombreArchivo, strlen(nombreArchivo) +1,fd_kernel,info_logger,LECTURA_ARCHIVO_EXITOSA);
+    enviarEnteroYString(size,nombreArchivo, strlen(nombreArchivo),fd_kernel,info_logger,LECTURA_ARCHIVO_EXITOSA);
 }
 
 //MANEJO PETICIONES

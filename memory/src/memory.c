@@ -210,13 +210,13 @@ void compactacionSegmentos(int cliente_socket){
     simularRetardoSinMensaje(cfg_memory->RETARDO_MEMORIA);
     pthread_mutex_lock(&mutex_huecosDisponibles);
     pthread_mutex_lock(&mutex_huecosUsados);
-    pthread_mutex_lock(&tablasSegmentos);
-    pthread_mutex_lock(&espacio_contiguo);
+    pthread_mutex_lock(&mutex_tablasSegmentos);
+    pthread_mutex_lock(&mutex_espacioContiguo);
     realizarCompactacion();
     pthread_mutex_unlock(&mutex_huecosDisponibles);
     pthread_mutex_unlock(&mutex_huecosUsados);
-    pthread_mutex_unlock(&tablasSegmentos);
-    pthread_mutex_unlock(&espacio_contiguo);
+    pthread_mutex_unlock(&mutex_tablasSegmentos);
+    pthread_mutex_unlock(&mutex_espacioContiguo);
     compactacionRetardoTerminada();
     informarTablasActualizadas(cliente_socket);
 
