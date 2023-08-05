@@ -157,7 +157,8 @@ void crearSegmento(int cliente_socket) {
 
     list_clean_and_destroy_elements(listaInts, free);
     list_destroy(listaInts);
-
+    mostrarListaLibres();
+    mostrarListaUsados();
     enviarValor_uint32(direccion,cliente_socket,CREACION_SEGMENTO_EXITOSO,info_logger);
 
 }
@@ -218,6 +219,8 @@ void compactacionSegmentos(int cliente_socket){
     pthread_mutex_unlock(&mutex_tablasSegmentos);
     pthread_mutex_unlock(&mutex_espacioContiguo);
     compactacionRetardoTerminada();
+    mostrarListaUsados();
+    mostrarListaLibres();
     informarTablasActualizadas(cliente_socket);
 
 }

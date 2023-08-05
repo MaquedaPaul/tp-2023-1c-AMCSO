@@ -93,6 +93,7 @@ uint32_t realizarCreacionSegmento(uint32_t pid, t_segmento* huecoLibre, uint32_t
     if(huecoLibre->limite == tamanio){
         removerDeHuecosLibres(huecoLibre);
         agregarAHuecosUsados(huecoLibre);
+        huecoLibre->id=idSegmento;
         segmentoParaAgregar = huecoLibre;
     }
     if(huecoLibre->limite < tamanio){
@@ -353,7 +354,7 @@ t_segmento* buscarPrimerHuecoLibre(){
 
 
 bool intercambiarDatosSegmentosEnMp(t_segmento* unSegmento, t_segmento* otroSegmento){
-    void* datosPrimer = malloc(sizeof(unSegmento->limite));
+    /*void* datosPrimer = malloc(sizeof(unSegmento->limite));
     void* datosSegundo = malloc(sizeof(otroSegmento->limite));
     memcpy(datosPrimer, espacio_contiguo+unSegmento->base, unSegmento->limite);
     memcpy(datosSegundo, espacio_contiguo+otroSegmento->base, otroSegmento->limite);
@@ -362,6 +363,29 @@ bool intercambiarDatosSegmentosEnMp(t_segmento* unSegmento, t_segmento* otroSegm
     log_debug(debug_logger, "Se esta liberando datos de memcpy en aproximado linea 364");
     free(datosPrimer);
     free(datosSegundo);
+     */
+
+    void* datosTemporal = malloc(otroSegmento->limite);
+    if (datosTemporal == NULL) {
+        // Manejar el error de asignación de memoria
+        // ...
+        return false;
+    }
+
+    // Copiar el contenido del segundo segmento al bloque temporal
+    memcpy(datosTemporal, espacio_contiguo + otroSegmento->base, otroSegmento->limite);
+
+    // Calcular el desplazamiento necesario para copiar el contenido del primer segmento al segundo segmento
+    int desplazamiento = otroSegmento->base - unSegmento->base;
+
+    // Copiar el contenido del primer segmento al segundo segmento
+    memcpy(espacio_contiguo + desplazamiento, espacio_contiguo + unSegmento->base, unSegmento->limite);
+
+    // Copiar el contenido del bloque temporal (segundo segmento) al primer segmento, aplicando el desplazamiento
+    memcpy(espacio_contiguo + unSegmento->base, datosTemporal, otroSegmento->limite);
+
+    // Liberar memoria temporal
+    free(datosTemporal);
     return true;
 }
 bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
@@ -389,6 +413,8 @@ bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
         agregarAHuecosLibres(segmentoLibre);
         removerDeHuecosUsados(segmentoLibre);
     }
+    mostrarListaUsados();
+    mostrarListaLibres();
 }
 
 
@@ -413,6 +439,8 @@ void compactarSegmentos(){
     siguienteSegmentoUsado->base = siguienteBase;
     //siguienteSegmentoUsado->limite = siguienteLimite;
     agregarAHuecosUsados(siguienteSegmentoUsado);
+    //mostrarListaLibres();
+    //mostrarListaUsados();
     consolidarSiExistenAledaniosA(primerHuecoLibre);
 
 }
@@ -422,7 +450,7 @@ bool hayHuecosIntercalados(){
         return unSegmento->base < otroSegmento->base;
     }
     list_sort(huecosLibres, ordenarSegunBase);
-
+/*
     bool elLimiteCoincideConLaBaseDelSiguiente(t_segmento* unSegmento){
         t_segmento* siguienteSegmento = buscarSegmentoLibreEnBaseADireccion(unSegmento->base +unSegmento->limite);
         if(siguienteSegmento == NULL){
@@ -430,8 +458,12 @@ bool hayHuecosIntercalados(){
         }
         return false;
     }
-
-    bool hayHuecosIntercalados = list_any_satisfy(huecosLibres, elLimiteCoincideConLaBaseDelSiguiente);
+*/
+    bool noEstaAlFinalDeLaMemoria(t_segmento* unSegmento){
+        return (unSegmento->base+ unSegmento->limite) != cfg_memory->TAM_MEMORIA;
+    }
+    bool tamanioListaMayorA1 = list_size(huecosLibres) >= 2;
+    bool hayHuecosIntercalados = list_any_satisfy(huecosLibres, noEstaAlFinalDeLaMemoria) || tamanioListaMayorA1;
 
     return hayHuecosIntercalados;
 }
@@ -439,7 +471,7 @@ bool hayHuecosIntercalados(){
 
 
 uint32_t realizarCompactacion(){
-    while(list_size(huecosLibres) >= 2){
+    while(list_size(huecosLibres) >= 2 || hayHuecosIntercalados()){
         compactarSegmentos();
     }
     log_debug(debug_logger,"Muestro usados");
