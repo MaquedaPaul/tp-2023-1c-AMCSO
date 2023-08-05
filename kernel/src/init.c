@@ -30,6 +30,7 @@ pthread_mutex_t mutex_TGAA;
 //CONTADORES Y MUTEX
 int procesosTotales_MP;
 int idProcesoGlobal;
+int contadorPeticionesFs;
 pthread_mutex_t mutex_colaNew;
 pthread_mutex_t mutex_ColaReady; 
 pthread_mutex_t mutex_colaExec;
@@ -38,6 +39,7 @@ pthread_mutex_t mutex_colaExit;
 pthread_mutex_t mutex_MP;
 pthread_mutex_t mutex_listaPeticionesArchivos;
 pthread_mutex_t mutex_debug_logger;
+pthread_mutex_t mutex_contadorPeticionesFs;
 
 pthread_mutex_t m_pcb;
 
@@ -46,6 +48,7 @@ sem_t sem_procesosEnNew;
 sem_t sem_procesosReady;
 sem_t sem_procesosExit;
 sem_t sem_cpuLibre;
+sem_t sem_atenderCompactacion;
 
 
 //HILOS
@@ -145,6 +148,8 @@ void inicializar_kernel(){
 
     procesosTotales_MP = 0;
     idProcesoGlobal = 0;
+    contadorPeticionesFs = 0;
+
     pthread_mutex_init(&mutex_colaNew, NULL);
     pthread_mutex_init(&mutex_ColaReady, NULL);
     pthread_mutex_init(&mutex_colaExec, NULL);
@@ -152,11 +157,13 @@ void inicializar_kernel(){
     pthread_mutex_init(&mutex_colaExit, NULL);
     pthread_mutex_init(&mutex_MP, NULL);
     pthread_mutex_init(&mutex_debug_logger, NULL);
+    pthread_mutex_init(&mutex_contadorPeticionesFs, NULL);
     //SEMAFOROS
     sem_init(&sem_procesosEnNew,0,0);
     sem_init(&sem_procesosReady,0,0);
     sem_init(&sem_procesosExit,0,0);
     sem_init(&sem_cpuLibre,0,1);
+    sem_init(&sem_atenderCompactacion,0,0);
 
     semaforosCargados = true;
 

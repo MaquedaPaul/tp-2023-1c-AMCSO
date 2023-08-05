@@ -13,6 +13,8 @@
 #include <init.h>
 #include <plan_aux.h>
 
+
+
 extern t_log* logger_kernel;
 extern t_log* trace_logger;
 extern t_log* debug_logger;
@@ -56,5 +58,6 @@ void buscarDuenioTablaSegEnListaYActualizar(t_list* listaEstado,t_tablaSegmentos
 void solicitarCreacionSegmentoMemoria(t_pcb* pcb);
 void actualizarPcbExec(t_pcb* pcb);
 t_pcb* obtenerPcbExec();
+void* esperandoParaCompactacion();
 
 #endif //TEMPLATE_COMUNICACION_H

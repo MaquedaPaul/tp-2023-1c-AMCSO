@@ -8,6 +8,7 @@
 
 extern int fd_filesystem;
 extern int fd_cpu;
+extern bool hayCompactacionPendiente;
 
 
 
@@ -33,6 +34,8 @@ void actualizarDuenioTGAA(char* nombreArchivo, t_pcb* pcbNuevoDuenio);
 void eliminarArchivoTablaLocal(char* nombreArchivo, t_pcb* pcb);
 void actualizarTGAALuegoDeLiberacionDeArchivo(char* nombreArchivo);
 void eliminarPcbTGAA_Y_actualizarTGAA(t_pcb* pcb);
+void aumentarContadorPeticionesFs();
+char* reciboYActualizoContadorPeticionesFs(int cliente_socket);
 
 
 

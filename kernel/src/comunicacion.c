@@ -10,6 +10,8 @@ int fd_memoria;
 int fd_cpu;
 int fd_filesystem;
 
+
+
 t_log* logger_kernel;
 
 
@@ -198,19 +200,19 @@ void procesar_conexion(void *void_args) {
             }
             
             case TRUNCACION_ARCHIVO_EXITOSA: {
-                char* nombreArchivo = recibirString(cliente_socket);
+                char* nombreArchivo = reciboYActualizoContadorPeticionesFs(cliente_socket);
                 desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
             case LECTURA_ARCHIVO_EXITOSA: {
-                char* nombreArchivo = recibirString(cliente_socket);
+                char* nombreArchivo = reciboYActualizoContadorPeticionesFs(cliente_socket);
                 desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
 
             case ESCRITURA_ARCHIVO_EXITOSA: {
-                char* nombreArchivo = recibirString(cliente_socket);
+                char* nombreArchivo = reciboYActualizoContadorPeticionesFs(cliente_socket);
                 desbloquearPcb_porNombreArchivo(nombreArchivo);
                 break;
             }
@@ -248,7 +250,14 @@ void procesar_conexion(void *void_args) {
             }
             case SE_NECESITA_COMPACTACION: {
                 recibirOrden(cliente_socket);
-                enviarOrden(SE_NECESITA_COMPACTACION,fd_filesystem,info_logger);
+                if(contadorPeticionesFs == 0){
+                    enviarOrden(COMPACTACION_SEGMENTOS,fd_memoria,info_logger);
+                    log_info(info_logger,"Compactación: <Se solicitó compactación>");
+                }else{
+                    pthread_t esperaCompactacion;
+                    pthread_create(&esperaCompactacion,NULL,esperandoParaCompactacion,NULL);
+                    pthread_detach(esperaCompactacion);
+                }
                 break;
             }
             case COMPACTACION_FINALIZADA: {
@@ -268,19 +277,6 @@ void procesar_conexion(void *void_args) {
 
             //-------------------------FILE SYSTEM-----------------------------------------------------------
 
-            case PUEDO_COMPACTAR: {
-                recibirOrden(cliente_socket);
-                log_info(info_logger,"Compactación: <Se solicitó compactación>");
-                enviarOrden(COMPACTACION_SEGMENTOS,fd_memoria,info_logger);
-                break;
-            }
-
-            case ESPERAR_PARA_COMPACTACION: {
-                recibirOrden(cliente_socket);
-                log_info(info_logger,"Compactación: <Esperando Fin de Operaciones de FS>");
-                //Cuando file system termine me tiene que enviar una orden PUEDO_COMPACTAR.
-                break;
-            }
             case -1:
                 log_error(error_logger, "Cliente desconectado de %s...", server_name);
                 return;
@@ -561,7 +557,7 @@ void* esperaIo(void* void_pcb){
     //EJEMPLO DE INSTRUCCION IO 10
     int tiempoEspera = atoi(instruccion->param1);
     log_info(info_logger, "PID: <%d> - Ejecuta IO: <%d>", pcb->id,tiempoEspera);
-    usleep(tiempoEspera);
+    sleep(tiempoEspera);
     moverProceso_BloqReady(pcb);
 }
 
@@ -637,4 +633,19 @@ t_pcb* obtenerPcbExec(){
     t_pcb* unaPcb = list_get(colaExec,0);
     pthread_mutex_unlock(&mutex_colaExec);
     return unaPcb;
+}
+
+void* esperandoParaCompactacion(){
+
+    pthread_mutex_lock(&mutex_contadorPeticionesFs);
+    hayCompactacionPendiente = true;
+    pthread_mutex_unlock(&mutex_contadorPeticionesFs);
+    log_info(info_logger,"Compactación: <Esperando Fin de Operaciones de FS>");
+
+    sem_wait(&sem_atenderCompactacion);
+    enviarOrden(COMPACTACION_SEGMENTOS,fd_memoria,info_logger);
+
+    pthread_mutex_lock(&mutex_contadorPeticionesFs);
+    hayCompactacionPendiente = false;
+    pthread_mutex_unlock(&mutex_contadorPeticionesFs);
 }

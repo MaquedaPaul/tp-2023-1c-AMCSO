@@ -13,6 +13,7 @@ extern bool estadosCargados;
 extern bool semaforosCargados;
 extern bool tablasFsCargadas;
 extern bool semaforoDinamicoCargado;
+extern bool hayCompactacionPendiente;
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;
@@ -40,6 +41,7 @@ extern t_list* listaPeticionesArchivos;
 
 extern int procesosTotales_MP; //contador de procesos totales en READY-EXEC-BLOQ
 extern int idProcesoGlobal; //generador de pid para pcbs
+extern int contadorPeticionesFs;
 extern pthread_mutex_t mutex_colaNew;
 extern pthread_mutex_t mutex_ColaReady; 
 extern pthread_mutex_t mutex_colaExec;
@@ -49,12 +51,14 @@ extern pthread_mutex_t mutex_MP; //Des/activa el grado de Multiprogramacion
 extern pthread_mutex_t mutex_listaPeticionesArchivos;
 extern pthread_mutex_t mutex_TGAA; //Mutex de la tabla global de archivos abiertos
 extern pthread_mutex_t m_pcb;
+extern pthread_mutex_t mutex_contadorPeticionesFs;
 
 //SEMAFOROS
 extern sem_t sem_procesosEnNew;
 extern sem_t sem_procesosReady;
 extern sem_t sem_procesosExit;
 extern sem_t sem_cpuLibre;
+extern sem_t sem_atenderCompactacion;
 
 //HILOS
 extern pthread_t conexion_con_consola;
