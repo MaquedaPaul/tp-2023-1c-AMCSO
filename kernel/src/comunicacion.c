@@ -38,8 +38,6 @@ void procesar_conexion(void *void_args) {
                 t_pcb *pcbDispatch = crearPcb(listaInstrucciones);
                 pcbDispatch->fd_consola=cliente_socket;
                 agregarProceso_New(pcbDispatch);
-
-                mostrarEstadoColas();
                 break;
 
             }
@@ -188,7 +186,6 @@ void procesar_conexion(void *void_args) {
             case APERTURA_ARCHIVO_FALLIDA: {
                 char* nombreArchivo = recibirString(cliente_socket);
                 enviarString(nombreArchivo, fd_filesystem, CREACION_ARCHIVO, info_logger);
-                free(nombreArchivo);
                 break;
             }
 

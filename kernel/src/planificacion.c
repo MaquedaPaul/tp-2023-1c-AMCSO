@@ -127,21 +127,21 @@ double response_ratio(t_pcb* pcb){
 }
 
 void calcular_estimacion(t_pcb* pcb){
-    pthread_mutex_lock(&m_pcb);
-    time_t tiempo_actual = time(NULL);
-    char* tiempoString = ctime(&tiempo_actual);
-    log_debug(debug_logger,"tiempo actual: {%s}", tiempoString);
-   char* tiempoInicialExecString =  ctime(&pcb->tiempoInicialExec);
-    log_debug(debug_logger,"tiempo inicial exec: {%s}", tiempoInicialExecString);
-    double rafaga = difftime(tiempo_actual, pcb->tiempoInicialExec);
-    log_debug(debug_logger,"rafaga: {%f]", rafaga);
-    //S = α . estimadoAnterior + (1 - α) . ráfagaAnterior
-    uint32_t nueva_estimacion = cfg_kernel->HRRN_ALFA * pcb->estimacionRafaga + (1-cfg_kernel->HRRN_ALFA) * rafaga * 1000;
-    log_debug(debug_logger,"nueva_estimacion: {%d}", nueva_estimacion);
-    pcb->estimacionRafaga = nueva_estimacion;
-    log_debug(debug_logger,"estimacion_pcb: {%d}", pcb->estimacionRafaga);
-    pthread_mutex_unlock(&m_pcb);
-    log_info(info_logger, "La estimacion para el proceso <%d> es: %d", pcb->id, nueva_estimacion);
+    if(strcmp(cfg_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
+        pthread_mutex_lock(&m_pcb);
+        time_t tiempo_actual = time(NULL);
+        char* tiempoString = ctime(&tiempo_actual);
+        log_debug(debug_logger,"tiempo actual: {%s}", tiempoString);
+        char* tiempoInicialExecString =  ctime(&pcb->tiempoInicialExec);
+        log_debug(debug_logger,"tiempo inicial exec: {%s}", tiempoInicialExecString);
+        double rafaga = difftime(tiempo_actual, pcb->tiempoInicialExec);
+        log_debug(debug_logger,"rafaga: {%f]", rafaga);
+        //S = α . estimadoAnterior + (1 - α) . ráfagaAnterior
+        uint32_t nueva_estimacion = cfg_kernel->HRRN_ALFA * pcb->estimacionRafaga + (1-cfg_kernel->HRRN_ALFA) * rafaga * 1000;
+        pcb->estimacionRafaga = nueva_estimacion;
+        log_debug(debug_logger,"estimacion_pcb: {%d}", pcb->estimacionRafaga);
+        pthread_mutex_unlock(&m_pcb);
+    }
 }
 
 bool criterio_hrrn(t_pcb* pcb1, t_pcb* pcb2){
@@ -181,7 +181,6 @@ void moverProceso_readyExec(){
             pthread_mutex_unlock(&mutex_colaExec);
             enviar_paquete_pcb(pcbReady, fd_cpu,PCB, info_logger);
             log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcbReady->id);
-            mostrarEstadoColas();
         }
 
 }
@@ -201,7 +200,6 @@ void moverProceso_ExecBloq(t_pcb *pcbBuscado){
     calcular_estimacion(pcbBuscado);
     sem_post(&sem_cpuLibre);
 
-    mostrarEstadoColas();
 }
 
 
@@ -262,8 +260,6 @@ void moverProceso_ExecExit(t_pcb *pcbBuscado){
     sem_post(&sem_procesosExit);
 
 
-
-    mostrarEstadoColas();
 }
 
 void moverProceso_ExecReady(t_pcb* pcbBuscado){
@@ -275,19 +271,16 @@ void moverProceso_ExecReady(t_pcb* pcbBuscado){
     pcbBuscado->tiempoIngresoReady = time(NULL);
     pthread_mutex_unlock(&m_pcb);
 
-    log_debug(debug_logger,"antes de meter en la cola de ready, estimacion{%d}", pcbBuscado->estimacionRafaga);
+
     pthread_mutex_lock(&mutex_ColaReady);
     list_add(colaReady,pcbBuscado);
     pthread_mutex_unlock(&mutex_ColaReady);
-    log_debug(debug_logger,"despues de meter en la cola de ready, estimacion{%d}", pcbBuscado->estimacionRafaga);
+
 
     log_info(info_logger, "PID: [%d] - Estado Anterior: EXEC - Estado Actual: READY", pcbBuscado->id);
-    log_debug(debug_logger,"antes de calcular estimacion, estimacion{%d}", pcbBuscado->estimacionRafaga);
     calcular_estimacion(pcbBuscado);
-    log_debug(debug_logger,"despues de calcular estimacion, estimacion{%d}", pcbBuscado->estimacionRafaga);
     sem_post(&sem_procesosReady);
     sem_post(&sem_cpuLibre);
-    log_debug(debug_logger,"despues de hacer post a semaforos, estimacion{%d}", pcbBuscado->estimacionRafaga);
     mostrarEstadoColas();
 
 }
