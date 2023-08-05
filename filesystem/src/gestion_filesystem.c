@@ -14,6 +14,8 @@ t_config_superbloque* cfg_superbloque;
 t_bloques* archivoBloques;
 t_list* lista_FCBs;
 
+//t_list* archivosUsados;
+
 
 
 

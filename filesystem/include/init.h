@@ -19,7 +19,7 @@ typedef enum {
 }tipo_path;
 
 extern sem_t contador_peticiones;
-extern t_list* peticionesPendientes;
+extern t_list* peticiones_pendientes;
 extern t_list* lista_bloques;
 extern pthread_mutex_t mutex_cliente_socket;
 extern t_log* trace_logger;
@@ -31,6 +31,8 @@ extern t_config* file_cfg_filesystem;
 extern t_config_filesystem *cfg_filesystem;
 extern t_config_superbloque* cfg_superbloque;
 extern t_bloques* archivoBloques;
+extern t_list* archivosUsados;
+
 extern char* path_config;
 int cargar_configuracion(char *path);
 extern t_bitarray* bitarrayBitmapDeBloques;

@@ -345,9 +345,7 @@ t_segmento* buscarPrimerHuecoLibre(){
     bool esLaMenorBase(t_segmento* segmento,t_segmento* otroSegmento){
         return segmento-> base < otroSegmento->base;
     }
-    pthread_mutex_lock(&mutex_huecosDisponibles);
     list_sort(huecosLibres, esLaMenorBase);
-    pthread_mutex_unlock(&mutex_huecosDisponibles);
 
     t_segmento* segmentoMenor = list_get(huecosLibres,0);
     return segmentoMenor;
@@ -359,9 +357,11 @@ bool intercambiarDatosSegmentosEnMp(t_segmento* unSegmento, t_segmento* otroSegm
     void* datosSegundo = malloc(sizeof(otroSegmento->limite));
     memcpy(datosPrimer, espacio_contiguo+unSegmento->base, unSegmento->limite);
     memcpy(datosSegundo, espacio_contiguo+otroSegmento->base, otroSegmento->limite);
-    memcpy(espacio_contiguo+unSegmento->base,datosSegundo,otroSegmento->limite);
-    memcpy(espacio_contiguo+otroSegmento->base,datosPrimer,unSegmento->limite);
-
+    memcpy(espacio_contiguo + unSegmento->base,datosSegundo,otroSegmento->limite);
+    memcpy(espacio_contiguo + unSegmento->base + otroSegmento->limite,datosPrimer,unSegmento->limite);
+    log_debug(debug_logger, "Se esta liberando datos de memcpy en aproximado linea 364");
+    free(datosPrimer);
+    free(datosSegundo);
     return true;
 }
 bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
@@ -374,15 +374,20 @@ bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
         seConsolido=true;
     }
 
-    //NO HARIA FALTA
+    //NO HARIA FALTA, ¿seguro?
     t_segmento * segmentoLibreInferior =  sinConocerLaBaseBuscarSegmentoLibreAnteriorA(segmentoLibre);
     if(segmentoLibreInferior != NULL){
+        log_error(error_logger, "Esto no deberia pasar, aproximado linea 382");
         consolidarSegmentos(segmentoLibre, segmentoLibreInferior);
         limpiarHueco(segmentoLibreSuperior);
         seConsolido=true;
     }
     if(seConsolido){
         limpiarHueco(segmentoLibre);
+    }else{
+        segmentoLibre->id = -1;
+        agregarAHuecosLibres(segmentoLibre);
+        removerDeHuecosUsados(segmentoLibre);
     }
 }
 
@@ -390,15 +395,23 @@ bool consolidarSiExistenAledaniosA(t_segmento* segmentoLibre){
 void compactarSegmentos(){
     t_segmento* primerHuecoLibre = buscarPrimerHuecoLibre();
     t_segmento* siguienteSegmentoUsado = buscarSegmentoEnBaseADireccion(primerHuecoLibre->base +primerHuecoLibre->limite);
+    bool coincideId(t_segmento* unSegmento){
+        return unSegmento->id == siguienteSegmentoUsado->id;
+    }
+    if(list_any_satisfy(huecosLibres,coincideId)){
+        log_error(error_logger, "Se encontro un segmento que no era usado, sino libre en aproximado linea 397");
+        exit(0);
+    }
+
     uint32_t siguienteBase = primerHuecoLibre->base;
     uint32_t siguienteLimite = primerHuecoLibre->limite;
     intercambiarDatosSegmentosEnMp(primerHuecoLibre, siguienteSegmentoUsado);
     removerDeHuecosUsados(siguienteSegmentoUsado);
     removerDeHuecosLibres(primerHuecoLibre);
-    primerHuecoLibre->base = siguienteSegmentoUsado->base;
-    primerHuecoLibre->limite = siguienteSegmentoUsado->limite;
+    primerHuecoLibre->base = primerHuecoLibre->base + siguienteSegmentoUsado->limite;
+    //primerHuecoLibre->limite = siguienteSegmentoUsado->limite;
     siguienteSegmentoUsado->base = siguienteBase;
-    siguienteSegmentoUsado->limite = siguienteLimite;
+    //siguienteSegmentoUsado->limite = siguienteLimite;
     agregarAHuecosUsados(siguienteSegmentoUsado);
     consolidarSiExistenAledaniosA(primerHuecoLibre);
 
@@ -410,25 +423,32 @@ bool hayHuecosIntercalados(){
     }
     list_sort(huecosLibres, ordenarSegunBase);
 
-    bool elLimiteNoCoincideConLaBaseDelSiguiente(t_segmento* unSegmento){
+    bool elLimiteCoincideConLaBaseDelSiguiente(t_segmento* unSegmento){
         t_segmento* siguienteSegmento = buscarSegmentoLibreEnBaseADireccion(unSegmento->base +unSegmento->limite);
         if(siguienteSegmento == NULL){
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
-    list_any_satisfy(huecosLibres, elLimiteNoCoincideConLaBaseDelSiguiente);
+    bool hayHuecosIntercalados = list_any_satisfy(huecosLibres, elLimiteCoincideConLaBaseDelSiguiente);
 
-    return true;
+    return hayHuecosIntercalados;
 }
 
 
 
 uint32_t realizarCompactacion(){
-    while(list_size(huecosLibres) >= 2 || hayHuecosIntercalados()){
+    while(list_size(huecosLibres) >= 2){
         compactarSegmentos();
     }
+    log_debug(debug_logger,"Muestro usados");
+    mostrarListaUsados();
+    log_debug(debug_logger,"Muestro libres");
+    mostrarListaLibres();
+    log_debug(debug_logger,"Muestro tablas de segmentos");
+    mostrarTablasDeSegmentos();
+
     void detallarTablas(t_tablaSegmentos* unaTabla){
         uint32_t pid = unaTabla->pid;
         void detallarSegmento(t_segmento* unSegmento){
