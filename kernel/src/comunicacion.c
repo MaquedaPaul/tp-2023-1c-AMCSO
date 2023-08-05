@@ -252,7 +252,7 @@ void procesar_conexion(void *void_args) {
                 recibirOrden(cliente_socket);
                 if(contadorPeticionesFs == 0){
                     enviarOrden(COMPACTACION_SEGMENTOS,fd_memoria,info_logger);
-                    log_info(info_logger,"Compactación: <Se solicitó compactación>");
+                    log_info(info_logger,"Compactacion: <Se solicito compactacion>");
                 }else{
                     pthread_t esperaCompactacion;
                     pthread_create(&esperaCompactacion,NULL,esperandoParaCompactacion,NULL);
@@ -263,7 +263,7 @@ void procesar_conexion(void *void_args) {
             case COMPACTACION_FINALIZADA: {
                 t_list* listaTablaSegmentosRecibida = recibirTablasSegmentosInstrucciones(cliente_socket);
                 actualizarTablasSegmentosProcesos(listaTablaSegmentosRecibida);
-                log_info(info_logger,"Se finalizó el proceso de compactación");
+                log_info(info_logger,"Se finalizo el proceso de compactación");
                 t_pcb* pcbExec = obtenerPcbExec();
                 solicitarCreacionSegmentoMemoria(pcbExec);
                 break;
@@ -640,7 +640,7 @@ void* esperandoParaCompactacion(){
     pthread_mutex_lock(&mutex_contadorPeticionesFs);
     hayCompactacionPendiente = true;
     pthread_mutex_unlock(&mutex_contadorPeticionesFs);
-    log_info(info_logger,"Compactación: <Esperando Fin de Operaciones de FS>");
+    log_info(info_logger,"Compactacion: <Esperando Fin de Operaciones de FS>");
 
     sem_wait(&sem_atenderCompactacion);
     enviarOrden(COMPACTACION_SEGMENTOS,fd_memoria,info_logger);

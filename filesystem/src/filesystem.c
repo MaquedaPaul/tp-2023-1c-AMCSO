@@ -3,7 +3,6 @@
 //
 
 #include <filesystem.h>
-#include <pthread.h>
 
 int fd_memoria;
 int fd_kernel;
