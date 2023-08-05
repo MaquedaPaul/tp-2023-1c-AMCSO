@@ -33,7 +33,7 @@ void actualizarDuenioTGAA(char* nombreArchivo, t_pcb* pcbNuevoDuenio);
 void eliminarArchivoTablaLocal(char* nombreArchivo, t_pcb* pcb);
 void actualizarTGAALuegoDeLiberacionDeArchivo(char* nombreArchivo);
 void eliminarPcbTGAA_Y_actualizarTGAA(t_pcb* pcb);
-
+void aumentarContadorPeticionesFs();
 
 
 

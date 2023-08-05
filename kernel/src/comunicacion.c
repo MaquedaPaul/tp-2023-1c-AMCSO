@@ -560,7 +560,7 @@ void* esperaIo(void* void_pcb){
     //EJEMPLO DE INSTRUCCION IO 10
     int tiempoEspera = atoi(instruccion->param1);
     log_info(info_logger, "PID: <%d> - Ejecuta IO: <%d>", pcb->id,tiempoEspera);
-    usleep(tiempoEspera);
+    sleep(tiempoEspera);
     moverProceso_BloqReady(pcb);
 }
 

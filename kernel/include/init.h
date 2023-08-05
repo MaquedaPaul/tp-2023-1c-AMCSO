@@ -40,6 +40,7 @@ extern t_list* listaPeticionesArchivos;
 
 extern int procesosTotales_MP; //contador de procesos totales en READY-EXEC-BLOQ
 extern int idProcesoGlobal; //generador de pid para pcbs
+extern int contadorPeticionesFs;
 extern pthread_mutex_t mutex_colaNew;
 extern pthread_mutex_t mutex_ColaReady; 
 extern pthread_mutex_t mutex_colaExec;
@@ -49,6 +50,7 @@ extern pthread_mutex_t mutex_MP; //Des/activa el grado de Multiprogramacion
 extern pthread_mutex_t mutex_listaPeticionesArchivos;
 extern pthread_mutex_t mutex_TGAA; //Mutex de la tabla global de archivos abiertos
 extern pthread_mutex_t m_pcb;
+extern pthread_mutex_t mutex_contadorPeticionesFs;
 
 //SEMAFOROS
 extern sem_t sem_procesosEnNew;

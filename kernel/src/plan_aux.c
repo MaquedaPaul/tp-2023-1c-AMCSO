@@ -75,6 +75,10 @@ void ejecutar_FOPEN(t_pcb* pcb){
         pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
 
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
+        pthread_mutex_lock(&mutex_contadorPeticionesFs);
+        contadorPeticionesFs++;
+        pthread_mutex_unlock(&mutex_contadorPeticionesFs);
+
 
     }
 
@@ -385,4 +389,10 @@ void desbloquearPcb_porNombreArchivo (char* nombArch) {
         log_error(error_logger,"Me enviaron un nombre de archivo que no coincide con ninguno de mis archivos");
     }
     free(nombArch);
+}
+
+void aumentarContadorPeticionesFs(){
+    pthread_mutex_lock(&mutex_contadorPeticionesFs);
+    contadorPeticionesFs++;
+    pthread_mutex_unlock(&mutex_contadorPeticionesFs);
 }

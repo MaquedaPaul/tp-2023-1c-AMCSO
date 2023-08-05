@@ -152,8 +152,13 @@ void moverProceso_readyExec(){
         pthread_mutex_lock(&mutex_colaExec);
 
         if(strcmp(cfg_kernel->ALGORITMO_PLANIFICACION, "HRRN") == 0){
+            log_trace(trace_logger,"--------------Colas sin ordenar------------------");
             mostrarEstadoColas();
-            list_sort(colaReady,(void*)criterio_hrrn);
+            list_sort(colaReady,criterio_hrrn);
+            log_trace(trace_logger,"--------------FIN Colas sin ordenar------------------");
+            log_trace(trace_logger,"--------------Colas ordenadas------------------");
+            mostrarEstadoColas();
+            log_trace(trace_logger,"--------------FIN Colas ordenadas------------------");
             t_pcb* pcb = list_remove(colaReady,0);
             list_add(colaExec,pcb);
             pthread_mutex_lock(&m_pcb);
@@ -165,7 +170,6 @@ void moverProceso_readyExec(){
             log_debug(debug_logger,"antes de enviar pcb es, estimacion{%d}", pcb->estimacionRafaga);
             enviar_paquete_pcb(pcb, fd_cpu,PCB, info_logger);
             log_info(info_logger, "PID: [%d] - Estado Anterior: READY - Estado Actual: EXEC.", pcb->id);
-            mostrarEstadoColas();
 
         }
         else{
