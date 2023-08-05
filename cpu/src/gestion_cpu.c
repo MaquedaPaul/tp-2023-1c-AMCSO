@@ -29,6 +29,7 @@ void ejecutar_MOV_OUT(int direccion_logica, char* registro ) {
         escribir_valor_en_memoria(direccion_fisica,cantidad_bytes, valorDelRegistro);
         pcb_actual->programCounter++;
     }
+    free(valorDelRegistro);
 }
 
 void ejecutar_WAIT(char* nombre_recurso) {
@@ -291,7 +292,6 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* v
     if (strcmp(valor2, "OK") == 0) {
     log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
     }
-    free(valor);
     free(unosDatos);
 
  }
@@ -340,7 +340,7 @@ char* obtener_valor_registroCPU(char* registro) {
     if (strcmp(registro, "AX") == 0){
 
          char* valor = (char *) malloc (4 + 1);
-         strcpy (valor,"pppp");
+         //strcpy (valor,"pppp");
          memcpy(valor,registroCPU_AX,4);
 
         return valor;
@@ -348,7 +348,7 @@ char* obtener_valor_registroCPU(char* registro) {
     if (strcmp(registro, "BX") == 0) {
 
          char* valor = (char *) malloc (4 + 1);
-         strcpy (valor,"pppp");
+         //strcpy (valor,"pppp");
         memcpy(valor,registroCPU_BX, 4);
 
         return valor;
@@ -356,28 +356,28 @@ char* obtener_valor_registroCPU(char* registro) {
     if (strcmp(registro, "CX") == 0) {
 
         char* valor = (char *) malloc (4 + 1);
-        strcpy (valor,"pppp");
+        //strcpy (valor,"pppp");
         memcpy(valor, registroCPU_CX, 4);
 
         return valor;
      }
     if (strcmp(registro, "DX") == 0) {
         char* valor = (char *) malloc (4 + 1);
-        strcpy (valor,"pppp");
+        //strcpy (valor,"pppp");
         memcpy(valor, registroCPU_DX, 4);
 
         return valor;
      }
     if (strcmp(registro, "EAX") == 0) {
         char* valor = (char *) malloc (8 + 1);
-        strcpy (valor,"pppppppp");
+        //strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EAX, 8);
 
         return valor;
      }
     if (strcmp(registro, "EBX") == 0) {
         char* valor = (char *) malloc (8 + 1);
-        strcpy (valor,"pppppppp");
+        //strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EBX, 8);
 
         return valor;
@@ -385,42 +385,42 @@ char* obtener_valor_registroCPU(char* registro) {
 
     if (strcmp(registro, "ECX") == 0) {
         char* valor = (char *) malloc (8 + 1);
-        strcpy (valor,"pppppppp");
+        //strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_ECX, 8);
 
         return valor;
      }
     if (strcmp(registro, "EDX") == 0) {
         char* valor = (char *) malloc (8 + 1);
-        strcpy (valor,"pppppppp");
+        //strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EDX, 8);
 
         return valor;
      }
     if (strcmp(registro, "RAX") == 0) {
         char* valor = (char *) malloc (16 + 1);
-        strcpy (valor,"pppppppppppppppp");
+        //strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RAX, 16);
 
         return valor;
      }
     if (strcmp(registro, "RBX") == 0) {
         char* valor = (char *) malloc (16 + 1);
-        strcpy (valor,"pppppppppppppppp");
+        //strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RBX, 16);
 
         return valor;
      }
     if (strcmp(registro, "RCX") == 0) {
         char* valor = (char *) malloc (16 + 1);
-        strcpy (valor,"pppppppppppppppp");
+        //strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RCX, 16);
 
         return valor;
       }
     if (strcmp(registro, "RDX") == 0) {
         char* valor = (char *) malloc (16 + 1);
-        strcpy (valor,"pppppppppppppppp");
+        //strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RDX, 16);
 
         return valor;
@@ -495,7 +495,17 @@ char*  recibir_valor_de_memoria( int cantidad_bytes){
 
 		switch (cod_op) {
 		case LECTURA_REALIZADA:{
-            valor= recibir_paquete_con_cadena(fd_memoria);
+            t_datos* unosDatos = malloc(sizeof(t_datos));
+            t_list* listaInts = recibirListaIntsYDatos(fd_memoria,unosDatos);
+            uint32_t tamanio = *(uint32_t*)list_get(listaInts,1);
+            valor = malloc(unosDatos->tamanio+1);
+            memcpy(valor,unosDatos->datos,tamanio);
+            valor[tamanio] = '\0';
+            free(unosDatos->datos);
+            free(unosDatos);
+            list_clean_and_destroy_elements(listaInts,free);
+            list_destroy(listaInts);
+            //valor= recibir_paquete_con_cadena(fd_memoria);
             break;
         }
         default:
@@ -514,14 +524,17 @@ char* recibir_paquete_con_cadena(int socket_cliente) {
         memcpy(&tamanio, buffer + desplazamiento, sizeof(uint32_t));
         desplazamiento+=sizeof(uint32_t);
 
-        char* valor = malloc(tamanio+1);
+        char* valor = malloc(tamanio);
 
         if(tamanio == 4)
             strcpy (valor,"0000");
-        if(tamanio == 8)
+        else if(tamanio == 8)
             strcpy (valor,"00000000");
-        if(tamanio == 16)
+        else if(tamanio == 16)
 		    strcpy (valor,"0000000000000000");
+        else{
+            log_error(error_logger,"Recibi un tamanio invalido; %d",tamanio);
+        }
 
 		memcpy(valor, buffer+desplazamiento, tamanio);
 

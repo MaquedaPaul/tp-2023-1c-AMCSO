@@ -60,7 +60,7 @@ void* buscarDatosEnPosicion(uint32_t pid, uint32_t posicion, uint32_t tamanio, b
 
 bool hayDisponibilidadDeEspacio(uint32_t tamanioSegmento){
 
-    return espacioDisponible > tamanioSegmento;
+    return espacioDisponible >= tamanioSegmento;
 }
 bool elEspacioSeEncuentraEnDiferentesHuecos(uint32_t tamanioSegmento){
     //existeAlMenosUnHuecoDeIgualMayorTamanio()
