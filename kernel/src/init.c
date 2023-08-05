@@ -48,6 +48,7 @@ sem_t sem_procesosEnNew;
 sem_t sem_procesosReady;
 sem_t sem_procesosExit;
 sem_t sem_cpuLibre;
+sem_t sem_atenderCompactacion;
 
 
 //HILOS
@@ -162,6 +163,7 @@ void inicializar_kernel(){
     sem_init(&sem_procesosReady,0,0);
     sem_init(&sem_procesosExit,0,0);
     sem_init(&sem_cpuLibre,0,1);
+    sem_init(&sem_atenderCompactacion,0,0);
 
     semaforosCargados = true;
 

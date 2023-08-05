@@ -1,4 +1,5 @@
 #include <planificacion.h>
+bool hayCompactacionPendiente = false;
 
 void planificador_largo_plazo(){
     log_info(info_logger, "Kernel - PLANIFICADOR LARGO PLAZO INICIADO.\n");

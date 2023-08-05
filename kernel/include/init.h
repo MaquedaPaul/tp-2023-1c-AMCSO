@@ -13,6 +13,7 @@ extern bool estadosCargados;
 extern bool semaforosCargados;
 extern bool tablasFsCargadas;
 extern bool semaforoDinamicoCargado;
+extern bool hayCompactacionPendiente;
 
 extern t_log* trace_logger;
 extern t_log* debug_logger;
@@ -57,6 +58,7 @@ extern sem_t sem_procesosEnNew;
 extern sem_t sem_procesosReady;
 extern sem_t sem_procesosExit;
 extern sem_t sem_cpuLibre;
+extern sem_t sem_atenderCompactacion;
 
 //HILOS
 extern pthread_t conexion_con_consola;

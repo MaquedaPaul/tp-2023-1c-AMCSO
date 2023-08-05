@@ -75,9 +75,6 @@ void ejecutar_FOPEN(t_pcb* pcb){
         pthread_mutex_unlock(&mutex_listaPeticionesArchivos);
 
         enviarString(nomArch, fd_filesystem, APERTURA_ARCHIVO, info_logger);
-        pthread_mutex_lock(&mutex_contadorPeticionesFs);
-        contadorPeticionesFs++;
-        pthread_mutex_unlock(&mutex_contadorPeticionesFs);
 
 
     }
@@ -256,6 +253,7 @@ void ejecutar_FTRUNCATE(t_pcb* pcb){
 
     moverProceso_ExecBloq(pcb);
     enviar_archivoTruncacion(archivoParaFs,fd_filesystem,TRUNCACION_ARCHIVO,info_logger);
+    aumentarContadorPeticionesFs();
 
     log_info(info_logger,"PID: <%d> - Archivo: <%s> - Tamaño: <%d>", pcb->id, nombreArchivo, nuevoTamanio);
     free(archivoParaFs->nombreArchivo);
@@ -304,6 +302,7 @@ void ejecutar_FREAD(t_pcb* pcb, uint32_t direccionFisica){
 
     moverProceso_ExecBloq(pcb);
     enviar_archivoRW(archivoParaFs,fd_filesystem,LECTURA_ARCHIVO,info_logger);
+    aumentarContadorPeticionesFs();
 
 
 }
@@ -327,6 +326,7 @@ void ejecutar_FWRITE(t_pcb* pcb, uint32_t direccionFisica){
 
     moverProceso_ExecBloq(pcb);
     enviar_archivoRW(archivoParaFs,fd_filesystem,ESCRITURA_ARCHIVO,info_logger);
+    aumentarContadorPeticionesFs();
 
 }
 
@@ -396,3 +396,16 @@ void aumentarContadorPeticionesFs(){
     contadorPeticionesFs++;
     pthread_mutex_unlock(&mutex_contadorPeticionesFs);
 }
+
+char* reciboYActualizoContadorPeticionesFs(int cliente_socket){
+    uint32_t cantidadPeticiones = 0;
+    char* nombreArchivo = recibirEnteroYString(cliente_socket,&cantidadPeticiones); //TODO modificar este recibir
+    pthread_mutex_lock(&mutex_contadorPeticionesFs);
+    contadorPeticionesFs = cantidadPeticiones;
+    if(contadorPeticionesFs == 0 && hayCompactacionPendiente){
+        sem_post(&sem_atenderCompactacion);
+    }
+    pthread_mutex_unlock(&mutex_contadorPeticionesFs);
+    return nombreArchivo;
+}
+
