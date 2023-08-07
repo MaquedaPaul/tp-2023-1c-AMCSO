@@ -1,5 +1,5 @@
 #include <plan_aux.h>
-
+#include <commons/string.h>
 
 void eliminarElementoLista(t_pcb* pcbBuscado, t_list *listaX){
 
@@ -105,8 +105,8 @@ void ejecutar_FOPEN(t_pcb* pcb){
 
 char* obtenerNombreArchivo(t_pcb* pcb){
     t_instr *instruccion = list_get(pcb->instr, pcb->programCounter - 1);
-    char* nomArch = malloc(strlen(instruccion->param1) + 1);
-    strcpy(nomArch, instruccion->param1);
+    char* nomArch = string_new();
+    string_append(&nomArch,instruccion->param1);
     return nomArch;
 }
 
@@ -366,6 +366,10 @@ void agregarEntrada_TablaGlobalArchivosAbiertos(char* nomArch){
             archivoLocal->archivo = archivoPeticion->archivo;
             archivoLocal->ptro = 0;
             list_add(archivoPeticion->pcb->tablaArchivosAbiertos,archivoLocal);
+            t_instr* unaInstruccion = list_get(archivoPeticion->pcb->instr ,archivoPeticion->pcb->programCounter);
+            //log_debug(debug_logger, "Nombre archivo :%s", unaInstruccion->param1);
+            t_instr* otraInstruccion = list_get(archivoPeticion->pcb->instr ,archivoPeticion->pcb->programCounter-1);
+            //log_debug(debug_logger, "Nombre archivo :%s", otraInstruccion->param1);
             enviar_paquete_pcb(archivoPeticion->pcb, fd_cpu, PCB, info_logger);
             break;
         }
@@ -388,7 +392,7 @@ void desbloquearPcb_porNombreArchivo (char* nombArch) {
     }
     pthread_mutex_unlock(&mutex_TGAA);
     if(desbloqueado == false){
-        log_error(error_logger,"Me enviaron un nombre de archivo que no coincide con ninguno de mis archivos");
+        log_error(error_logger,"Me enviaron un nombre de archivo que no coincide con ninguno de mis archivos: %s", nombArch);
     }
     free(nombArch);
 }

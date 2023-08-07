@@ -13,13 +13,13 @@ void mostrarEstadoColasAux(char* colaMsg, t_list* cola){
         string_append(&idsPcb, ", ");
     }
 
-    log_debug(debug_logger,"%s", colaMsg);
+    //log_debug(debug_logger,"%s", colaMsg);
     string_append(&idsPcb, "[");
     if(!list_is_empty(cola)){
         list_iterate(cola, guardarIds);
     }
     string_append(&idsPcb, "]");
-    log_debug(debug_logger,"%s", idsPcb);
+    //log_debug(debug_logger,"%s", idsPcb);
     free(idsPcb);
 
 }
@@ -30,11 +30,11 @@ void mostrarEstadoColas(){
 
     pthread_mutex_lock(&mutex_debug_logger);
 
-   // log_debug(debug_logger,"COMIENZO A IMPRIMIR");
+   // //log_debug(debug_logger,"COMIENZO A IMPRIMIR");
     //mostrarEstadoColasAux("COLA BLOQ", colaBloq);
     //mostrarEstadoColasAux("COLA EXEC", colaExec);
     mostrarEstadoColasAux("COLA READY", colaReady);
-    //log_debug(debug_logger,"TERMINO DE IMPRIMIR");
+    ////log_debug(debug_logger,"TERMINO DE IMPRIMIR");
     pthread_mutex_unlock(&mutex_debug_logger);
 
 }
@@ -47,13 +47,13 @@ void mostrarEstadoRecursosAux(char* msg, t_list* recursos){
         string_append(&nombresRecursos, ", ");
     }
 
-    log_debug(debug_logger,"%s", msg);
+    //log_debug(debug_logger,"%s", msg);
     string_append(&nombresRecursos, "[");
     if(!list_is_empty(recursos)){
         list_iterate(recursos, guardarNombres);
     }
     string_append(&nombresRecursos, "]");
-    log_debug(debug_logger,"%s", nombresRecursos);
+    //log_debug(debug_logger,"%s", nombresRecursos);
     free(nombresRecursos);
 
 }
@@ -62,12 +62,12 @@ void mostrarEstadoRecursosAux(char* msg, t_list* recursos){
 void mostrarEstadoRecursos(){
 
     void mostrarRecursos(t_recurso* unRecurso){
-        log_debug(debug_logger, "RECURSO: %s", unRecurso->nombreRecurso);
+        //log_debug(debug_logger, "RECURSO: %s", unRecurso->nombreRecurso);
     }
     pthread_mutex_lock(&mutex_debug_logger);
-    log_debug(debug_logger,"COMIENZO A IMPRIMIR");
+    //log_debug(debug_logger,"COMIENZO A IMPRIMIR");
     mostrarEstadoRecursosAux("Estado Block Recursos:", estadoBlockRecursos);
-    log_debug(debug_logger,"TERMINO DE IMPRIMIR");
+    //log_debug(debug_logger,"TERMINO DE IMPRIMIR");
     pthread_mutex_unlock(&mutex_debug_logger);
 }
 

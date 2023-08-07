@@ -7,13 +7,13 @@
 
 
 void mostrarSegmentoLibre(t_segmento* unSegmento){
-    log_debug(debug_logger,"SEG:L, ID:%d, BASE:%d, LIMITE:%d", unSegmento->id,unSegmento->base,unSegmento->limite);
+    //log_debug(debug_logger,"SEG:L, ID:%d, BASE:%d, LIMITE:%d", unSegmento->id,unSegmento->base,unSegmento->limite);
 }
 void mostrarSegmentoUsado(t_segmento* unSegmento){
-    log_debug(debug_logger,"SEG:U, ID:%d, BASE:%d, LIMITE:%d", unSegmento->id,unSegmento->base,unSegmento->limite);
+    //log_debug(debug_logger,"SEG:U, ID:%d, BASE:%d, LIMITE:%d", unSegmento->id,unSegmento->base,unSegmento->limite);
 }
 void mostrarSegmento(t_segmento* unSegmento){
-    log_debug(debug_logger,"SEG, ID:%d, BASE:%d, LIMITE:%d", unSegmento->id,unSegmento->base,unSegmento->limite);
+    //log_debug(debug_logger,"SEG, ID:%d, BASE:%d, LIMITE:%d", unSegmento->id,unSegmento->base,unSegmento->limite);
 }
 char* obtenerStringSegmento(t_segmento* unSegmento){
     char* nuevoString = string_new();
@@ -41,7 +41,7 @@ void mostrarListaSegmentos(t_list* segmentos){
     string_append(&nuevoString,"[");
     list_iterate(segmentos,concatenarStrings);
     string_append(&nuevoString,"]");
-    log_debug(debug_logger,"Lista de Segmentos:\n %s",nuevoString);
+    //log_debug(debug_logger,"Lista de Segmentos:\n %s",nuevoString);
     free(nuevoString);
 }
 
@@ -56,7 +56,7 @@ void imprimir_espacio_contiguo(void* espacio_contiguo, size_t tamanio) {
             while (i + bytes_contiguos < tamanio && datos[i + bytes_contiguos] == 0) {
                 bytes_contiguos++;
             }
-            log_debug(debug_logger, "CB:%zu ", bytes_contiguos);
+            //log_debug(debug_logger, "CB:%zu ", bytes_contiguos);
             i += bytes_contiguos;
         } else {
             char dato_actual[17] = {0}; // Máximo 4 caracteres + terminador nulo
@@ -66,38 +66,38 @@ void imprimir_espacio_contiguo(void* espacio_contiguo, size_t tamanio) {
                 i++;
                 j++;
             }
-            log_debug(debug_logger, "Dato:%s ", dato_actual);
+            //log_debug(debug_logger, "Dato:%s ", dato_actual);
         }
     }
 }
 
 void mostrarMemoria(){
-    log_debug(debug_logger,"Mostrando MEMORIA FISICA");
+    //log_debug(debug_logger,"Mostrando MEMORIA FISICA");
     imprimir_espacio_contiguo(espacio_contiguo, cfg_memory->TAM_MEMORIA);
 
 }
 void mostrarListaLibres(){
-    log_debug(debug_logger,"Mostrando lista de segmentos libres");
+    //log_debug(debug_logger,"Mostrando lista de segmentos libres");
     mostrarListaSegmentos(huecosLibres);
 }
 void mostrarListaUsados(){
-    log_debug(debug_logger,"Mostrando lista de segmentos usados");
+    //log_debug(debug_logger,"Mostrando lista de segmentos usados");
     mostrarListaSegmentos(huecosUsados);
 }
 void mostrarPosicionMemoria(uint32_t posicion, int cantidad){
     char* dato = espacio_contiguo + posicion;
     memcpy(dato, espacio_contiguo+posicion, cantidad);
-    log_debug(debug_logger, "Dato concreto: %s",dato);
+    //log_debug(debug_logger, "Dato concreto: %s",dato);
 
 }
 
 void mostrarTablaSegmentos(t_tablaSegmentos* tablaSegmentos){
-    log_debug(debug_logger, "Mostrando tabla de segmentos con PID: %d",tablaSegmentos->pid );
+    //log_debug(debug_logger, "Mostrando tabla de segmentos con PID: %d",tablaSegmentos->pid );
     mostrarListaSegmentos(tablaSegmentos->segmentos);
 }
 
 void mostrarTablasDeSegmentos(){
-    log_debug(debug_logger, "Mostrando tablas de segmentos");
+    //log_debug(debug_logger, "Mostrando tablas de segmentos");
     list_iterate(tablasSegmentos, mostrarTablaSegmentos);
 }
 

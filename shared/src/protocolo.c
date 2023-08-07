@@ -685,11 +685,11 @@ t_list* recibirTablasSegmentosInstrucciones(int socket_cliente){
 
 }
 
-bool enviarEnteroYString(uint32_t entero,char* string, uint32_t tamanioString, int socket_cliente, t_log* logger, op_code codigo)
+bool enviarEnteroYString(uint32_t entero,char* string, int socket_cliente, t_log* logger, op_code codigo)
 
 {
     t_paquete* paquete = crear_paquete(codigo, logger);
-    if(!agregarEnteroYStringAPaquete(entero,string, tamanioString, paquete)){
+    if(!agregarEnteroYStringAPaquete(entero,string, paquete)){
         log_error(logger, "Hubo un error cuando se intento agregar las instrucciones al paquete");
         return false;
     }
@@ -699,10 +699,11 @@ bool enviarEnteroYString(uint32_t entero,char* string, uint32_t tamanioString, i
     return true;
 }
 
-bool agregarEnteroYStringAPaquete(uint32_t entero, char* string, uint32_t tamanioString, t_paquete* paquete)
+bool agregarEnteroYStringAPaquete(uint32_t entero, char* string, t_paquete* paquete)
 {
 
     paquete->buffer->size+= sizeof(uint32_t);
+    uint32_t tamanioString = strlen(string) +1;
     paquete->buffer->size+= tamanioString + sizeof(uint32_t);
 
 
@@ -1644,7 +1645,7 @@ t_archivoTruncate* recibir_archivoTruncacion(int conexion){
     memcpy(&(archivoTruncacion->nombreArchivoLength), buffer + desplazamiento, sizeof (uint32_t));
     desplazamiento += sizeof(uint32_t);
 
-    archivoTruncacion->nombreArchivo = malloc(archivoTruncacion->nombreArchivoLength + 1);
+    archivoTruncacion->nombreArchivo = malloc(archivoTruncacion->nombreArchivoLength);
     memcpy(archivoTruncacion->nombreArchivo, buffer + desplazamiento, archivoTruncacion->nombreArchivoLength);
     desplazamiento += archivoTruncacion->nombreArchivoLength;
 

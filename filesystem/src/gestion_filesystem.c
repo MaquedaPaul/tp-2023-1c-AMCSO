@@ -355,7 +355,7 @@ void ampliar_o_reducir_tamanio(t_config_fcb *aux_FCB, uint32_t nuevo_tamanio, ui
                     offset += sizeof(uint32_t);
                     accesoABitmap(bloque_ocupado, bitarray_test_bit(bitmap, bloque_ocupado));
                     bitarray_clean_bit(bitmap,bloque_ocupado);
-                    log_debug(debug_logger, "posicion del bloque ocupado que se va a borrar del bitmap: %d", bloque_ocupado);
+                    //log_debug(debug_logger, "posicion del bloque ocupado que se va a borrar del bitmap: %d", bloque_ocupado);
                     accesoABitmap(bloque_ocupado, bitarray_test_bit(bitmap, bloque_ocupado));
                     accesoABloqueArchivo(aux_FCB->NOMBRE_ARCHIVO, i+1, bloque_ocupado);
                 }
@@ -582,7 +582,7 @@ void realizarEscrituraArchivo(char* nombreArchivo, uint32_t punteroArchivo, void
     uint32_t numeroBloque = numeroDeBloque(punteroArchivo);
     uint32_t posicionBloque = buscarPosicionDentroDelBloque(punteroArchivo, numeroBloque);
 
-    //log_debug(debug_logger,"tamanio archivo: %d", fcb->TAMANIO_ARCHIVO);
+    ////log_debug(debug_logger,"tamanio archivo: %d", fcb->TAMANIO_ARCHIVO);
     escribirBloque(numeroBloque, posicionBloque, punteroArchivo, datos,tamanioDatos, fcb);
 }
 
@@ -597,23 +597,23 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
 
     uint32_t bytesYaEscritos = 0;
 
-    //log_debug(debug_logger,"bytesQueSePuedenEscrbirEnUnBloque: %d", bytesQueSePuedenEscrbirEnUnBloque);
+    ////log_debug(debug_logger,"bytesQueSePuedenEscrbirEnUnBloque: %d", bytesQueSePuedenEscrbirEnUnBloque);
 
     //char* datoLeidoDeMemoria = malloc(tamanioAEscrbir +1);
     //memcpy(datoLeidoDeMemoria, datos, tamanioAEscrbir);
-    //log_debug(debug_logger,"dato a escrbir en el archivo: %s", datoLeidoDeMemoria);
+    ////log_debug(debug_logger,"dato a escrbir en el archivo: %s", datoLeidoDeMemoria);
     //free(datoLeidoDeMemoria);
     if (bytesQueSePuedenEscrbirEnUnBloque >= tamanioAEscrbir) {
-        log_debug(debug_logger,"SE ESCRIBE EN UN BLOQUE NADA MAS");
+        //log_debug(debug_logger,"SE ESCRIBE EN UN BLOQUE NADA MAS");
         //char* unDatoLeidoDeMemoria = malloc(tamanioAEscrbir +1);
         //memcpy(unDatoLeidoDeMemoria, datos, tamanioAEscrbir +1);
-        //log_debug(debug_logger,"dato a escrbir en el archivo: %s", unDatoLeidoDeMemoria);
+        ////log_debug(debug_logger,"dato a escrbir en el archivo: %s", unDatoLeidoDeMemoria);
         memcpy(archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque, datos, tamanioAEscrbir);
         //free(unDatoLeidoDeMemoria);
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
     }else{
-        log_debug(debug_logger,"SE VA A ESCRIBIR EN MAS DE UN BLOQUE");
+        //log_debug(debug_logger,"SE VA A ESCRIBIR EN MAS DE UN BLOQUE");
         memcpy(archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque, datos, bytesQueSePuedenEscrbirEnUnBloque);
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
@@ -621,7 +621,7 @@ void escribirBloque(int numeroBloque, uint32_t posicionBloque, uint32_t punteroA
         cantidadBytesNoEscrita = tamanioAEscrbir - bytesQueSePuedenEscrbirEnUnBloque;
 
         while(bytesEscritos != tamanioAEscrbir) {
-            log_debug(debug_logger,"SE ESCRIBE EN EL SIGUIENTE BLOQUE");
+            //log_debug(debug_logger,"SE ESCRIBE EN EL SIGUIENTE BLOQUE");
 
             uint32_t cantidadBytesQueFaltanEscrbir = cantidadBytesQueNoSePuedeLeerEnUnBloque(cantidadBytesNoEscrita);
             uint32_t nuevoTamanio = cantidadBytesNoEscrita - cantidadBytesQueFaltanEscrbir;
@@ -669,14 +669,14 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
 
 
     if (loQueSePuedeLeerEnUnBloque >= tamanioALeer) {
-        log_debug(debug_logger, "SE VA A LEER EN UN BLOQUE");
+        //log_debug(debug_logger, "SE VA A LEER EN UN BLOQUE");
         datoLeido = malloc(tamanioALeer);
         memcpy(datoLeido, archivoBloques->archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  tamanioALeer);
 
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
 
     }else{
-        log_debug(debug_logger, "SE VA A LEER EN MAS DE UN BLOQUE");
+        //log_debug(debug_logger, "SE VA A LEER EN MAS DE UN BLOQUE");
         datoLeido = malloc(loQueSePuedeLeerEnUnBloque);
         memcpy(datoLeido, archivoBloques-> archivo + (numeroBloqueDelFS * cfg_superbloque->BLOCK_SIZE) + posicionBloque,  loQueSePuedeLeerEnUnBloque);
         accesoABloqueArchivo(fcb->NOMBRE_ARCHIVO, numeroBloque, numeroBloqueDelFS);
@@ -684,15 +684,15 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
         cantidadBytesNoLeida = tamanioALeer - loQueSePuedeLeerEnUnBloque;
         bytesLeidos = loQueSePuedeLeerEnUnBloque;
 
-        log_debug(debug_logger, "Primera lectur, bytes leidos: %d", bytesLeidos);
+        //log_debug(debug_logger, "Primera lectur, bytes leidos: %d", bytesLeidos);
 
         while(bytesLeidos != tamanioALeer) {
-            log_debug(debug_logger, "SE LEE EN EL SIGUIENTE BLOQUE");
+            //log_debug(debug_logger, "SE LEE EN EL SIGUIENTE BLOQUE");
 
             uint32_t cantidadBytesQueFaltanLeer = cantidadBytesQueNoSePuedeLeerEnUnBloque(cantidadBytesNoLeida);
-            log_debug(debug_logger, "Cantidad de bytes que no se van a leer en este ciclo: %d", cantidadBytesQueFaltanLeer);
+            //log_debug(debug_logger, "Cantidad de bytes que no se van a leer en este ciclo: %d", cantidadBytesQueFaltanLeer);
             uint32_t nuevoTamanioALeer = cantidadBytesNoLeida - cantidadBytesQueFaltanLeer;
-            log_debug(debug_logger, "tamanio nuevo a leer: %d", nuevoTamanioALeer);
+            //log_debug(debug_logger, "tamanio nuevo a leer: %d", nuevoTamanioALeer);
             numeroBloque += 1;
             numeroBloqueDelFS = buscarNumeroDeBloqueDelArchivoDeBloque(numeroBloque, fcb);
 
@@ -717,14 +717,14 @@ void* leer_archivo(int numeroBloque, uint32_t posicionBloque, uint32_t punteroAr
 
     char* datoLeidoDeMemoria = malloc(tamanioALeer);
     memcpy(datoLeidoDeMemoria,datoLeido, tamanioALeer);
-    log_debug(debug_logger,"dato leido del archivo: %s", datoLeidoDeMemoria);
+    //log_debug(debug_logger,"dato leido del archivo: %s", datoLeidoDeMemoria);
     free(datoLeidoDeMemoria);
     return datoLeido;
 }
 
 int numeroDeBloque(uint32_t punteroArchivo) {
     uint32_t numero = (punteroArchivo/cfg_superbloque->BLOCK_SIZE) + 1;
-    //log_debug(debug_logger,"numero bloques del archivo: %d", numero);
+    ////log_debug(debug_logger,"numero bloques del archivo: %d", numero);
     return numero;
 }
 
@@ -732,7 +732,7 @@ int buscarPosicionDentroDelBloque(uint32_t punteroArchivo, uint32_t numeroBloque
 
     uint32_t offset = punteroArchivo % cfg_superbloque->BLOCK_SIZE; //me devuelve un puntero desde donde hay que escrbir o leer dentro del bloque
 
-    //log_debug(debug_logger,"posicion dentro del bloque: %d ",  offset);
+    ////log_debug(debug_logger,"posicion dentro del bloque: %d ",  offset);
     return offset;
 }
 
@@ -740,21 +740,21 @@ uint32_t buscarNumeroDeBloqueDelArchivoDeBloque(int numero_bloque, t_config_fcb*
 
     uint32_t offset = sizeof(uint32_t) * (numero_bloque- 2);
     if (numero_bloque == 1) {
-        //log_debug(debug_logger,"puntero directo: %d ",  fcb->PUNTERO_DIRECTO);
+        ////log_debug(debug_logger,"puntero directo: %d ",  fcb->PUNTERO_DIRECTO);
         return fcb->PUNTERO_DIRECTO;
 
     }else {
 
         uint32_t offset = sizeof(uint32_t) * (numero_bloque - 2);
-        log_debug(debug_logger, "offset para el bloque de punteros: %d", offset);
+        //log_debug(debug_logger, "offset para el bloque de punteros: %d", offset);
         uint32_t numeroBloqueDelPunteroDeBloques;
 
         memcpy(&numeroBloqueDelPunteroDeBloques,
                archivoBloques->archivo + (fcb->PUNTERO_INDIRECTO * cfg_superbloque->BLOCK_SIZE) + offset,
                sizeof(uint32_t));
 
-     //   log_debug(debug_logger, "puntero indirecto: %d ", fcb->PUNTERO_INDIRECTO);
-      //  log_debug(debug_logger, "puntero apuntado por el indirecto: %d ", numeroBloqueDelPunteroDeBloques);
+     //   //log_debug(debug_logger, "puntero indirecto: %d ", fcb->PUNTERO_INDIRECTO);
+      //  //log_debug(debug_logger, "puntero apuntado por el indirecto: %d ", numeroBloqueDelPunteroDeBloques);
         return numeroBloqueDelPunteroDeBloques;
     }
 }
@@ -763,7 +763,7 @@ uint32_t cantidadBytesQueNoSePuedeLeerEnUnBloque(uint32_t nuevoTamanioALeer){
 
     if (nuevoTamanioALeer > cfg_superbloque->BLOCK_SIZE){
         uint32_t cant = nuevoTamanioALeer - cfg_superbloque->BLOCK_SIZE;
-        //log_debug(debug_logger, "bytes que faltan leer: %d", cant);
+        ////log_debug(debug_logger, "bytes que faltan leer: %d", cant);
         return cant;
     }else{
         return 0; //lo q hay q leer alcanza en un bloque
@@ -772,7 +772,7 @@ uint32_t cantidadBytesQueNoSePuedeLeerEnUnBloque(uint32_t nuevoTamanioALeer){
 
 uint32_t cantidadDisponibleDelBloque(uint32_t puntero){
     uint32_t cantidadDisponible = cfg_superbloque->BLOCK_SIZE - puntero;
-   // log_debug(debug_logger,"bytes para escrbir/leer en el bloque: %d", cantidadDisponible);
+   // //log_debug(debug_logger,"bytes para escrbir/leer en el bloque: %d", cantidadDisponible);
     return cantidadDisponible;
 }
 

@@ -54,7 +54,7 @@ void closure_instrucciones(char *line) {
     t_instr *single_inst = malloc(sizeof(t_instr));     //reservo memoria para estructura instr_t
     single_inst->idLength= strlen(inst_and_param[0]);
     single_inst->id= malloc(single_inst->idLength + 1);
-    memcpy(single_inst->id,inst_and_param[0],single_inst->idLength +1);        //copio el id de la instruccion  //TODO Es raro que se use el &
+    memcpy(single_inst->id,inst_and_param[0],single_inst->idLength +1);        //copio el id de la instruccion  //Es raro que se use el & -> ya no se usa
 
 
     if(esInstruccionSinParametros(single_inst)){

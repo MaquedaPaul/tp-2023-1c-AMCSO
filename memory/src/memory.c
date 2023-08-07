@@ -93,7 +93,7 @@ void realizarPedidoLectura(int cliente_socket){
 
 
 void realizarPedidoEscritura(int cliente_socket){
-    log_debug(debug_logger,"ANTES DE ESCRIBIR");
+    //log_debug(debug_logger,"ANTES DE ESCRIBIR");
     t_datos* unosDatos = malloc(sizeof(t_datos));
     t_list* listaInts = recibirListaIntsYDatos(cliente_socket, unosDatos);
     uint32_t* posicion = list_get(listaInts,0);
@@ -109,7 +109,7 @@ void realizarPedidoEscritura(int cliente_socket){
     list_clean_and_destroy_elements(listaInts, free);
     list_destroy(listaInts);
     pthread_mutex_unlock(&mutex_espacioContiguo);
-    log_debug(debug_logger,"DESPUES DE ESCRIBIR");
+    //log_debug(debug_logger,"DESPUES DE ESCRIBIR");
     enviarOrden(ESCRITURA_REALIZADA, cliente_socket, info_logger);
 }
 

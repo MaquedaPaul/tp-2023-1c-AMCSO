@@ -400,7 +400,7 @@ bool intercambiarDatosSegmentosEnMp(t_segmento* unSegmento, t_segmento* otroSegm
     memcpy(datosSegundo, espacio_contiguo+otroSegmento->base, otroSegmento->limite);
     memcpy(espacio_contiguo + unSegmento->base,datosSegundo,otroSegmento->limite);
     memcpy(espacio_contiguo + unSegmento->base + otroSegmento->limite,datosPrimer,unSegmento->limite);
-    log_debug(debug_logger, "Se esta liberando datos de memcpy en aproximado linea 364");
+    //log_debug(debug_logger, "Se esta liberando datos de memcpy en aproximado linea 364");
     free(datosPrimer);
     free(datosSegundo);
      */
@@ -514,11 +514,11 @@ uint32_t realizarCompactacion(){
     while(list_size(huecosLibres) >= 2 || hayHuecosIntercalados()){
         compactarSegmentos();
     }
-    log_debug(debug_logger,"Muestro usados");
+    //log_debug(debug_logger,"Muestro usados");
     mostrarListaUsados();
-    log_debug(debug_logger,"Muestro libres");
+    //log_debug(debug_logger,"Muestro libres");
     mostrarListaLibres();
-    log_debug(debug_logger,"Muestro tablas de segmentos");
+    //log_debug(debug_logger,"Muestro tablas de segmentos");
     mostrarTablasDeSegmentos();
 
     void detallarTablas(t_tablaSegmentos* unaTabla){

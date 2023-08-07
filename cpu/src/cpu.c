@@ -56,7 +56,7 @@ void execute() {
 
         log_info(info_logger, "PID: <%d> - Ejecutando: <SET> - <%s> - <%s>", pcb_actual->id, registro, valor);
 
-        log_debug(debug_logger,"tamanio del nombre del registro: %ld", strlen(registro));
+        ////log_debug(debug_logger,"tamanio del nombre del registro: %ld", strlen(registro));
 
         ejecutar_SET(registro, valor);
 
@@ -75,7 +75,7 @@ void execute() {
         int direccion_logica = atoi(instruccion->param1);
         char* registro = instruccion->param2;
 
-        log_debug(debug_logger,"tam registro: %ld", strlen(registro));
+        ////log_debug(debug_logger,"tam registro: %ld", strlen(registro));
 
         log_info(info_logger, "PID: <%d> - Ejecutando: <MOV_OUT> - <%d> - <%s>", pcb_actual->id, direccion_logica, registro);
 

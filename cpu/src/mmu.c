@@ -25,23 +25,23 @@ char registroCPU_RCX[16];
 char registroCPU_RDX[16];
 
 int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
-    log_debug(debug_logger,"valor de dir logica : %d", direccion_logica);
-    log_debug(debug_logger,"tamaniomaxseg: %d", cfg_cpu->TAM_MAX_SEGMENTO);
+    ////log_debug(debug_logger,"valor de dir logica : %d", direccion_logica);
+    ////log_debug(debug_logger,"tamaniomaxseg: %d", cfg_cpu->TAM_MAX_SEGMENTO);
 
     num_segmento = direccion_logica / cfg_cpu->TAM_MAX_SEGMENTO;
 
-    log_debug(debug_logger,"numero de segmento: %d", num_segmento);
+    ////log_debug(debug_logger,"numero de segmento: %d", num_segmento);
 
     int desplazamiento_segmento = direccion_logica % cfg_cpu->TAM_MAX_SEGMENTO;
 
-    log_debug(debug_logger,"desplazamiento: %d", desplazamiento_segmento);
+    ////log_debug(debug_logger,"desplazamiento: %d", desplazamiento_segmento);
 
     bool esMismoId(t_segmento* segmento){
         return segmento->id == num_segmento;
     }
 
     segmento = list_find(pcb_actual->tablaSegmentos->segmentos,esMismoId);
-    log_debug(debug_logger,"segemento base: %d ", segmento->base);
+    ////log_debug(debug_logger,"segemento base: %d ", segmento->base);
 
     if (error_segmentationFault(desplazamiento_segmento, cantidad_de_bytes, segmento)) {
 
@@ -62,7 +62,7 @@ int traducir_direccion_logica(int direccion_logica, int cantidad_de_bytes ) {
 
 
 bool error_segmentationFault(int desplazamiento_segmento, int cantidad_bytes, t_segmento * segmento) {
-    log_debug(debug_logger, "limite segmento (base + tamanio seg): %d",  segmento->limite +segmento->base);
+    ////log_debug(debug_logger, "limite segmento (base + tamanio seg): %d",  segmento->limite +segmento->base);
     return ((desplazamiento_segmento + cantidad_bytes) > (segmento->limite +segmento->base));
 }
 

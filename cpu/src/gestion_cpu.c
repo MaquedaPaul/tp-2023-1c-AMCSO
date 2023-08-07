@@ -1,4 +1,5 @@
 #include <gestion_cpu.h>
+#include <commons/string.h>
 bool cicloInstruccionesDebeEjecutarse = true;
 
 void ejecutar_SET(char* registro, char* valor){
@@ -290,7 +291,7 @@ void escribir_valor_en_memoria(int direccion_fisica, int cantidad_bytes, char* v
 
     char* valor2 = recibir_confirmacion_de_escritura() ;
     if (strcmp(valor2, "OK") == 0) {
-    log_info(info_logger, "PID: <%d> - Acción: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
+    log_info(info_logger, "PID: <%d> - Accion: <ESCRIBIR> - Segmento:< %d > - Dirección Fisica: <%d> - Valor: <%s>", pcb_actual->id, num_segmento, direccion_fisica, valor);
     }
     free(unosDatos);
 
@@ -340,7 +341,7 @@ char* obtener_valor_registroCPU(char* registro) {
     if (strcmp(registro, "AX") == 0){
 
          char* valor = (char *) malloc (4 + 1);
-         //strcpy (valor,"pppp");
+         strcpy (valor,"pppp");
          memcpy(valor,registroCPU_AX,4);
 
         return valor;
@@ -348,7 +349,7 @@ char* obtener_valor_registroCPU(char* registro) {
     if (strcmp(registro, "BX") == 0) {
 
          char* valor = (char *) malloc (4 + 1);
-         //strcpy (valor,"pppp");
+         strcpy (valor,"pppp");
         memcpy(valor,registroCPU_BX, 4);
 
         return valor;
@@ -356,28 +357,28 @@ char* obtener_valor_registroCPU(char* registro) {
     if (strcmp(registro, "CX") == 0) {
 
         char* valor = (char *) malloc (4 + 1);
-        //strcpy (valor,"pppp");
+        strcpy (valor,"pppp");
         memcpy(valor, registroCPU_CX, 4);
 
         return valor;
      }
     if (strcmp(registro, "DX") == 0) {
         char* valor = (char *) malloc (4 + 1);
-        //strcpy (valor,"pppp");
+        strcpy (valor,"pppp");
         memcpy(valor, registroCPU_DX, 4);
 
         return valor;
      }
     if (strcmp(registro, "EAX") == 0) {
         char* valor = (char *) malloc (8 + 1);
-        //strcpy (valor,"pppppppp");
+        strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EAX, 8);
 
         return valor;
      }
     if (strcmp(registro, "EBX") == 0) {
         char* valor = (char *) malloc (8 + 1);
-        //strcpy (valor,"pppppppp");
+        strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EBX, 8);
 
         return valor;
@@ -385,42 +386,42 @@ char* obtener_valor_registroCPU(char* registro) {
 
     if (strcmp(registro, "ECX") == 0) {
         char* valor = (char *) malloc (8 + 1);
-        //strcpy (valor,"pppppppp");
+        strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_ECX, 8);
 
         return valor;
      }
     if (strcmp(registro, "EDX") == 0) {
         char* valor = (char *) malloc (8 + 1);
-        //strcpy (valor,"pppppppp");
+        strcpy (valor,"pppppppp");
         memcpy(valor, registroCPU_EDX, 8);
 
         return valor;
      }
     if (strcmp(registro, "RAX") == 0) {
         char* valor = (char *) malloc (16 + 1);
-        //strcpy (valor,"pppppppppppppppp");
+        strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RAX, 16);
 
         return valor;
      }
     if (strcmp(registro, "RBX") == 0) {
         char* valor = (char *) malloc (16 + 1);
-        //strcpy (valor,"pppppppppppppppp");
+        strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RBX, 16);
 
         return valor;
      }
     if (strcmp(registro, "RCX") == 0) {
         char* valor = (char *) malloc (16 + 1);
-        //strcpy (valor,"pppppppppppppppp");
+        strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RCX, 16);
 
         return valor;
       }
     if (strcmp(registro, "RDX") == 0) {
         char* valor = (char *) malloc (16 + 1);
-        //strcpy (valor,"pppppppppppppppp");
+        strcpy (valor,"pppppppppppppppp");
         memcpy(valor, registroCPU_RDX, 16);
 
         return valor;
@@ -435,7 +436,7 @@ char*  recibir_confirmacion_de_escritura()  {
 		switch (cod_op) {
 		case ESCRITURA_REALIZADA:
              recibirOrden(fd_memoria);
-             log_debug(debug_logger,"RECIBI EL OK ESCRITURA");
+             ////log_debug(debug_logger,"RECIBI EL OK ESCRITURA");
              valor= "OK";
 			 break;
         }

@@ -133,8 +133,8 @@ void* recibirDatos(int socket_cliente, uint32_t tamanioDatos);
 
 
 
-bool enviarEnteroYString(uint32_t entero,char* string, uint32_t tamanioString, int socket_cliente, t_log* logger, op_code codigo);
-bool agregarEnteroYStringAPaquete(uint32_t entero, char* string, uint32_t tamanioString, t_paquete* paquete);
+bool enviarEnteroYString(uint32_t entero,char* string, int socket_cliente, t_log* logger, op_code codigo);
+bool agregarEnteroYStringAPaquete(uint32_t entero, char* string, t_paquete* paquete);
 char* recibirEnteroYString(int socket_cliente,uint32_t* entero);
 
 bool enviarString(char* string, int socket_cliente, op_code codigoOperacion, t_log* logger);

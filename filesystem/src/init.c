@@ -57,7 +57,7 @@ bool comprobarSimbolo(char** path){
 
         *path = malloc(sizeof(char) * (strlen(expandedPath) + 1));  // Asignar nueva memoria según el tamaño de expandedPath
         strcpy(*path, expandedPath);
-        log_debug(debug_logger,"Fue necesario cambiar el path: %s",*path);
+        //log_debug(debug_logger,"Fue necesario cambiar el path: %s",*path);
         return true;
     }
     return false;
@@ -170,10 +170,10 @@ void crear_fcbs_del_directorio() {
 
                 t_config* aux_config = config_create(path_fcb_config);
 
-                int tamanio_nombre_archivo = strlen( config_get_string_value(aux_config, "NOMBRE_ARCHIVO") );
+                //int tamanio_nombre_archivo = strlen( config_get_string_value(aux_config, "NOMBRE_ARCHIVO") );
 
-                aux_FCB->NOMBRE_ARCHIVO = malloc( tamanio_nombre_archivo + 1  );
-                strcpy( aux_FCB->NOMBRE_ARCHIVO, config_get_string_value(aux_config, "NOMBRE_ARCHIVO") );
+                aux_FCB->NOMBRE_ARCHIVO = string_new();
+                string_append(&aux_FCB->NOMBRE_ARCHIVO, config_get_string_value(aux_config, "NOMBRE_ARCHIVO"));
 
                 aux_FCB->TAMANIO_ARCHIVO = config_get_int_value(aux_config, "TAMANIO_ARCHIVO");
                 aux_FCB->PUNTERO_DIRECTO = config_get_int_value(aux_config, "PUNTERO_DIRECTO");
@@ -214,7 +214,7 @@ bool crear_bitmap_de_bloques(){
         log_error(error_logger,"Error al abrir/crear el archivo bitmap de bloques");
         return false;
 	}else{
-        log_debug(debug_logger,"Se creo el archivo bitmap de bloques");
+        //log_debug(debug_logger,"Se creo el archivo bitmap de bloques");
     }
 
 	ftruncate( fd, tamanio_bitmap);
@@ -249,7 +249,7 @@ bool crear_archivo_de_bloques(){
         log_error(error_logger,"Error al abrir/crear el archivo de bloques");
         return false;
 	}else{
-        log_debug(debug_logger,"Se creo el archivo de bloques");
+        //log_debug(debug_logger,"Se creo el archivo de bloques");
     }
 
 	ftruncate(archivoBloques->fd, archivoBloques->tamanio);
@@ -283,8 +283,8 @@ bool levantarSuperbloque(){
 
     t_config *superBloqueConfig = config_create(cfg_filesystem->PATH_SUPERBLOQUE);
     if(superBloqueConfig == NULL){
-        log_debug(debug_logger,"No se pudo crear la config para el superbloque, se usara el default");
-        log_debug(debug_logger,"BLOCK_SIZE=64; BLOCK_COUNT=65536");
+        //log_debug(debug_logger,"No se pudo crear la config para el superbloque, se usara el default");
+        //log_debug(debug_logger,"BLOCK_SIZE=64; BLOCK_COUNT=65536");
         cfg_superbloque = malloc(sizeof(t_config_superbloque));
         cfg_superbloque->BLOCK_COUNT=65536;
         cfg_superbloque->BLOCK_SIZE= 64; //lo cambio para testear
@@ -316,7 +316,7 @@ bool levantarArchivoBloques(){
         return false;
     }
     archivoBloques->tamanio = tamanio;
-    log_debug(debug_logger,"Se levanto el archivo de bloques");
+    //log_debug(debug_logger,"Se levanto el archivo de bloques");
     return true;
 }
 
@@ -333,7 +333,7 @@ bool levantarBitmapBloques(){
             return false;
     }
 
-    log_debug(debug_logger,"Se levanto el archivo bitmap de bloques");
+    //log_debug(debug_logger,"Se levanto el archivo bitmap de bloques");
     return true;
 }
 

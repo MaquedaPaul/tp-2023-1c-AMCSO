@@ -72,7 +72,7 @@ void procesar_conexion(void *void_args) {
                 t_pcb* pcbRecibida = recibir_pcb(cliente_socket);
                 actualizarPcbExec(pcbRecibida);
                 t_pcb* pcbActualizada = obtenerPcbExec();
-                log_debug(debug_logger,"Luego de obternerPcbExec, estimacion{%d}", pcbActualizada->estimacionRafaga);
+                ////log_debug(debug_logger,"Luego de obternerPcbExec, estimacion{%d}", pcbActualizada->estimacionRafaga);
                 moverProceso_ExecReady(pcbActualizada);
                 break;
             }
@@ -179,6 +179,7 @@ void procesar_conexion(void *void_args) {
 
             case APERTURA_ARCHIVO_EXITOSA: {
                 char* nombreArchivo = recibirString(cliente_socket);
+                //log_debug(debug_logger,"Me llego este nombre de archivo: %s", nombreArchivo);
                 agregarEntrada_TablaGlobalArchivosAbiertos(nombreArchivo);
                 break;
             }
@@ -542,8 +543,8 @@ void creacionSegmentoExitoso(uint32_t baseSegmento){
     segmento->limite = tamSegmento;
 
     list_add(pcbExec->tablaSegmentos->segmentos,segmento);
-    log_debug(debug_logger,"base del segmento: %d", segmento->base);
-    log_debug(debug_logger,"limite del segmento: %d", segmento->limite);
+    //log_debug(debug_logger,"base del segmento: %d", segmento->base);
+    //log_debug(debug_logger,"limite del segmento: %d", segmento->limite);
     enviar_paquete_pcb(pcbExec,fd_cpu,PCB,info_logger);
 }
 

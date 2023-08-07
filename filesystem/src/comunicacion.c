@@ -309,7 +309,7 @@ void* abrirArchivo(void* cliente_socket){
 
     int conexion = *((int*) cliente_socket);
     char* nombreArchivo = recibirString(conexion);
-
+    //log_debug(debug_logger, "Me llego este String: %s",nombreArchivo);
     if(kernelInicializado == false){
         fd_kernel= conexion;
         kernelInicializado = true;
@@ -324,7 +324,7 @@ void* crearArchivo(void* cliente_socket){
     int conexion = *((int*) cliente_socket);
 
     char* nombreArchivo = recibirString(conexion);
-    log_debug(debug_logger,"nombre archivo: %s", nombreArchivo);
+    //log_debug(debug_logger,"nombre archivo: %s", nombreArchivo);
 
     t_peticion* peticion_open = crear_peticion(EJECUTAR_CREACION,nombreArchivo, 0, 0, 0, 0, NULL);
     agregarPeticionAPendientes(peticion_open);
@@ -431,10 +431,10 @@ void atender_peticiones(){
 
 t_peticion* crear_peticion(t_operacion_fs operacion, char* nombre, uint32_t tamanio, uint32_t dir_fisica, uint32_t puntero, uint32_t pid, void* datos){
     t_peticion* peticion = malloc(sizeof(t_peticion));
-    peticion->nombre = malloc(strlen(nombre) + 1);
-
+    peticion->nombre = string_new();
+    string_append(&peticion->nombre, nombre);
     peticion->operacion = operacion;
-    strcpy(peticion->nombre, nombre);
+    //strcpy(peticion->nombre, nombre);
     peticion->tamanio = tamanio;
     peticion->direccionFisica = dir_fisica;
     peticion->puntero = puntero;
