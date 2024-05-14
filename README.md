@@ -83,7 +83,7 @@ La evaluación consta de dos etapas:
 
 ## Guía para Deployment
 
-La guía definitiva se encuentra en [La Guia definitiva .txt](La guía definitiva SO.txt).
+La guíase encuentra en el archivo [La Guia definitiva .txt].
 
 ## Puesta en Marcha del Trabajo Práctico
 
