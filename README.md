@@ -1,6 +1,7 @@
 # T.U.K.I - The Ultimate Kernel Implementation
 
 El enunciado del proyecto se encuentra [aquí](https://docs.google.com/document/d/1orfThJsPmMx5uPzbY3wClGhqX8jASMOCUMlWnYAr7cA/edit).
+El blog de marco teorico se encuentra [aquí](https://docs.utnso.com.ar/)
 
 ## Descripción del Proyecto
 
